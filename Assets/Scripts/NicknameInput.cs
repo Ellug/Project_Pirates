@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -38,13 +39,25 @@ public class NicknameInput : MonoBehaviour
             return;
         }
 
+        if(value.Contains(" "))
+        {
+            ShowError("Nickname cannot contain spaces");
+            return;
+        }
+
+        if(!Regex.IsMatch(value, "^[a-zA-Z0-9∞°-∆R]+$"))
+        {
+            ShowError("Nickname can only contain letters and numbers.");
+            return;
+        }
+
         if(value.Length < minLength)
         {
             ShowError($"Nickname must be at least {minLength} characters");
             return;
         }
 
-        if(value.Length > maxLength)
+        if(value.Length > maxLength) // Startø°º≠ ¿ÃπÃ ¡¶«—µ«∞Ì ¿÷¡ˆ∏∏, æ»¿¸¿ª ¿ß«ÿ √÷¡æ ∞À¡ı
         {
             ShowError($"Nickname must be {maxLength} characters or less.");
             return;
