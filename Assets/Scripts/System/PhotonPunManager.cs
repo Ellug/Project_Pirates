@@ -28,7 +28,7 @@ public class PhotonPunManager : Singleton<PhotonPunManager>, IConnectionCallback
         PhotonNetwork.AddCallbackTarget(this);
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (Instance == this)
             PhotonNetwork.RemoveCallbackTarget(this);
