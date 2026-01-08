@@ -1,4 +1,4 @@
-using Photon.Pun;
+﻿using Photon.Pun;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -21,12 +21,6 @@ public class TitleManager : MonoBehaviourPunCallbacks
     public override void OnConnectedToMaster()
     {
         Debug.Log("CB : Complete Connect to Master");
-        PhotonNetwork.JoinLobby();
-    }
-
-    public override void OnJoinedLobby()
-    {
-        Debug.Log("CB : On Joined Lobby -> Go to Lobby");
         SceneManager.LoadScene("Lobby");
     }
 }

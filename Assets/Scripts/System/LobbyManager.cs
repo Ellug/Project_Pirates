@@ -1,7 +1,6 @@
-using UnityEngine;
-using UnityEngine.InputSystem;
-using Photon.Pun;
+﻿using Photon.Pun;
 using Photon.Realtime;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LobbyManager : MonoBehaviourPunCallbacks
@@ -9,38 +8,24 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     void Start()
     {
         GameManager.Instance.SetSceneState(SceneState.Lobby);
+        PhotonNetwork.JoinLobby();
     }
 
-    // 임시 인풋
+    public override void OnEnable()
+    {
+        base.OnEnable();
+        LobbyUI.OnCreateRoomRequest += CreateRoom;
+    }
+
+    public override void OnDisable()
+    {
+        base.OnDisable();
+        LobbyUI.OnCreateRoomRequest -= CreateRoom;
+    }
+
     void Update()
     {
-        // J : 랜덤 방 입장 (없으면 생성)
-        if (Keyboard.current.jKey.wasPressedThisFrame)
-        {
-            Debug.Log("[Lobby] J pressed → JoinRandomOrCreateRoom");
-
-            if (!PhotonNetwork.IsConnectedAndReady)
-            {
-                Debug.LogWarning("[Lobby] Cannot join room (Photon not ready)");                
-                return;
-            }
-
-            QuickStart();
-        }
-
-        // K : 기본 설정으로 방 생성
-        if (Keyboard.current.kKey.wasPressedThisFrame)
-        {
-            Debug.Log("[Lobby] K pressed → CreateRoom (default)");
-
-            if (!PhotonNetwork.IsConnectedAndReady)
-            {
-                Debug.LogWarning("[Lobby] Cannot create room (Photon not ready)");
-                return;
-            }
-
-            CreateRoom();            
-        }
+        
     }
 
     // Method
@@ -56,9 +41,38 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         PhotonNetwork.CreateRoom("room_00", new RoomOptions { MaxPlayers = 8});
     }
 
-    public void JoinRoom()
+    public void CreateRoom(string roomName, string roomPW, int maxPlayer)
     {
-        // 그냥 조인이 아니라 방 선택해서 해야함
+        bool hasPassword = !string.IsNullOrEmpty(roomPW);
+
+        ExitGames.Client.Photon.Hashtable customProps =
+            new ExitGames.Client.Photon.Hashtable
+            {
+                { "pw", roomPW }
+            };
+        RoomOptions options = new RoomOptions
+        {
+            MaxPlayers = (byte)maxPlayer,
+            IsVisible = true,
+            IsOpen = true,
+            CustomRoomProperties = customProps,
+            CustomRoomPropertiesForLobby = new string[] { "pw" }
+        };
+        PhotonNetwork.CreateRoom(roomName, options);
+    }
+
+    public void TryJoinRoom(RoomInfo roomInfo, string inputPW)
+    {
+        if (roomInfo.CustomProperties.TryGetValue("pw", out object pwObj))
+        {
+            string roomPW = pwObj as string;
+            if (roomPW != inputPW)
+            {
+                Debug.Log("비밀번호 틀림");
+                return;
+            }
+        }
+        PhotonNetwork.JoinRoom(roomInfo.Name);
     }
 
     public void LeaveLobby()
