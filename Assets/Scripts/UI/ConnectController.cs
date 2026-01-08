@@ -31,8 +31,3 @@ public class ConnectController : MonoBehaviour
             _titleManager.ConnectToServer(_nicknameInput.ConfirmedNickname);
     }
 }
-
-//// 여기에 글로벌 매니져
-//// 여기에 씬 관리하는 매니져 (TitleManager) -> 포톤에 요청하고, 콜백 받아서 씬전환 수행하는놈
-/// 이쯤에서 프레젠터 비슷무리한 무언가 역할을 하는놈이 있으면 좋지않을까? -> ConeectController
-/// Nick인풋
