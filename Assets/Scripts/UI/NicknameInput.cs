@@ -11,7 +11,6 @@ public class NicknameInput : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _welcomeText;
 
     private Coroutine _errorCoroutine;
-    private Coroutine _confirmCoroutine;
 
     [Header("Nickname Length Limit")]
     [SerializeField] private int _minLength = 2;
@@ -27,46 +26,26 @@ public class NicknameInput : MonoBehaviour
         if (_errorText != null)
             _errorText.gameObject.SetActive(false);
 
-        _nicknameInput.characterLimit = _maxLength;
-
-        // Enter 키 작동 ConnectController로 이전
+        if (_nicknameInput != null)
+            _nicknameInput.characterLimit = _maxLength;
     }
 
-    // Enter나 외부에서 호출 ( IME 대기 + 검증 )
-    public void RequestConfirm()
-    {
-        // 기존 요청 있으면 중복 실행 방지
-        if (_confirmCoroutine != null)
-            StopCoroutine(_confirmCoroutine);
-
-        _confirmCoroutine = StartCoroutine(CorRequestConfirm());
-    }
-
-    private IEnumerator CorRequestConfirm()
-    {
-        // IME 조합이 끝날 때까지 대기
-        yield return CorConfirmIme();
-
-        TryConfirmCurrentInput();
-        _confirmCoroutine = null;
-    }
-
-    // IME 조합 완료 대기 담당
+    // 한 프레임 쉬고 포커스 해제서 IME 조합 완료 유도
     public IEnumerator CorConfirmIme()
     {
-        if (_nicknameInput == null) 
+        if (_nicknameInput == null)
             yield break;
 
-        // 포커스 해제
-        _nicknameInput.DeactivateInputField(false);
+        // 한 프레임 넘겨
         yield return null;
 
-        // 글자 조합중이면 끝날때까지 대기
-        while (!string.IsNullOrEmpty(Input.compositionString))
-            yield return null;
+        // 포커스 해제
+        if (_nicknameInput.isFocused)
+            _nicknameInput.DeactivateInputField(false);
+
+        _nicknameInput.ForceLabelUpdate();
     }
 
-    // 외부(ConnectController)에 연결할 검증 시도 메서드
     public bool TryConfirmCurrentInput()
     {
         if (_nicknameInput == null)
@@ -102,7 +81,6 @@ public class NicknameInput : MonoBehaviour
         return true;
     }
 
-    // ShoError, return 반복 부분 묶어서 메서드화
     private bool Fail(string message)
     {
         ShowError(message);
