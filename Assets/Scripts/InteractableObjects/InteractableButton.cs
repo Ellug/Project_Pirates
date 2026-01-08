@@ -1,0 +1,14 @@
+﻿using UnityEngine;
+
+public class InteractableButton : MonoBehaviour, IInteractable
+{
+    public float GetInteractionDistance()
+    {
+        return 4f;
+    }
+
+    public void OnInteract(GameObject player)
+    {
+        Debug.Log("상호작용 확인.");
+    }
+}
