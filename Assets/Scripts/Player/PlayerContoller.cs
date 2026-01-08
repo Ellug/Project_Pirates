@@ -23,7 +23,7 @@ public class PlayerContoller : MonoBehaviour
         InputSystem.actions["Look"].performed += OnLook;
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         InputSystem.actions["Move"].performed -= OnMove;
         InputSystem.actions["Move"].canceled -= OnStop;
@@ -31,14 +31,15 @@ public class PlayerContoller : MonoBehaviour
         InputSystem.actions["Look"].performed -= OnLook;
     }
 
-    private void Update()
+    void FixedUpdate()
     {
         PlayerMove();
     }
+
     private void PlayerMove()
     {
         Vector3 dir = new Vector3(_inputMove.x, 0f, _inputMove.y).normalized;
-        transform.Translate(dir * Time.deltaTime * _moveSpeed);
+        transform.Translate(Time.fixedDeltaTime * _moveSpeed * dir);
     }
 
     public void OnMove(InputAction.CallbackContext ctx)
