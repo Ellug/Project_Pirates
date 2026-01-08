@@ -11,6 +11,7 @@ public class NicknameInput : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _welcomeText;
 
     private Coroutine _errorCoroutine;
+    private Coroutine _confirmCoroutine;
 
     [Header("Nickname Length Limit")]
     [SerializeField] private int _minLength = 2;
@@ -31,11 +32,26 @@ public class NicknameInput : MonoBehaviour
         // Enter 키 작동 ConnectController로 이전
     }
 
+    // Enter나 외부에서 호출 ( IME 대기 + 검증 )
     public void RequestConfirm()
     {
-        StartCoroutine(CorConfirmIme());
+        // 기존 요청 있으면 중복 실행 방지
+        if (_confirmCoroutine != null)
+            StopCoroutine(_confirmCoroutine);
+
+        _confirmCoroutine = StartCoroutine(CorRequestConfirm());
     }
 
+    private IEnumerator CorRequestConfirm()
+    {
+        // IME 조합이 끝날 때까지 대기
+        yield return CorConfirmIme();
+
+        TryConfirmCurrentInput();
+        _confirmCoroutine = null;
+    }
+
+    // IME 조합 완료 대기 담당
     public IEnumerator CorConfirmIme()
     {
         if (_nicknameInput == null) 
@@ -43,7 +59,6 @@ public class NicknameInput : MonoBehaviour
 
         // 포커스 해제
         _nicknameInput.DeactivateInputField(false);
-        
         yield return null;
 
         // 글자 조합중이면 끝날때까지 대기
@@ -87,7 +102,7 @@ public class NicknameInput : MonoBehaviour
         return true;
     }
 
-    // ShoError, retrun 반복 부분 묶어서 메서드화
+    // ShoError, return 반복 부분 묶어서 메서드화
     private bool Fail(string message)
     {
         ShowError(message);
