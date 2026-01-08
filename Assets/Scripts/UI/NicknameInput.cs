@@ -7,8 +7,9 @@ using System;
 public class NicknameInput : MonoBehaviour
 {
     [Header("UI References")]
-    public TMP_InputField _nicknameInput;
-    public TextMeshProUGUI _errorText;
+    [SerializeField] private TMP_InputField _nicknameInput;
+    [SerializeField] private TextMeshProUGUI _errorText;
+    [SerializeField] private TextMeshProUGUI _welcomeText;
 
     public Coroutine _errorCoroutine;
 
@@ -22,6 +23,11 @@ public class NicknameInput : MonoBehaviour
 
     private void Start()
     {
+        if(_welcomeText != null)
+        {
+            _welcomeText.gameObject.SetActive(false);
+        }
+
         if(_errorText != null)
         {
             _errorText.gameObject.SetActive(false);
@@ -39,36 +45,38 @@ public class NicknameInput : MonoBehaviour
 
         if(string.IsNullOrWhiteSpace(value))
         {
-            ShowError("Please enter a nickname.");
+            ShowError("´Ð³×ÀÓÀ» ÀÔ·ÂÇØÁÖ¼¼¿ä.");
             return;
         }
 
         if(value.Contains(" "))
         {
-            ShowError("Nickname cannot contain spaces");
+            ShowError("´Ð³×ÀÓ¿¡´Â °ø¹éÀ» »ç¿ëÇÒ ¼ö ¾ø½À´Ï´Ù.");
             return;
         }
 
         if(!Regex.IsMatch(value, "^[a-zA-Z0-9°¡-ÆR]+$")) // Á¤±ÔÇ¥Çö½Ä (¿µ¹®¼ýÀÚÇÑ±Û)
         {
-            ShowError("Nickname can only contain letters and numbers.");
+            ShowError("´Ð³×ÀÓÀº ÇÑ±Û, ¿µ¹®, ¼ýÀÚ¸¸ »ç¿ëÇÒ ¼ö ÀÖ½À´Ï´Ù.");
             return;
         }
 
         if(value.Length < _minLength)
         {
-            ShowError($"Nickname must be at least {_minLength} characters");
+            ShowError($"´Ð³×ÀÓÀº ÃÖ¼Ò {_minLength}ÀÚ ÀÌ»óÀÌ¾î¾ß ÇÕ´Ï´Ù.");
             return;
         }
 
         if(value.Length > _maxLength) // Start¿¡¼­ ÀÌ¹Ì Á¦ÇÑµÇ°í ÀÖÁö¸¸, ¾ÈÀüÀ» À§ÇØ ÃÖÁ¾ °ËÁõ
         {
-            ShowError($"Nickname must be {_maxLength} characters or less.");
+            ShowError($"´Ð³×ÀÓÀº ÃÖ´ë {_maxLength}ÀÚ±îÁö °¡´ÉÇÕ´Ï´Ù.");
             return;
         }
 
         ConfirmedNickname = value;
         _nicknameInput.text = value;
+        ShowWelcome(value);
+
         OnNicknameConfirmed?.Invoke(ConfirmedNickname);
 
         Debug.Log($"´Ð³×ÀÓ Á¦Ãâ ¼º°ø : {value}");
@@ -82,6 +90,17 @@ public class NicknameInput : MonoBehaviour
         }
 
         OnSubmit(_nicknameInput.text);
+    }
+
+    private void ShowWelcome(string nickname)
+    {
+        if(_welcomeText == null)
+        {
+            return;
+        }
+
+        _welcomeText.text = $"{nickname}´Ô, È¯¿µÇÕ´Ï´Ù.";
+        _welcomeText.gameObject.SetActive(true);
     }
 
     private void ShowError(string txt)
@@ -100,7 +119,7 @@ public class NicknameInput : MonoBehaviour
             StopCoroutine(_errorCoroutine);
         }
 
-        _errorCoroutine = StartCoroutine(HideAfterSeconds(1.5f));
+        _errorCoroutine = StartCoroutine(HideAfterSeconds(1.8f));
     }
 
     private IEnumerator HideAfterSeconds(float seconds)
