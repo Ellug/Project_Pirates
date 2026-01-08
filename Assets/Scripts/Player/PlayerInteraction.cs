@@ -47,4 +47,10 @@ public class PlayerInteraction : MonoBehaviour
         }
         IsInteractable = false;
     }
+
+    public void InteractObj()
+    {
+        if (_curInteractable != null)
+            _curInteractable.OnInteract(gameObject);
+    }
 }
