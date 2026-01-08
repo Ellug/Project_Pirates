@@ -52,4 +52,18 @@ public class ConnectButton : MonoBehaviour
         // Photon 닉네임 설정
         PhotonNetwork.NickName = nickname;
     }
+
+    private void SetLoading(bool isOn, string msg)
+    {
+        if(_loadingText != null)
+        {
+            _loadingText.text = msg;
+            _loadingText.gameObject.SetActive(isOn);
+        }
+
+        if(_connectButton != null)
+        {
+            _connectButton.interactable = !isOn;
+        }
+    }
 }
