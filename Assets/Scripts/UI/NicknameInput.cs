@@ -31,6 +31,26 @@ public class NicknameInput : MonoBehaviour
         // Enter 키 작동 ConnectController로 이전
     }
 
+    public void RequestConfirm()
+    {
+        StartCoroutine(CorConfirmIme());
+    }
+
+    public IEnumerator CorConfirmIme()
+    {
+        if (_nicknameInput == null) 
+            yield break;
+
+        // 포커스 해제
+        _nicknameInput.DeactivateInputField(false);
+        
+        yield return null;
+
+        // 글자 조합중이면 끝날때까지 대기
+        while (!string.IsNullOrEmpty(Input.compositionString))
+            yield return null;
+    }
+
     // 외부(ConnectController)에 연결할 검증 시도 메서드
     public bool TryConfirmCurrentInput()
     {
