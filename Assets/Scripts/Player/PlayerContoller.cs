@@ -23,6 +23,14 @@ public class PlayerContoller : MonoBehaviour
         InputSystem.actions["Look"].performed += OnLook;
     }
 
+    private void OnDestroy()
+    {
+        InputSystem.actions["Move"].performed -= OnMove;
+        InputSystem.actions["Move"].canceled -= OnStop;
+        InputSystem.actions["Interact"].started -= OnInteraction;
+        InputSystem.actions["Look"].performed -= OnLook;
+    }
+
     private void Update()
     {
         PlayerMove();
