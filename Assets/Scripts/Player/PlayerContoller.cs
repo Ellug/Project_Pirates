@@ -25,6 +25,7 @@ public class PlayerContoller : MonoBehaviour
 
     void OnDestroy()
     {
+        Cursor.lockState = CursorLockMode.None;
         InputSystem.actions["Move"].performed -= OnMove;
         InputSystem.actions["Move"].canceled -= OnStop;
         InputSystem.actions["Interact"].started -= OnInteraction;
