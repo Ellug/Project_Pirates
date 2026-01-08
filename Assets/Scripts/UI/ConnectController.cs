@@ -12,18 +12,17 @@ public class ConnectController : MonoBehaviour
 
     void Update()
     {
-        if (Keyboard.current.enterKey.wasPressedThisFrame)
+        if (Keyboard.current.enterKey.wasPressedThisFrame || Keyboard.current.numpadEnterKey.wasPressedThisFrame)
             HandleSubmit();
     }
 
-    // 버튼 OnClick => Submit
-    // NicknameInput은 검사 및 닉네임 확정 역할만
-    // TitleManager가 접속 요청 및 콜백 처리함
+    // 연결 온클릭 이벤트 연결 to 버튼
     public void OnClickConnect()
     {
         HandleSubmit();
     }
 
+    // 제출 메서드
     private void HandleSubmit()
     {
         if (_isHandling) return; // 이미 처리 중이면 무시
@@ -36,6 +35,8 @@ public class ConnectController : MonoBehaviour
 
     private IEnumerator CorHandleSubmit()
     {
+        yield return null; // 한 프레임 스킵
+
         // 확정 닉네임 없으면 Enter/Btn 모두 확정 시도
         if (string.IsNullOrEmpty(_nicknameInput.ConfirmedNickname))
         {
