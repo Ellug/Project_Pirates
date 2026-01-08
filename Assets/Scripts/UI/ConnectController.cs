@@ -1,11 +1,14 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 public class ConnectController : MonoBehaviour
 {
     [Header("Refs")]
     [SerializeField] private NicknameInput _nicknameInput;
     [SerializeField] private TitleManager _titleManager;
+
+    private bool _isTryingConnect;
 
     void Update()
     {
@@ -18,6 +21,7 @@ public class ConnectController : MonoBehaviour
     // TitleManager가 접속 요청 및 콜백 처리함
     public void OnClickConnect()
     {
+        if(Keyboard.current.enterKey.wasPressedThisFrame)
         TryConnect();
     }
 
@@ -26,8 +30,26 @@ public class ConnectController : MonoBehaviour
     {
         if (_nicknameInput == null || _titleManager == null) return;
 
-        
-        if (_nicknameInput.TryConfirmCurrentInput())
-            _titleManager.ConnectToServer(_nicknameInput.ConfirmedNickname);
+        _isTryingConnect = true;
+        StartCoroutine(CorTryConnect());
+
+        //if (_nicknameInput.TryConfirmCurrentInput())
+        //    _titleManager.ConnectToServer(_nicknameInput.ConfirmedNickname);
+    }
+
+    private IEnumerator CorTryConnect()
+    {
+        // 한글 IME 완료까지 대기
+        yield return _nicknameInput.CorConfirmIme();
+
+        // 최종 text로 검증
+        bool ok = _nicknameInput.TryConfirmCurrentInput();
+        _isTryingConnect = false;
+
+        if (!ok)
+            yield break;
+
+        // 검증 성공하면 연결
+        _titleManager.ConnectToServer(_nicknameInput.ConfirmedNickname);
     }
 }
