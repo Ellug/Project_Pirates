@@ -1,4 +1,4 @@
-using TMPro;
+ï»¿using TMPro;
 using UnityEngine;
 using System.Collections;
 using System.Text.RegularExpressions;
@@ -35,7 +35,7 @@ public class NicknameInput : MonoBehaviour
 
         _nicknameInput.characterLimit = _maxLength;
 
-        // Enter Å° Á¦Ãâ
+        // Enter í‚¤ ì œì¶œ
         _nicknameInput.onSubmit.AddListener(OnSubmit);
     }
 
@@ -45,31 +45,31 @@ public class NicknameInput : MonoBehaviour
 
         if(string.IsNullOrWhiteSpace(value))
         {
-            ShowError("´Ğ³×ÀÓÀ» ÀÔ·ÂÇØÁÖ¼¼¿ä.");
+            ShowError("ë‹‰ë„¤ì„ì„ ì…ë ¥í•´ì£¼ì„¸ìš”.");
             return;
         }
 
         if(value.Contains(" "))
         {
-            ShowError("´Ğ³×ÀÓ¿¡´Â °ø¹éÀ» »ç¿ëÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            ShowError("ë‹‰ë„¤ì„ì—ëŠ” ê³µë°±ì„ ì‚¬ìš©í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        if(!Regex.IsMatch(value, "^[a-zA-Z0-9°¡-ÆR]+$")) // Á¤±ÔÇ¥Çö½Ä (¿µ¹®¼ıÀÚÇÑ±Û)
+        if(!Regex.IsMatch(value, "^[a-zA-Z0-9ê°€-í£]+$")) // ì •ê·œí‘œí˜„ì‹ (ì˜ë¬¸ìˆ«ìí•œê¸€)
         {
-            ShowError("´Ğ³×ÀÓÀº ÇÑ±Û, ¿µ¹®, ¼ıÀÚ¸¸ »ç¿ëÇÒ ¼ö ÀÖ½À´Ï´Ù.");
+            ShowError("ë‹‰ë„¤ì„ì€ í•œê¸€, ì˜ë¬¸, ìˆ«ìë§Œ ì‚¬ìš©í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
             return;
         }
 
         if(value.Length < _minLength)
         {
-            ShowError($"´Ğ³×ÀÓÀº ÃÖ¼Ò {_minLength}ÀÚ ÀÌ»óÀÌ¾î¾ß ÇÕ´Ï´Ù.");
+            ShowError($"ë‹‰ë„¤ì„ì€ ìµœì†Œ {_minLength}ì ì´ìƒì´ì–´ì•¼ í•©ë‹ˆë‹¤.");
             return;
         }
 
-        if(value.Length > _maxLength) // Start¿¡¼­ ÀÌ¹Ì Á¦ÇÑµÇ°í ÀÖÁö¸¸, ¾ÈÀüÀ» À§ÇØ ÃÖÁ¾ °ËÁõ
+        if(value.Length > _maxLength) // Startì—ì„œ ì´ë¯¸ ì œí•œí•˜ê³  ìˆì§€ë§Œ, ì•ˆì „ì„ ìœ„í•´ ìµœì¢… ê²€ì¦
         {
-            ShowError($"´Ğ³×ÀÓÀº ÃÖ´ë {_maxLength}ÀÚ±îÁö °¡´ÉÇÕ´Ï´Ù.");
+            ShowError($"ë‹‰ë„¤ì„ì€ ìµœëŒ€ {_maxLength}ìê¹Œì§€ ê°€ëŠ¥í•©ë‹ˆë‹¤.");
             return;
         }
 
@@ -79,10 +79,10 @@ public class NicknameInput : MonoBehaviour
 
         OnNicknameConfirmed?.Invoke(ConfirmedNickname);
 
-        Debug.Log($"´Ğ³×ÀÓ Á¦Ãâ ¼º°ø : {value}");
+        Debug.Log($"ë‹‰ë„¤ì„ ì œì¶œ ì„±ê³µ : {value}");
     }
 
-    public void TryConfirmCurrentInput() // ¿ÜºÎ¿¡¼­ ¹öÆ° Å¬¸¯ ½Ã »ç¿ëÇÒ ¸Ş¼­µå
+    public void TryConfirmCurrentInput() // ì™¸ë¶€ì—ì„œ ë²„íŠ¼ í´ë¦­ ì‹œ ì‚¬ìš©í•  ë©”ì„œë“œ
     {
         if(_nicknameInput == null)
         {
@@ -99,7 +99,7 @@ public class NicknameInput : MonoBehaviour
             return;
         }
 
-        _welcomeText.text = $"{nickname}´Ô, È¯¿µÇÕ´Ï´Ù.";
+        _welcomeText.text = $"{nickname}ë‹˜, í™˜ì˜í•©ë‹ˆë‹¤.";
         _welcomeText.gameObject.SetActive(true);
     }
 
@@ -113,7 +113,7 @@ public class NicknameInput : MonoBehaviour
         _errorText.text = txt;
         _errorText.gameObject.SetActive(true);
 
-        // ±âÁ¸ ÄÚ·çÆ¾ ÁßÁö
+        // ê¸°ì¡´ ì½”ë£¨í‹´ ì¤‘ì§€
         if(_errorCoroutine != null)
         {
             StopCoroutine(_errorCoroutine);
