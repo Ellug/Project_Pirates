@@ -8,18 +8,18 @@ public class PlayerInteraction : MonoBehaviour
 
     private Camera _camera;
     private IInteractable _curInteractable;
-    private bool _isInteractable;
+    public bool IsInteractable { get; private set; }
 
     void Start()
     {
         _camera = Camera.main;
         interactionBtn.SetActive(false);
-        _isInteractable = false;
+        IsInteractable = false;
     }
     private void Update()
     {
         CheckInteractionObject();
-        interactionBtn.SetActive(_isInteractable);
+        interactionBtn.SetActive(IsInteractable);
     }
 
     private void CheckInteractionObject()
@@ -38,13 +38,13 @@ public class PlayerInteraction : MonoBehaviour
 
                 if (distance <= interactObj.GetInteractionDistance())
                 {
-                    _isInteractable = true;
+                    IsInteractable = true;
                     if (_curInteractable != interactObj)
                         _curInteractable = interactObj;
                     return;
                 }
             }
         }
-        _isInteractable = false;
+        IsInteractable = false;
     }
 }

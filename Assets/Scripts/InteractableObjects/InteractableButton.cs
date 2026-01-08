@@ -2,11 +2,6 @@
 
 public class InteractableButton : MonoBehaviour, IInteractable
 {
-    public void ActiveInteractButton()
-    {
-
-    }
-
     public float GetInteractionDistance()
     {
         return 4f;
