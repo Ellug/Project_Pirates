@@ -1,13 +1,13 @@
-using System;
+ï»¿using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Photon.Pun;
 
 // TODO
-// Å¬¸¯½Ã ¼­¹ö ¿¬°á ½Ãµµ
-// ÀÎÇ²ÇÊµå ÀÛ¼ºÇÑ °ªÀ¸·Î ´Ğ³×ÀÓ ¼³Á¤
-// ¿¬°á Áß Loading ¸Ş½ÃÁö Ãâ·Â
+// í´ë¦­ì‹œ ì„œë²„ ì—°ê²° ì‹œë„
+// ì¸í’‹í•„ë“œ ì‘ì„±í•œ ê°’ìœ¼ë¡œ ë‹‰ë„¤ì„ ì„¤ì •
+// ì—°ê²° ì¤‘ Loading ë©”ì‹œì§€ ì¶œë ¥
 
 public class ConnectButton : MonoBehaviour
 {
@@ -39,17 +39,17 @@ public class ConnectButton : MonoBehaviour
             return;
         }
 
-        // ÇöÀç ÀÎÇ² °ªÀ¸·Î ´Ğ³×ÀÓ °ËÁõ ½Ãµµ
+        // í˜„ì¬ input ê°’ìœ¼ë¡œ ë‹‰ë„¤ì„ ê²€ì¦ ì‹œë„
         _nicknameInput.TryConfirmCurrentInput();
 
-        // È®Á¤µÈ ´Ğ³×ÀÓÀÌ ¾øÀ¸¸é return
+        // í™•ì •ëœ ë‹‰ë„¤ì„ì´ ì—†ìœ¼ë©´ return
         string nickname = _nicknameInput.ConfirmedNickname;
         if(string.IsNullOrWhiteSpace(nickname))
         {
             return;
         }
 
-        // Photon ´Ğ³×ÀÓ ¼³Á¤
+        // Photon ë‹‰ë„¤ì„ ì„¤ì •
         PhotonNetwork.NickName = nickname;
     }
 
