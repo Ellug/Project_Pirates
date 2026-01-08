@@ -8,12 +8,12 @@ public class ConnectController : MonoBehaviour
     [SerializeField] private NicknameInput _nicknameInput;
     [SerializeField] private TitleManager _titleManager;
 
-    private bool _isTryingConnect;
+    private bool _isHandling;
 
     void Update()
     {
         if (Keyboard.current.enterKey.wasPressedThisFrame)
-            TryConnect();
+            HandleSubmit();
     }
 
     // 버튼 OnClick => Submit
@@ -21,35 +21,37 @@ public class ConnectController : MonoBehaviour
     // TitleManager가 접속 요청 및 콜백 처리함
     public void OnClickConnect()
     {
-        if(Keyboard.current.enterKey.wasPressedThisFrame)
-        TryConnect();
+        HandleSubmit();
     }
 
-    // 연결 시도
-    private void TryConnect()
+    private void HandleSubmit()
     {
+        if (_isHandling) return; // 이미 처리 중이면 무시
+
         if (_nicknameInput == null || _titleManager == null) return;
 
-        _isTryingConnect = true;
-        StartCoroutine(CorTryConnect());
-
-        //if (_nicknameInput.TryConfirmCurrentInput())
-        //    _titleManager.ConnectToServer(_nicknameInput.ConfirmedNickname);
+        _isHandling = true;
+        StartCoroutine(CorHandleSubmit());
     }
 
-    private IEnumerator CorTryConnect()
+    private IEnumerator CorHandleSubmit()
     {
-        // 한글 IME 완료까지 대기
-        yield return _nicknameInput.CorConfirmIme();
+        // 확정 닉네임 없으면 Enter/Btn 모두 확정 시도
+        if (string.IsNullOrEmpty(_nicknameInput.ConfirmedNickname))
+        {
+            // IME 조합 완료 대기
+            yield return _nicknameInput.CorConfirmIme();
 
-        // 최종 text로 검증
-        bool ok = _nicknameInput.TryConfirmCurrentInput();
-        _isTryingConnect = false;
+            // 현재 입력값으로 검증 시도
+            bool ok = _nicknameInput.TryConfirmCurrentInput();
 
-        if (!ok)
-            yield break;
+            _isHandling = false;
 
-        // 검증 성공하면 연결
+            if (!ok) yield break; // 확정 실패면 여기서 종료
+        }
+
+        // 확정 닉네임이 있으면 연결 시도
         _titleManager.ConnectToServer(_nicknameInput.ConfirmedNickname);
+        _isHandling = false;
     }
 }
