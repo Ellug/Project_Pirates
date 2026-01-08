@@ -16,6 +16,7 @@ public class PlayerInteraction : MonoBehaviour
         interactionBtn.SetActive(false);
         IsInteractable = false;
     }
+    
     void Update()
     {
         CheckInteractionObject();
