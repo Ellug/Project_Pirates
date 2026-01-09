@@ -50,11 +50,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         RoomPrefab.OnTryJoinRoom -= TryJoinRoom;
     }
 
-    void Update()
-    {
-        
-    }
-
     // Method
     public void OnClickQuickStart()
     {
@@ -65,6 +60,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         };
 
         PhotonNetwork.JoinRandomRoom(expectedProps, 0);
+        // TODO: 방이 없을 때 방이 없다고 알려줘야 함
     }
 
     public void CreateRoom()
