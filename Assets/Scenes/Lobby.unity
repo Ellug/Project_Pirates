@@ -285,10 +285,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomListUI
   _roomListPanel: {fileID: 1215944026}
-  _emptyText: {fileID: 556823345}
   _roomPrefab: {fileID: 5627019847797863880, guid: 3b8effc2425bd5e4e927b3af1d8492ee, type: 3}
+  _emptyText: {fileID: 556823345}
   nickName: {fileID: 592107163}
   _makeRoomPanel: {fileID: 1914537758}
+  _makeRoomTitle: {fileID: 138174829}
+  _makeRoomPW: {fileID: 1765144419}
+  _makeRoomPlayerCount: {fileID: 224855061}
 --- !u!4 &112677254
 Transform:
   m_ObjectHideFlags: 0
@@ -3033,7 +3036,7 @@ GameObject:
   - component: {fileID: 1259128383}
   - component: {fileID: 1259128382}
   m_Layer: 5
-  m_Name: Button (1)
+  m_Name: CancleButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3234,6 +3237,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8d4813ae5a4c2e4eb81d209dc4e21cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LobbyManager
+  _lobbyUI: {fileID: 112677253}
 --- !u!4 &1369033894
 Transform:
   m_ObjectHideFlags: 0
@@ -3262,7 +3266,7 @@ GameObject:
   - component: {fileID: 1423435589}
   - component: {fileID: 1423435588}
   m_Layer: 5
-  m_Name: Button
+  m_Name: ApplyButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3900,37 +3904,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1687687506}
   m_CullTransparentMesh: 1
---- !u!1 &1735768620
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1735768622}
-  m_Layer: 0
-  m_Name: UserInfo
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1735768622
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1735768620}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 683, y: 384, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1765144417
 GameObject:
   m_ObjectHideFlags: 0
@@ -5208,8 +5181,7 @@ SceneRoots:
   - {fileID: 1089100892}
   - {fileID: 1828835135}
   - {fileID: 2056603235}
-  - {fileID: 1369033894}
   - {fileID: 1658020975}
   - {fileID: 352685866}
-  - {fileID: 1735768622}
   - {fileID: 112677254}
+  - {fileID: 1369033894}
