@@ -1,95 +1,44 @@
 ﻿using Photon.Pun;
-using Photon.Realtime;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class LobbyUI : MonoBehaviourPunCallbacks
 {
     [Header("룸 리스트")]
     [SerializeField] private Transform _roomListPanel;
-    [SerializeField] private TextMeshProUGUI _emptyText;
     [SerializeField] private GameObject _roomPrefab;
+    [SerializeField] private TextMeshProUGUI _emptyText;
 
     [Header("유저 인포")]
-    [SerializeField] TextMeshProUGUI nickName;
+    [SerializeField] private TextMeshProUGUI nickName;
 
     [Header("방 만들기")]
     [SerializeField] private GameObject _makeRoomPanel;
+    [SerializeField] private TMP_InputField _makeRoomTitle;
+    [SerializeField] private TMP_InputField _makeRoomPW;
+    [SerializeField] private TMP_Dropdown _makeRoomPlayerCount;
 
-    private Dictionary<string, RoomInfo> _cachedRoomList = new();
     public static event Action<string, string, int> OnCreateRoomRequest;
+    public static event Action OnRefreshRoomListRequest;
     
+    public Transform RoomListPanel => _roomListPanel;
+    public GameObject RoomPrefab => _roomPrefab;
+    public TextMeshProUGUI EmptyText => _emptyText;
+
 
     private IEnumerator Start()
     {
         yield return new WaitUntil(() => PhotonNetwork.InLobby);
         _makeRoomPanel.SetActive(false);
         nickName.text = PhotonNetwork.NickName;
-    }
-
-    public override void OnRoomListUpdate(List<RoomInfo> roomList)
-    {
-        foreach (var info in roomList)
-        {
-            if (info.RemovedFromList)
-            {
-                _cachedRoomList.Remove(info.Name);
-            }
-            else
-            {
-                _cachedRoomList[info.Name] = info;
-            }
-        }
-        RefreshRoomUI();
-    }
-
-    private void RefreshRoomUI()
-    {
-        foreach (Transform child in _roomListPanel)
-        {
-            Destroy(child.gameObject);
-        }
-
-        if (_cachedRoomList.Count == 0)
-        {
-            _emptyText.text = "방이 없습니다...";
-            return;
-        }
-
-        _emptyText.text = string.Empty;
-
-        foreach (var roomInfo in _cachedRoomList.Values)
-        {
-            var room = Instantiate(_roomPrefab, _roomListPanel);
-
-            room.transform.Find("Title")
-                .GetComponentInChildren<TextMeshProUGUI>()
-                .text = roomInfo.Name;
-
-            room.transform.Find("Count")
-                .GetComponentInChildren<TextMeshProUGUI>()
-                .text = $"{roomInfo.PlayerCount}/{roomInfo.MaxPlayers}";
-            
-            var lockImg = room.GetComponentInChildren<RawImage>();
-            var roomPW = room.GetComponentInChildren<TMP_InputField>();
-
-            bool isPrivate = roomInfo.CustomProperties.ContainsKey("pw")
-              && !string.IsNullOrEmpty(
-                     roomInfo.CustomProperties["pw"] as string
-                 );
-
-            lockImg.gameObject.SetActive(isPrivate);
-            roomPW.gameObject.SetActive(isPrivate);
-        }
+        OnRefreshRoomListRequest?.Invoke();
     }
 
     public void OnClickRefresh()
     {
-        RefreshRoomUI();
+        OnRefreshRoomListRequest?.Invoke();
     }
 
     public void OnClickCreateRoom()
@@ -99,11 +48,7 @@ public class LobbyUI : MonoBehaviourPunCallbacks
 
     public void OnClickApplyButton()
     {
-        string _roomName = _makeRoomPanel.transform.Find("RoomName").GetComponent<TMP_InputField>().text;
-        string _roomPW = _makeRoomPanel.transform.Find("RoomPW").GetComponent<TMP_InputField>().text;
-        int _playerMaxCount = _makeRoomPanel.transform.Find("PlayerCount").GetComponent<TMP_Dropdown>().value + 1;
-
-        OnCreateRoomRequest?.Invoke(_roomName, _roomPW, _playerMaxCount);
+        OnCreateRoomRequest?.Invoke(_makeRoomTitle.text, _makeRoomPW.text, _makeRoomPlayerCount.value + 1); //이벤트 호출
 
         _makeRoomPanel.SetActive(false);
     }
