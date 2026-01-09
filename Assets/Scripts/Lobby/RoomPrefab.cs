@@ -2,6 +2,7 @@
 using Photon.Realtime;
 using System;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,6 +16,11 @@ public class RoomPrefab : MonoBehaviourPun
     public static Action<RoomInfo, string> OnTryJoinRoom;
 
     private RoomInfo _roomInfo;
+
+    private void Awake()
+    {
+        _roomPWInput.onSubmit.AddListener(PWInputEnter);
+    }
 
     public void Init(RoomInfo roomInfo)
     {
@@ -40,5 +46,13 @@ public class RoomPrefab : MonoBehaviourPun
             return;
         }
         OnTryJoinRoom?.Invoke(_roomInfo, _roomPWInput.text ?? string.Empty);
+    }
+
+    private void PWInputEnter(string input)
+    {
+        if (_roomInfo == null) return;
+        if (string.IsNullOrEmpty(input)) return;
+
+        OnTryJoinRoom?.Invoke(_roomInfo, input);
     }
 }
