@@ -6,6 +6,15 @@ public class InGameManager : MonoBehaviourPunCallbacks
 {
     private bool _ended;
 
+    public override void OnEnable()
+    {
+        base.OnEnable();
+        if (PlayerContoller.LocalInstancePlayer == null)
+        {
+            PhotonNetwork.Instantiate("Player", new Vector3(0f, 3f, 0f), Quaternion.identity);
+        }
+    }
+
     void Update()
     {
         var kb = Keyboard.current;
