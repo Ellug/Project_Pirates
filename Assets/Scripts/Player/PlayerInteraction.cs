@@ -4,24 +4,33 @@ using Photon.Pun;
 public class PlayerInteraction : MonoBehaviour
 {
     [SerializeField] private float _raycastDistance;
-    [SerializeField] private LayerMask interactableLayer;
-    [SerializeField] private GameObject interactionBtn;
+    [SerializeField] private LayerMask _interactableLayer;
     public bool IsInteractable { get; private set; }
 
+    private GameObject _interactionBtn;
     private Camera _camera;
     private IInteractable _curInteractable;
+    private PhotonView _view;
 
     void Awake()
     {
         _camera = Camera.main;
-        interactionBtn.SetActive(false);
+        _view = GetComponent<PhotonView>();
         IsInteractable = false;
     }
-    
+
+    private void Start()
+    {
+        _interactionBtn = GameObject.Find("InteractionKey");
+        if (_interactionBtn != null)
+            _interactionBtn.SetActive(false);
+    }
+
     void Update()
     {
         CheckInteractionObject();
-        interactionBtn.SetActive(IsInteractable);
+        if (_interactionBtn != null)
+            _interactionBtn.SetActive(IsInteractable);
     }
 
     private void CheckInteractionObject()
@@ -30,7 +39,7 @@ public class PlayerInteraction : MonoBehaviour
         Ray ray = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, _raycastDistance, interactableLayer))
+        if (Physics.Raycast(ray, out hit, _raycastDistance, _interactableLayer))
         {
             IInteractable interactObj = hit.collider.GetComponent<IInteractable>();
 
@@ -53,6 +62,12 @@ public class PlayerInteraction : MonoBehaviour
     public void InteractObj()
     {
         if (_curInteractable != null)
-            _curInteractable.OnInteract(gameObject);
+            _view.RPC(nameof(TriggerObject), RpcTarget.All);
+    }
+
+    [PunRPC]
+    private void TriggerObject()
+    {
+        _curInteractable.OnInteract(gameObject);
     }
 }
