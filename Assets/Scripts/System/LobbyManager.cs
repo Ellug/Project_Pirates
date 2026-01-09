@@ -29,10 +29,9 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     }
 
     // Method
-    public void QuickStart()
+    public void OnClickQuickStart()
     {
-        Debug.Log("[Lobby] Quick Start!");
-        PhotonNetwork.JoinRandomOrCreateRoom();
+        PhotonNetwork.JoinRandomRoom();
     }
 
     public void CreateRoom()

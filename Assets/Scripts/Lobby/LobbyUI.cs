@@ -73,7 +73,7 @@ public class LobbyUI : MonoBehaviourPunCallbacks
             room.transform.Find("Count")
                 .GetComponentInChildren<TextMeshProUGUI>()
                 .text = $"{roomInfo.PlayerCount}/{roomInfo.MaxPlayers}";
-
+            
             var lockImg = room.GetComponentInChildren<RawImage>();
             var roomPW = room.GetComponentInChildren<TMP_InputField>();
 
@@ -101,7 +101,7 @@ public class LobbyUI : MonoBehaviourPunCallbacks
     {
         string _roomName = _makeRoomPanel.transform.Find("RoomName").GetComponent<TMP_InputField>().text;
         string _roomPW = _makeRoomPanel.transform.Find("RoomPW").GetComponent<TMP_InputField>().text;
-        int _playerMaxCount = _makeRoomPanel.transform.Find("PlayerCount").GetComponent<TMP_Dropdown>().value;
+        int _playerMaxCount = _makeRoomPanel.transform.Find("PlayerCount").GetComponent<TMP_Dropdown>().value + 1;
 
         OnCreateRoomRequest?.Invoke(_roomName, _roomPW, _playerMaxCount);
 
