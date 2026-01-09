@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using Photon.Pun;
 
 public class PlayerInteraction : MonoBehaviour
 {
@@ -10,12 +9,10 @@ public class PlayerInteraction : MonoBehaviour
     private GameObject _interactionBtn;
     private Camera _camera;
     private IInteractable _curInteractable;
-    private PhotonView _view;
 
     void Awake()
     {
         _camera = Camera.main;
-        _view = GetComponent<PhotonView>();
         IsInteractable = false;
     }
 
@@ -62,12 +59,6 @@ public class PlayerInteraction : MonoBehaviour
     public void InteractObj()
     {
         if (_curInteractable != null)
-            _view.RPC(nameof(TriggerObject), RpcTarget.All);
-    }
-
-    [PunRPC]
-    private void TriggerObject()
-    {
-        _curInteractable.OnInteract(gameObject);
+            _curInteractable.OnInteract(gameObject);
     }
 }
