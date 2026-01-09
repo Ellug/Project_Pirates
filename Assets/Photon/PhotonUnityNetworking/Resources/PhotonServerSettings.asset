@@ -42,6 +42,8 @@ MonoBehaviour:
   - DestroySpaceship
   - Fire
   - RespawnSpaceship
+  - RPC_SetLightState
+  - RPC_RequestToggle
   - OnInteract
   - GameOver
   - TriggerObject
