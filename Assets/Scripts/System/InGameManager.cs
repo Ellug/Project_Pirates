@@ -6,6 +6,11 @@ public class InGameManager : MonoBehaviourPunCallbacks
 {
     private bool _ended;
 
+    private void Start()
+    {
+        
+    }
+
     void Update()
     {
         var kb = Keyboard.current;

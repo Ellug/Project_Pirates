@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using Photon.Pun;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerContoller : MonoBehaviour
+public class PlayerContoller : MonoBehaviourPunCallbacks
 {
     [SerializeField] private float _moveSpeed;
     [SerializeField] private float _mouseSensitivity;
@@ -9,14 +10,19 @@ public class PlayerContoller : MonoBehaviour
     private Vector2 _inputMove;
     private float _xRotation;
     private Camera _camera;
+    private PhotonView _view;
     private PlayerInteraction _playerInteraction;
 
     void Start()
     {
+        if (!_view.IsMine) 
+            return;
+
         Cursor.lockState = CursorLockMode.Locked;
         _camera = Camera.main;
         _inputMove = Vector2.zero;
         _playerInteraction = GetComponent<PlayerInteraction>();
+        _view = GetComponent<PhotonView>();
         InputSystem.actions["Move"].performed += OnMove;
         InputSystem.actions["Move"].canceled += OnStop;
         InputSystem.actions["Interact"].started += OnInteraction;
@@ -25,6 +31,9 @@ public class PlayerContoller : MonoBehaviour
 
     void OnDestroy()
     {
+        if (!_view.IsMine)
+            return;
+
         Cursor.lockState = CursorLockMode.None;
         InputSystem.actions["Move"].performed -= OnMove;
         InputSystem.actions["Move"].canceled -= OnStop;
@@ -50,7 +59,7 @@ public class PlayerContoller : MonoBehaviour
 
     public void OnStop(InputAction.CallbackContext ctx)
     {
-        _inputMove = Vector2.zero;
+         _inputMove = Vector2.zero;
     }
 
     private void OnInteraction(InputAction.CallbackContext ctx)

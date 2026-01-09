@@ -44,6 +44,7 @@ MonoBehaviour:
   - RespawnSpaceship
   - OnInteract
   - GameOver
+  - TriggerObject
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

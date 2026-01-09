@@ -10,10 +10,12 @@ public class PlayerInteraction : MonoBehaviour
 
     private Camera _camera;
     private IInteractable _curInteractable;
+    private PhotonView _view;
 
     void Awake()
     {
         _camera = Camera.main;
+        _view = GetComponent<PhotonView>();
         interactionBtn.SetActive(false);
         IsInteractable = false;
     }
@@ -53,6 +55,12 @@ public class PlayerInteraction : MonoBehaviour
     public void InteractObj()
     {
         if (_curInteractable != null)
-            _curInteractable.OnInteract(gameObject);
+            _view.RPC(nameof(TriggerObject), RpcTarget.All);
+    }
+
+    [PunRPC]
+    private void TriggerObject()
+    {
+        _curInteractable.OnInteract(gameObject);
     }
 }
