@@ -4,10 +4,10 @@ using Photon.Pun;
 public class PlayerInteraction : MonoBehaviour
 {
     [SerializeField] private float _raycastDistance;
-    [SerializeField] private LayerMask interactableLayer;
-    [SerializeField] private GameObject interactionBtn;
+    [SerializeField] private LayerMask _interactableLayer;
     public bool IsInteractable { get; private set; }
 
+    private GameObject _interactionBtn;
     private Camera _camera;
     private IInteractable _curInteractable;
     private PhotonView _view;
@@ -16,14 +16,21 @@ public class PlayerInteraction : MonoBehaviour
     {
         _camera = Camera.main;
         _view = GetComponent<PhotonView>();
-        interactionBtn.SetActive(false);
         IsInteractable = false;
     }
-    
+
+    private void Start()
+    {
+        _interactionBtn = GameObject.Find("InteractionKey");
+        if (_interactionBtn != null)
+            _interactionBtn.SetActive(false);
+    }
+
     void Update()
     {
         CheckInteractionObject();
-        interactionBtn.SetActive(IsInteractable);
+        if (_interactionBtn != null)
+            _interactionBtn.SetActive(IsInteractable);
     }
 
     private void CheckInteractionObject()
@@ -32,7 +39,7 @@ public class PlayerInteraction : MonoBehaviour
         Ray ray = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, _raycastDistance, interactableLayer))
+        if (Physics.Raycast(ray, out hit, _raycastDistance, _interactableLayer))
         {
             IInteractable interactObj = hit.collider.GetComponent<IInteractable>();
 

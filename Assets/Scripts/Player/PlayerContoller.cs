@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerContoller : MonoBehaviourPunCallbacks
 {
+    public static GameObject LocalInstancePlayer;
+
     [SerializeField] private float _moveSpeed;
     [SerializeField] private float _mouseSensitivity;
 
@@ -13,16 +15,22 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
     private PhotonView _view;
     private PlayerInteraction _playerInteraction;
 
+    private void Awake()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        _inputMove = Vector2.zero;
+        _playerInteraction = GetComponent<PlayerInteraction>();
+        _view = GetComponent<PhotonView>();
+    }
+
     void Start()
     {
         if (!_view.IsMine) 
             return;
 
-        Cursor.lockState = CursorLockMode.Locked;
         _camera = Camera.main;
-        _inputMove = Vector2.zero;
-        _playerInteraction = GetComponent<PlayerInteraction>();
-        _view = GetComponent<PhotonView>();
+        _camera.transform.SetParent(transform.GetChild(0), false);
+        _camera.transform.localPosition = new Vector3(0f, 0f, 0.3f);
         InputSystem.actions["Move"].performed += OnMove;
         InputSystem.actions["Move"].canceled += OnStop;
         InputSystem.actions["Interact"].started += OnInteraction;

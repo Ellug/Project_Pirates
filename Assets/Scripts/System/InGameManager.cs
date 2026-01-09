@@ -6,9 +6,13 @@ public class InGameManager : MonoBehaviourPunCallbacks
 {
     private bool _ended;
 
-    private void Start()
+    public override void OnEnable()
     {
-        
+        base.OnEnable();
+        if (PlayerContoller.LocalInstancePlayer == null)
+        {
+            PhotonNetwork.Instantiate("Player", new Vector3(0f, 3f, 0f), Quaternion.identity);
+        }
     }
 
     void Update()
