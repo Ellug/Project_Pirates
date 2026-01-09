@@ -3005,6 +3005,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: HandLight
       objectReference: {fileID: 0}
+    - target: {fileID: 7754610255484977750, guid: f12443ddf45d442429d11b04e61a8042, type: 3}
+      propertyPath: sceneViewId
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 9142939327193018996, guid: f12443ddf45d442429d11b04e61a8042, type: 3}
       propertyPath: m_Enabled
       value: 1
