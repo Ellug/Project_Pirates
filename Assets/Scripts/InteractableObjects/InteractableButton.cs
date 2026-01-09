@@ -1,7 +1,17 @@
 ﻿using UnityEngine;
+using Photon.Pun;
 
 public class InteractableButton : MonoBehaviour, IInteractable
 {
+    [SerializeField] private bool _isVictoryBtn;
+
+    private PhotonView _view;
+
+    private void Awake()
+    {
+        _view = GetComponent<PhotonView>();
+    }
+
     public float GetInteractionDistance()
     {
         return 4f;
@@ -9,6 +19,12 @@ public class InteractableButton : MonoBehaviour, IInteractable
 
     public void OnInteract(GameObject player)
     {
-        Debug.Log("상호작용 확인.");
+        _view.RPC(nameof(GameOver), RpcTarget.All);
+    }
+
+    [PunRPC]
+    private void GameOver()
+    {
+        GameManager.Instance.GameOverAndResult(_isVictoryBtn);
     }
 }

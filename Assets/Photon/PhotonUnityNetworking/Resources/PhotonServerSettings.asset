@@ -44,6 +44,8 @@ MonoBehaviour:
   - RespawnSpaceship
   - RPC_SetLightState
   - RPC_RequestToggle
+  - OnInteract
+  - GameOver
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

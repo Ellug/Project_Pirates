@@ -1,16 +1,17 @@
 ﻿using UnityEngine;
+using Photon.Pun;
 
 public class PlayerInteraction : MonoBehaviour
 {
     [SerializeField] private float _raycastDistance;
     [SerializeField] private LayerMask interactableLayer;
     [SerializeField] private GameObject interactionBtn;
+    public bool IsInteractable { get; private set; }
 
     private Camera _camera;
     private IInteractable _curInteractable;
-    public bool IsInteractable { get; private set; }
 
-    void Start()
+    void Awake()
     {
         _camera = Camera.main;
         interactionBtn.SetActive(false);
