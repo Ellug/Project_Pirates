@@ -10,10 +10,14 @@ public class ConnectController : MonoBehaviour
 
     private bool _isHandling;
 
-    void Update()
+    void Start()
     {
-        if (Keyboard.current.enterKey.wasPressedThisFrame || Keyboard.current.numpadEnterKey.wasPressedThisFrame)
-            HandleSubmit();
+        InputSystem.actions["Submit"].started += OnClickEnter;
+    }
+
+    private void OnDestroy()
+    {
+        InputSystem.actions["Submit"].started -= OnClickEnter;
     }
 
     // 연결 온클릭 이벤트 연결 to 버튼
@@ -21,6 +25,11 @@ public class ConnectController : MonoBehaviour
     {
         HandleSubmit();
     }
+    private void OnClickEnter(InputAction.CallbackContext ctx)
+    {
+        HandleSubmit();
+    }
+
 
     // 제출 메서드
     private void HandleSubmit()
