@@ -48,9 +48,11 @@ public class InGameManager : MonoBehaviourPunCallbacks
     }
 
     // 나만 종료
-    private void ExitForLocal()
+    public void ExitForLocal()
     {
         Debug.Log("[InGame] ExitForLocal -> LoadScene(Room)");
+
+        GameManager.Instance.ResumeGame();
 
         // Photon 룸은 유지한 채, 로컬 씬만 이동
         UnityEngine.SceneManagement.SceneManager.LoadScene("Room");
