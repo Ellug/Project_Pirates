@@ -122,6 +122,12 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
             _readyButton.gameObject.SetActive(true);
             return;
         }
+        else
+        {
+            _ready.SetLocalReady(true);
+            _startButton.gameObject.SetActive(true);
+            _readyButton.gameObject.SetActive(false);
+        }
 
         // 전부 레디하면 인터랙터블 킴
         bool show = _ready.AreAllPlayersReady(players, count);
