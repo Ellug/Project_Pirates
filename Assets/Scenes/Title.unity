@@ -862,7 +862,6 @@ GameObject:
   - component: {fileID: 685385005}
   - component: {fileID: 685385004}
   - component: {fileID: 685385003}
-  - component: {fileID: 685385002}
   m_Layer: 5
   m_Name: NicknameInputField
   m_TagString: Untagged
@@ -870,23 +869,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &685385002
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 685385001}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0394bde045ced2c46a05747eda9de3b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NicknameInput
-  _nicknameInput: {fileID: 685385003}
-  _errorText: {fileID: 348516247}
-  _welcomeText: {fileID: 1350570698}
-  _minLength: 2
-  _maxLength: 8
 --- !u!114 &685385003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1129,8 +1111,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1913113086}
-        m_TargetAssemblyTypeName: ConnectController, Assembly-CSharp
+      - m_Target: {fileID: 1511225411}
+        m_TargetAssemblyTypeName: TitleManager, Assembly-CSharp
         m_MethodName: OnClickConnect
         m_Mode: 1
         m_Arguments:
@@ -1480,6 +1462,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36ffaa688ab02f749bec266c1f265553, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TitleManager
+  _nicknameInput: {fileID: 685385003}
+  _errorText: {fileID: 348516247}
+  _welcomeText: {fileID: 1350570698}
+  _minLength: 2
+  _maxLength: 8
 --- !u!4 &1511225412
 Transform:
   m_ObjectHideFlags: 0
@@ -1765,7 +1752,6 @@ GameObject:
   - component: {fileID: 1913113083}
   - component: {fileID: 1913113085}
   - component: {fileID: 1913113084}
-  - component: {fileID: 1913113086}
   m_Layer: 5
   m_Name: Connect Panel
   m_TagString: Untagged
@@ -1834,20 +1820,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1913113082}
   m_CullTransparentMesh: 1
---- !u!114 &1913113086
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1913113082}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1e0b80b7827a074f823a4138f52f338, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ConnectController
-  _nicknameInput: {fileID: 685385002}
-  _titleManager: {fileID: 1511225411}
 --- !u!1 &2007335479
 GameObject:
   m_ObjectHideFlags: 0
