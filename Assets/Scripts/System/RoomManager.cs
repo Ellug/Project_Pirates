@@ -1,7 +1,6 @@
 ﻿using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -12,7 +11,6 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
     [Header("UI")]
     [SerializeField] private RoomPlayerListView _playerListView;
     [SerializeField] private Button _startButton;
-    [SerializeField] private Button _readyButton;
 
     private readonly RoomReadyStateCheck _ready = new();
     private Player[] _cache = new Player[16];
@@ -25,26 +23,14 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
         Debug.Log($"[Room] Start. startButtonAssigned={_startButton != null}, listViewAssigned={_playerListView != null && _playerListView.HasText}");
         
         GameManager.Instance.SetSceneState(SceneState.Room);
+
+        _ready.SetLocalReady(false);
         
-        if (_startButton != null && _readyButton != null)
+        if (_startButton != null)
         {
+            _startButton.gameObject.SetActive(false);
             _startButton.onClick.RemoveListener(OnClickStartGame);
             _startButton.onClick.AddListener(OnClickStartGame);
-
-            _readyButton.onClick.RemoveListener(ToggleReady);
-            _readyButton.onClick.AddListener(ToggleReady);
-
-            // 방장이면 게임 시작 버튼을, 그렇지 않다면 레디 버튼이 보이도록 함.
-            if (PhotonNetwork.IsMasterClient)
-            {
-                _ready.SetLocalReady(true);
-                _readyButton.gameObject.SetActive(false);
-            }
-            else
-            {
-                _ready.SetLocalReady(false);
-                _startButton.gameObject.SetActive(false);
-            }
         }
         RefreshRoomUI("Start");
     }
@@ -65,6 +51,9 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
 
         if (key.lKey.wasPressedThisFrame)
             LeaveRoom();
+
+        if (key.rKey.wasPressedThisFrame)
+            ToggleReady();
     }
 
     // ToggleReady
@@ -114,23 +103,16 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
     {
         if (_startButton == null) return;
 
-        // 방장이 아니라면
-        // 스타트 버튼 대신 레디 버튼이 띄워짐
+        // 방장이 아니라면 스타트 버튼 안보임
         if (!PhotonNetwork.IsMasterClient) 
         {
             _startButton.gameObject.SetActive(false);
-            _readyButton.gameObject.SetActive(true);
             return;
-        }
-        else
-        {
-            _ready.SetLocalReady(true);
-            _startButton.gameObject.SetActive(true);
-            _readyButton.gameObject.SetActive(false);
         }
 
         // 전부 레디하면 인터랙터블 킴
         bool show = _ready.AreAllPlayersReady(players, count);
+        _startButton.gameObject.SetActive(show);
         _startButton.interactable = show;
     }
 
