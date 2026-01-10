@@ -50,7 +50,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         RoomPrefab.OnTryJoinRoom -= TryJoinRoom;
     }
 
-    // Method
+    // 빠른 참가 버튼에 연결된 메서드
+    // 다른 버튼은 다 LobbyUI에서 메서드 연결 됐는데 얘만 Manager에서 연결됨.
     public void OnClickQuickStart()
     {
         ExitGames.Client.Photon.Hashtable expectedProps =
@@ -63,6 +64,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         // TODO: 방이 없을 때 방이 없다고 알려줘야 함
     }
 
+    // 얘 쓰이고 있는지? 어떤 용도인지 궁금.
+    // 예상으론 방제에 아무것도 입력 안했을 때 디폴트로 생성하는 로직 같아보임!
     public void CreateRoom()
     {
         Debug.Log("[Lobby] Create Room");
@@ -107,22 +110,12 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         }
         PhotonNetwork.JoinRoom(roomInfo.Name);
     }
-    // CB
-    public override void OnJoinedRoom()
-    {
-        Debug.Log("Lobby CB : 룸 입장");
-        SceneManager.LoadScene("Room");
-    }
 
-    public override void OnLeftLobby()
-    {
-        Debug.Log("Lobby CB : 로비에서 나갔음");
-        SceneManager.LoadScene("Title");
-    }
-
-    //RoomListUI
+    // RoomListUI
+    // 현재 만들어진 방 목록을 새로고침한다.
     private void RefreshRoomUI()
     {
+        // 먼저, 지금 띄워진 방 목록을 모두 제거한다.
         foreach (Transform child in _lobbyUI.RoomListPanel)
         {
             Destroy(child.gameObject);
@@ -135,17 +128,17 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         }
 
         _lobbyUI.EmptyText.text = string.Empty;
-
+        
+        // 방이 있으면 해당 정보들을 다시 생성한다.
         foreach (var roomInfo in _cachedRoomList.Values)
         {
             var room = Instantiate(_lobbyUI.RoomPrefab, _lobbyUI.RoomListPanel);
-
             var roomList = room.GetComponent<RoomPrefab>();
-
             roomList.Init(roomInfo);
         }
     }
 
+    // CB
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
         foreach (var info in roomList)
@@ -160,6 +153,18 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             }
         }
         RefreshRoomUI();
+    }
+
+    public override void OnJoinedRoom()
+    {
+        Debug.Log("Lobby CB : 룸 입장");
+        SceneManager.LoadScene("Room");
+    }
+
+    public override void OnLeftLobby()
+    {
+        Debug.Log("Lobby CB : 로비에서 나갔음");
+        SceneManager.LoadScene("Title");
     }
 
     public override void OnLeftRoom()
