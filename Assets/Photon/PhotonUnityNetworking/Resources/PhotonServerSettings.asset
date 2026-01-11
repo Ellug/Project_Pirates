@@ -42,6 +42,12 @@ MonoBehaviour:
   - DestroySpaceship
   - Fire
   - RespawnSpaceship
+  - RPC_SetLightState
+  - RPC_RequestToggle
+  - OnInteract
+  - GameOver
+  - TriggerObject
+  - GameOverAndPopUpResult
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0
