@@ -100,6 +100,21 @@ crashlytics-build.properties
 /[Aa]ssets/Firebase/Plugins/x86_64/FirebaseCppApp*
 /[Aa]ssets/Firebase/
 
+/[Aa]ssets/Firebase/
+/[Aa]ssets/Firebase.meta
+/[Aa]ssets/Editor\ Default\ Resources/Firebase/
+
+/[Aa]ssets/ExternalDependencyManager/
+/[Aa]ssets/ExternalDependencyManager.meta
+
+/[Aa]ssets/Plugins/x86_64/FirebaseCppApp*
+/[Aa]ssets/Plugins/Android/Firebase/
+/[Aa]ssets/Plugins/iOS/Firebase/
+
+/[Aa]ssets/[Ss]treaming[Aa]ssets/google-services-desktop.json
+/[Aa]ssets/[Ss]treaming[Aa]ssets/google-services.json
+/[Aa]ssets/[Ss]treaming[Aa]ssets/Firebase/
+
 # =========================================================================
 # Firebase Configuration Files (Optional but recommended for Public Repos)
 # =========================================================================
@@ -107,6 +122,7 @@ crashlytics-build.properties
 /[Aa]ssets/google-services.json
 /[Aa]ssets/google-services.json.meta
 
-# iOS용 설정 파일
+# iOS용 설정 
+
 /[Aa]ssets/GoogleService-Info.plist
 /[Aa]ssets/GoogleService-Info.plist.meta
