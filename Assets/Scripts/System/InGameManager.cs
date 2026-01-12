@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using System.Collections;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,10 +10,15 @@ public class InGameManager : MonoBehaviourPunCallbacks
     public override void OnEnable()
     {
         base.OnEnable();
+        StartCoroutine(SpawnPlayer());        
+    }
+
+    IEnumerator SpawnPlayer()
+    {
+        yield return new WaitUntil(() => PhotonNetwork.InRoom);
+
         if (PlayerContoller.LocalInstancePlayer == null)
-        {
             PhotonNetwork.Instantiate("Player", new Vector3(0f, 3f, 0f), Quaternion.identity);
-        }
     }
 
     void Update()
@@ -55,6 +61,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
         GameManager.Instance.ResumeGame();
 
         // Photon 룸은 유지한 채, 로컬 씬만 이동
+        // PN 뭔가 해줘야한다 -> 초기화를 PhotonNetwork.Destroy() 로 캡슐을 명시적으로 파괴해야함.
         UnityEngine.SceneManagement.SceneManager.LoadScene("Room");
     }
 }
