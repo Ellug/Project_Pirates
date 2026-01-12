@@ -68,13 +68,19 @@ public class GameManager : Singleton<GameManager>
     public void CitizenVictory()
     {
         _controller.Victory();
-        PauseGame();
+        GameOver();
     }
 
     // 해적의 승리
     public void PiratesVictory()
     {
         _controller.Defeat();
+        GameOver();
+    }
+
+    public void GameOver()
+    {
         PauseGame();
+        Cursor.lockState = CursorLockMode.None;
     }
 }
