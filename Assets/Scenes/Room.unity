@@ -1155,7 +1155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomPlayerListView
   _text: {fileID: 1480518995}
-  _meColorHex: '#FF3B30'
+  _meColor: '#FF3B30'
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

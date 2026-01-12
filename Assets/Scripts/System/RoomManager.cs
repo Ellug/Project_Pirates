@@ -1,4 +1,4 @@
-using ExitGames.Client.Photon;
+﻿using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -21,24 +21,27 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
     void Start()
     {
         Debug.Log($"[Room] Start. startButtonAssigned={_startButton != null}, listViewAssigned={_playerListView != null && _playerListView.HasText}");
+        
         GameManager.Instance.SetSceneState(SceneState.Room);
 
         _ready.SetLocalReady(false);
-
+        
         if (_startButton != null)
         {
             _startButton.gameObject.SetActive(false);
             _startButton.onClick.RemoveListener(OnClickStartGame);
             _startButton.onClick.AddListener(OnClickStartGame);
         }
-
         RefreshRoomUI("Start");
     }
 
     void OnDestroy()
     {
         if (_startButton != null)
+        {
             _startButton.onClick.RemoveListener(OnClickStartGame);
+            _startButton.onClick.RemoveListener(ToggleReady);
+        }
     }
 
     // 임시. 나중에 버틴 도입하고 지워 변경
@@ -74,6 +77,8 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
         return count;
     }
 
+
+    // 룸 UI 새로고침 
     private void RefreshRoomUI(string reason)
     {
         if (!PhotonNetwork.InRoom)
@@ -98,18 +103,20 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
     {
         if (_startButton == null) return;
 
-        if (!PhotonNetwork.IsMasterClient) // 방장 아니면 스타트 버튼 안보임
+        // 방장이 아니라면 스타트 버튼 안보임
+        if (!PhotonNetwork.IsMasterClient) 
         {
             _startButton.gameObject.SetActive(false);
             return;
         }
 
-        // 전부 레디하면 스타트 버튼 보이고 인터랙터블 킴
+        // 전부 레디하면 인터랙터블 킴
         bool show = _ready.AreAllPlayersReady(players, count);
         _startButton.gameObject.SetActive(show);
         _startButton.interactable = show;
     }
 
+    // 방장이 게임 시작 누를 시
     private void OnClickStartGame()
     {
         if (!PhotonNetwork.IsMasterClient) return;
