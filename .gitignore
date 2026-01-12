@@ -91,3 +91,22 @@ crashlytics-build.properties
 *.userprefs
 *.sln.docstates
 .vs/
+
+# =========================================================================
+# Firebase SDK & Package Manager
+# =========================================================================
+
+# Firebase SDK binary files (Avoid 100MB+ limit)
+/[Aa]ssets/Firebase/Plugins/x86_64/FirebaseCppApp*
+/[Aa]ssets/Firebase/
+
+# =========================================================================
+# Firebase Configuration Files (Optional but recommended for Public Repos)
+# =========================================================================
+# 안드로이드용 설정 파일
+/[Aa]ssets/google-services.json
+/[Aa]ssets/google-services.json.meta
+
+# iOS용 설정 파일
+/[Aa]ssets/GoogleService-Info.plist
+/[Aa]ssets/GoogleService-Info.plist.meta
