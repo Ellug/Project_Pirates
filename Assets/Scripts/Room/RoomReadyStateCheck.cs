@@ -1,4 +1,4 @@
-using ExitGames.Client.Photon;
+﻿using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
 
@@ -11,6 +11,7 @@ public class RoomReadyStateCheck
         if (!PhotonNetwork.InRoom || PhotonNetwork.LocalPlayer == null)
             return;
 
+        // TODO : 이거 해시테이블 값 바뀔 때마다 새로 생성하는 문제 수정 필요.
         var props = new Hashtable { { READY, ready } };
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
     }

@@ -18,7 +18,8 @@ public class InGameManager : MonoBehaviourPunCallbacks
         yield return new WaitUntil(() => PhotonNetwork.InRoom);
 
         if (PlayerContoller.LocalInstancePlayer == null)
-            PhotonNetwork.Instantiate("Player", new Vector3(0f, 3f, 0f), Quaternion.identity);
+            PlayerContoller.LocalInstancePlayer = 
+                PhotonNetwork.Instantiate("Player", new Vector3(0f, 3f, 0f), Quaternion.identity);
     }
 
     void Update()
@@ -49,6 +50,9 @@ public class InGameManager : MonoBehaviourPunCallbacks
 
         _ended = true;
 
+        if (PlayerContoller.LocalInstancePlayer != null)
+            PhotonNetwork.Destroy(PlayerContoller.LocalInstancePlayer);
+
         Debug.Log("[InGame] EndGameForAll -> LoadLevel(Room)");
         PhotonNetwork.LoadLevel("Room");
     }
@@ -61,7 +65,10 @@ public class InGameManager : MonoBehaviourPunCallbacks
         GameManager.Instance.ResumeGame();
 
         // Photon 룸은 유지한 채, 로컬 씬만 이동
-        // PN 뭔가 해줘야한다 -> 초기화를 PhotonNetwork.Destroy() 로 캡슐을 명시적으로 파괴해야함.
+        // PN 뭔가 해줘야한다 -> 플레이어를 명시적으로 파괴해야함.
+        if (PlayerContoller.LocalInstancePlayer != null)
+            PhotonNetwork.Destroy(PlayerContoller.LocalInstancePlayer);
+
         UnityEngine.SceneManagement.SceneManager.LoadScene("Room");
     }
 }
