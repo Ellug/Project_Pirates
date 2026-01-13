@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 265748546}
   - component: {fileID: 265748545}
   - component: {fileID: 265748548}
+  - component: {fileID: 265748549}
   m_Layer: 0
   m_Name: GlobalManager
   m_TagString: Untagged
@@ -150,7 +151,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   _dontDestroyOnLoad: 1
-  _nickname: Developer
   _flowState: 0
 --- !u!4 &265748546
 Transform:
@@ -183,6 +183,23 @@ MonoBehaviour:
   _gameVersion: prototype
   _fixedRegion: kr
   _autoSyncScene: 1
+--- !u!114 &265748549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 265748544}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5bd0a0185b15254f8d267ade31daad2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DevConsoleManager
+  _dontDestroyOnLoad: 1
+  _viewPrefab: {fileID: 8090688919392227487, guid: 6a45d2e34ec62e44c9c32934d51600f6, type: 3}
+  _captureUnityLogs: 1
+  _maxLines: 300
+  _refreshInterval: 0.1
 --- !u!1 &272574425
 GameObject:
   m_ObjectHideFlags: 0
