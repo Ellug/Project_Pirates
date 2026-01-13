@@ -8,15 +8,19 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
     [Header("UI")]
     [SerializeField] private DevConsoleView _viewPrefab;
 
+    private const string TimestampFormat = "HH:mm:ss:fff";
+
     // Log 한 줄에 대한 구조체
     private readonly struct LogItem
     {
+        public readonly System.DateTime time;
         public readonly LogType type; // 유니티가 정의한 Enum : Log, Warning, Error, Exception
         public readonly string msg;
         public readonly string stack; // 스택 트레이스
 
-        public LogItem(LogType type, string msg, string stack)
+        public LogItem(System.DateTime time, LogType type, string msg, string stack)
         {
+            this.time = time;
             this.type = type;
             this.msg = msg;
             this.stack = stack;
@@ -57,6 +61,7 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
 
     private void Update()
     {
+        // TODO : Input System 변경 , Toggle 시 Input 맵 변경 등을 통해 다른 인풋 방지
         if (Keyboard.current.f5Key.wasPressedThisFrame)
             Toggle();
 
@@ -134,7 +139,7 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
 
     private void AddLocal(LogType type, string msg, string stack)
     {        
-        _lines.Add(new LogItem(type, msg, stack));
+        _lines.Add(new LogItem(System.DateTime.Now, type, msg, stack));
 
         _needsRender = true;
     }
@@ -143,7 +148,7 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
     {
         lock (_lock)
         {
-            _pending.Enqueue(new LogItem(type, condition, stackTrace));
+            _pending.Enqueue(new LogItem(System.DateTime.Now, type, condition, stackTrace));
         }
     }
 
@@ -171,7 +176,7 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
         for (int i = 0; i < _lines.Count; i++)
         {
             var e = _lines[i];
-            sb.Append('[').Append(e.type).Append("] ").AppendLine(e.msg);
+            AppendLogLine(sb, e);
 
             if ((e.type == LogType.Error || e.type == LogType.Exception) && !string.IsNullOrEmpty(e.stack))
                 sb.AppendLine(e.stack);
@@ -215,7 +220,7 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
             for (int i = 0; i < _lines.Count; i++)
             {
                 var e = _lines[i];
-                sb.Append('[').Append(e.type).Append("] ").AppendLine(e.msg);
+                AppendLogLine(sb, e);
 
                 if ((e.type == LogType.Error || e.type == LogType.Exception) && !string.IsNullOrEmpty(e.stack))
                     sb.AppendLine(e.stack);
@@ -238,6 +243,12 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
         {
             Debug.LogError($"[DevConsole] Failed to save log file\n{ex}");
         }
+    }
+
+    private static void AppendLogLine(StringBuilder sb, LogItem e)
+    {
+        sb.Append('[').Append(e.time.ToString(TimestampFormat)).Append("][")
+            .Append(e.type).Append("] ").AppendLine(e.msg);
     }
 
     // 종료시 txt 저장
