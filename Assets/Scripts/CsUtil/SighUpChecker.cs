@@ -1,9 +1,9 @@
 ﻿using Firebase;
 using Firebase.Auth;
 
-public class FirebaseAuthChecker
+public class SighUpChecker : IValidationRule<FirebaseException>
 {
-    public static ValidationResult Convert(FirebaseException ex)
+    public ValidationResult Validate(FirebaseException ex)
     {
         if (ex == null)
             return ValidationResult.Fail("알 수 없는 오류가 발생했습니다.");
@@ -20,9 +20,6 @@ public class FirebaseAuthChecker
 
             AuthError.WeakPassword =>
                 ValidationResult.Fail("비밀번호가 너무 약합니다."),
-
-            AuthError.WrongPassword or AuthError.UserNotFound =>
-                ValidationResult.Fail("아이디 또는 비밀번호가 틀렸습니다."),
 
             _ =>
                 ValidationResult.Fail("회원가입에 실패했습니다.")

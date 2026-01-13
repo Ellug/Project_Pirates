@@ -45,9 +45,6 @@ public class TitleManager : MonoBehaviourPunCallbacks
         GameManager.Instance.SetSceneState(SceneState.Title);
         InputSystem.actions["Submit"].started += OnClickEnter;
 
-        if (_titleUI.IdInputField != null)
-            _titleUI.IdInputField.characterLimit = _maxNameLength;
-
         //Firebase 연결
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
         {
@@ -68,8 +65,7 @@ public class TitleManager : MonoBehaviourPunCallbacks
         InputSystem.actions["Submit"].started -= OnClickEnter;
     }
 
-    // 연결 온클릭 이벤트 연결 to 버튼
-    // 로그인창으로 변신시켜야한다ㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏ
+    // 연결 온클릭 이벤트 연결 to 버튼 < 해당 부분 TitleUI로 넘겨야함.
     public void OnClickConnect()
     {
         HandleSubmit();
@@ -96,50 +92,52 @@ public class TitleManager : MonoBehaviourPunCallbacks
         string id = _titleUI.IdInputField.text;
         string pw = _titleUI.PwInputField.text;
 
-        if (string.IsNullOrEmpty(id))
+        if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(pw))
         {
-            var emailCheck = new ExceptionChecker<string>()
-                .AddRule(new IdChecker())
-                .Validate(id);
-
-            StartCoroutine(ShowError(emailCheck.Message, errorMessageLifeTime));
+            StartCoroutine(ShowError("아이디 또는 비밀번호를 입력해주세요.", errorMessageLifeTime));
+            _isHandling = false;
             yield break;
         }
+        StartCoroutine(LoginCor(id, pw));
+    }
 
-        if (string.IsNullOrEmpty(pw))
+    IEnumerator LoginCor(string email, string pw)
+    {
+        if (_auth == null)
         {
-            var pwCheck = new ExceptionChecker<string>()
-                .AddRule(new PasswordChecker(_minPwLength, _maxPwLength))
-                .Validate(pw);
-
-            StartCoroutine(ShowError(pwCheck.Message, errorMessageLifeTime));
-            yield break;
-        }
-
-        ///////////////////
-        //로그인 검증 파트//
-        ///////////////////
-
-        if (true) // 여기가 로그인 성공시 조건 들어갈 부분.
-        {
-            ShowWelcome(user.DisplayName); // <<?? 되려나
-        }
-        else
-        {
-            if (_errorCoroutine != null)
-                StopCoroutine(_errorCoroutine);
-
-            //오류 담기
-            //AuthError msg = FirebaseAuthChecker.Convert(new FirebaseException ~~~~);
-
-            //_errorCoroutine = StartCoroutine(ShowError(msg.ToString(), errorMessageLifeTime));
+            StartCoroutine(ShowError("잠시 후 다시 시도해주세요.", errorMessageLifeTime));
             _isHandling = false;
             yield break;
         }
 
+        Task<AuthResult> loginTask = _auth.SignInWithEmailAndPasswordAsync(email, pw);
 
-        // 확정 닉네임이 있으면 연결 시도
+        yield return new WaitUntil(() => loginTask.IsCompleted);
+
+        if (loginTask.Exception != null)
+        {
+            string result = "아이디 또는 비밀번호가 틀렸습니다.";
+
+            StartCoroutine(ShowError(result, errorMessageLifeTime));
+            _isHandling = false;
+            yield break;
+        }
+
+        user = loginTask.Result.User;
+
+        if (user == null)
+        {
+            StartCoroutine(ShowError("로그인에 실패했습니다.", errorMessageLifeTime));
+            _isHandling = false;
+            yield break;
+        }
+
+        _confirmedNickname = string.IsNullOrEmpty(user.DisplayName) ? "Guest" : user.DisplayName;
+
+        ShowWelcome(_confirmedNickname);
+
         ConnectToServer(_confirmedNickname);
+
         _isHandling = false;
     }
 
@@ -153,7 +151,7 @@ public class TitleManager : MonoBehaviourPunCallbacks
         _titleUI.WelcomeText.gameObject.SetActive(true);
     }
 
-    // 아이디 검증 실패 시 로직 (여기에 로그인 기능 새로 만들어주면 될듯 ?)?????????????????????????????????
+    // 아이디 검증 실패 시 로직
     private IEnumerator ShowError(string txt, float seconds)
     {
         if (_titleUI.ErrorText == null)
@@ -238,7 +236,7 @@ public class TitleManager : MonoBehaviourPunCallbacks
             _titleUI.IsSignUpSuccess = false;
 
             FirebaseException firebaseEx = SignUpTask.Exception.GetBaseException() as FirebaseException;
-            ValidationResult result = FirebaseAuthChecker.Convert(firebaseEx);
+            ValidationResult result = new SighUpChecker().Validate(firebaseEx);
 
             ShowResult(result.Message);
         }
