@@ -17,7 +17,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     private readonly Dictionary<string, RoomInfo> _cachedRoomList = new();
 
-    private void Awake()
+    void Awake()
     {
         if (_ui == null) return;
 
@@ -31,7 +31,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         _ui.LeaveToTitleRequested += HandleLeaveToTitleRequested;
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         StopAutoRefresh();
 
@@ -47,7 +47,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         _ui.LeaveToTitleRequested -= HandleLeaveToTitleRequested;
     }
 
-    private void Start()
+    void Start()
     {
         GameManager.Instance.SetSceneState(SceneState.Lobby);
         StartCoroutine(ConnectCheckCoroutine());

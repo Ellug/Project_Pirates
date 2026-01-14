@@ -12,11 +12,25 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
     [SerializeField] private RoomPlayerListView _playerListView;
     [SerializeField] private Button _startButton;
 
+    [Header("Chat Log View")]
+    [SerializeField] private ChatLogView _logView;
+
     private readonly RoomReadyStateCheck _ready = new();
     private Player[] _cache = new Player[16];
 
     // 키 나중에 버튼 도입하고 지워
     Keyboard key = Keyboard.current;
+
+    private void LogRoom(string text)
+    {
+        Debug.Log(text);
+
+        // 채팅 UI 에 같이 출력
+        if(_logView != null)
+        {
+            _logView.AddMessage(text);
+        }
+    }
 
     void Start()
     {
@@ -32,6 +46,14 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
             _startButton.onClick.RemoveListener(OnClickStartGame);
             _startButton.onClick.AddListener(OnClickStartGame);
         }
+
+        // 방 진입 후 내 상태 출력
+        if(PhotonNetwork.InRoom)
+        {
+            string roomName = PhotonNetwork.CurrentRoom?.Name ?? "Unknown";
+            LogRoom($"{roomName} 방에 참여 했습니다.\n 방장 : {PhotonNetwork.MasterClient?.NickName}");
+        }
+
         RefreshRoomUI("Start");
     }
 
@@ -143,8 +165,22 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
         SceneManager.LoadScene("Lobby");
     }
 
-    public override void OnPlayerEnteredRoom(Player newPlayer) => RefreshRoomUI("OnPlayerEnteredRoom");
-    public override void OnPlayerLeftRoom(Player otherPlayer) => RefreshRoomUI("OnPlayerLeftRoom");
+    // 입장 감지 & 출력
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        string name = string.IsNullOrEmpty(newPlayer.NickName) ? newPlayer.UserId : newPlayer.NickName;
+        LogRoom($"{name} 님이 입장 했습니다.");
+        RefreshRoomUI("OnPlayerEnteredRoom");
+    }
+
+    // 퇴장 감지 & 출력
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        bool wasMaster = (PhotonNetwork.MasterClient != null && otherPlayer.ActorNumber == PhotonNetwork.MasterClient.ActorNumber);
+        string name = string.IsNullOrEmpty(otherPlayer.NickName) ? otherPlayer.UserId : otherPlayer.NickName;
+        LogRoom($"{name} 님이 떠났습니다. " + (wasMaster ? " (방장이 떠났습니다.)" : ""));
+        RefreshRoomUI("OnPlayerLeftRoom");
+    }
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
@@ -155,5 +191,11 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
             RefreshRoomUI("OnPlayerPropertiesUpdate");
     }
 
-    public override void OnMasterClientSwitched(Player newMasterClient) => RefreshRoomUI("OnMasterClientSwitched");
+    // 방장 승계 감지 & 출력
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        string name = string.IsNullOrEmpty(newMasterClient.NickName) ? newMasterClient.UserId : newMasterClient.NickName;
+        LogRoom($"{name} 님이 방장이 되셨습니다.");
+        RefreshRoomUI("OnMasterClientSwitched");
+    }
 }

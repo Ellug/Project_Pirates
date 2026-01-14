@@ -771,6 +771,7 @@ GameObject:
   - component: {fileID: 265748545}
   - component: {fileID: 265748548}
   - component: {fileID: 265748549}
+  - component: {fileID: 265748550}
   m_Layer: 0
   m_Name: GlobalManager
   m_TagString: Untagged
@@ -837,6 +838,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DevConsoleManager
   _dontDestroyOnLoad: 1
   _viewPrefab: {fileID: 8090688919392227487, guid: 6a45d2e34ec62e44c9c32934d51600f6, type: 3}
+--- !u!114 &265748550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 265748544}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6aa783cb1d8612a4cb5018bd3ac61c17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UserDataManager
+  _dontDestroyOnLoad: 1
+  _userId: 
+  _nickName: 
+  _win: 
+  _lose: 
 --- !u!1 &272574425
 GameObject:
   m_ObjectHideFlags: 0

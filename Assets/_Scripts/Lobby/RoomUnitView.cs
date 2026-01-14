@@ -13,13 +13,13 @@ public class RoomUnitView : MonoBehaviour
     private RoomSnapshot _snapshot;
     private Action<RoomSnapshot> _onJoinRequested;
 
-    private void Awake()
+    void Awake()
     {
         if (_joinButton != null)
             _joinButton.onClick.AddListener(HandleJoinClicked);
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (_joinButton != null)
             _joinButton.onClick.RemoveListener(HandleJoinClicked);
