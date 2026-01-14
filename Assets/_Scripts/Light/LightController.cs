@@ -14,6 +14,12 @@ public class LightController : MonoBehaviourPunCallbacks
     [Header("조명 텀")]
     [SerializeField] private float rpcCooldown = 0.25f;
     private float lastRpcTime;
+    private PhotonView pv;
+
+    void Awake()
+    {
+        pv = GetComponentInParent<PhotonView>();
+    }
 
     void Start()
     {
@@ -51,7 +57,7 @@ public class LightController : MonoBehaviourPunCallbacks
         if (Time.time - lastRpcTime < rpcCooldown) return;
 
         lastRpcTime = Time.time;
-        photonView.RPC(nameof(RPC_SetLightState), RpcTarget.AllBuffered, newState);
+        pv.RPC(nameof(RPC_SetLightState), RpcTarget.AllBuffered, newState);
     }
 
     [PunRPC]
