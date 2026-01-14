@@ -25,7 +25,8 @@ public class TitleUI : MonoBehaviour
 
     private bool _isSignUpSuccess = false;
     private bool _isNickNameChecked = false;
-
+    private bool _isUserDataMissingAfterLogin = false;
+    private string _loginEmail;
 
     #region 프로퍼티
     // Login Window
@@ -59,7 +60,16 @@ public class TitleUI : MonoBehaviour
         get => _isNickNameChecked;
         set => _isNickNameChecked = value;
     } 
-
+    public bool IsUserDataMissingAfterLogin
+    {
+        get => _isUserDataMissingAfterLogin;
+        set => _isUserDataMissingAfterLogin = value;
+    }
+    public string LoginEmail
+    {
+        get => _loginEmail;
+        set => _loginEmail = value;
+    }
     #endregion
 
     private void Start()
@@ -100,10 +110,32 @@ public class TitleUI : MonoBehaviour
     public void OnResultCheck()
     {
         _resultPanel.SetActive(false);
+        if (_isUserDataMissingAfterLogin)
+        {
+            _authPanel.SetActive(false);
+            _signUpPanel.SetActive(true);
+
+            _emailField.text = _loginEmail;
+
+            _emailField.interactable = false;
+            _passwordField.interactable = false;
+            _passwordCheckField.interactable = false;
+        }
         if (_isSignUpSuccess == true)
         {
             _signUpPanel.SetActive(false);
             _authPanel.SetActive(true);
         }
+    }
+
+    public void OnNameValueChanged()
+    {
+        _isNickNameChecked = false;
+    }
+
+    public void ShowResult(string msg)
+    {
+        _resultText.text = msg;
+        _resultPanel.SetActive(true);
     }
 }

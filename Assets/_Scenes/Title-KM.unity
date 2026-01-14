@@ -412,7 +412,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1511225411}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: TitleManager, Assembly-CSharp
         m_MethodName: OnNameValueChanged
         m_Mode: 1
@@ -682,7 +682,7 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -2309,7 +2309,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1511225413}
+      - m_Target: {fileID: 2052853482}
         m_TargetAssemblyTypeName: TitleUI, Assembly-CSharp
         m_MethodName: OnExitSignUp
         m_Mode: 1
@@ -2494,8 +2494,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1511225411}
-        m_TargetAssemblyTypeName: TitleManager, Assembly-CSharp
+      - m_Target: {fileID: 2052853483}
+        m_TargetAssemblyTypeName: TitleManagerTest, Assembly-CSharp
         m_MethodName: OnCheckDuplicateName
         m_Mode: 1
         m_Arguments:
@@ -2627,7 +2627,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1511225413}
+      - m_Target: {fileID: 2052853482}
         m_TargetAssemblyTypeName: TitleUI, Assembly-CSharp
         m_MethodName: OnResultCheck
         m_Mode: 1
@@ -2896,8 +2896,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1511225411}
-        m_TargetAssemblyTypeName: TitleManager, Assembly-CSharp
+      - m_Target: {fileID: 2052853483}
+        m_TargetAssemblyTypeName: TitleManagerTest, Assembly-CSharp
         m_MethodName: OnClickConnect
         m_Mode: 1
         m_Arguments:
@@ -3406,7 +3406,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1511225413}
+      - m_Target: {fileID: 2052853482}
         m_TargetAssemblyTypeName: TitleUI, Assembly-CSharp
         m_MethodName: OnExitSignUp
         m_Mode: 1
@@ -4120,108 +4120,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &1511225410
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1511225412}
-  - component: {fileID: 1511225411}
-  - component: {fileID: 1511225413}
-  - component: {fileID: 1511225415}
-  - component: {fileID: 1511225414}
-  m_Layer: 0
-  m_Name: TitleManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1511225411
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1511225410}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36ffaa688ab02f749bec266c1f265553, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TitleManager
-  _minNameLength: 2
-  _maxNameLength: 8
-  _minPwLength: 6
-  _maxPwLength: 18
-  _titleUI: {fileID: 1511225413}
-  _authService: {fileID: 1511225415}
-  _userDataStore: {fileID: 1511225414}
---- !u!4 &1511225412
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1511225410}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.5294, y: 0, z: 1.587}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1511225413
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1511225410}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 049295862665d4c43bd64d4cfbf4c9b5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TitleUI
-  _idInputField: {fileID: 685385003}
-  _pwInputField: {fileID: 1629313291}
-  _errorText: {fileID: 348516247}
-  _welcomeText: {fileID: 1350570698}
-  _authPanel: {fileID: 1913113082}
-  _signUpPanel: {fileID: 969713129}
-  _resultPanel: {fileID: 1254700295}
-  _emailField: {fileID: 191511429}
-  _passwordField: {fileID: 1576341643}
-  _passwordCheckField: {fileID: 1382723152}
-  _nickNameField: {fileID: 90601048}
-  _resultText: {fileID: 490027544}
---- !u!114 &1511225414
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1511225410}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cd992e74cad5994e97dbc63701542e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UserDataStore
---- !u!114 &1511225415
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1511225410}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7729daf4230c3394eaad673bada1adc4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AuthService
 --- !u!1 &1525341528
 GameObject:
   m_ObjectHideFlags: 0
@@ -4493,7 +4391,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1511225413}
+      - m_Target: {fileID: 2052853482}
         m_TargetAssemblyTypeName: TitleUI, Assembly-CSharp
         m_MethodName: OnResultCheck
         m_Mode: 1
@@ -4961,8 +4859,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1511225411}
-        m_TargetAssemblyTypeName: TitleManager, Assembly-CSharp
+      - m_Target: {fileID: 2052853483}
+        m_TargetAssemblyTypeName: TitleManagerTest, Assembly-CSharp
         m_MethodName: OnClickCheckSignUp
         m_Mode: 1
         m_Arguments:
@@ -5721,7 +5619,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1511225413}
+      - m_Target: {fileID: 2052853482}
         m_TargetAssemblyTypeName: TitleUI, Assembly-CSharp
         m_MethodName: OnClickSignUp
         m_Mode: 1
@@ -6385,6 +6283,108 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2022379329}
   m_CullTransparentMesh: 1
+--- !u!1 &2052853479
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2052853484}
+  - component: {fileID: 2052853483}
+  - component: {fileID: 2052853482}
+  - component: {fileID: 2052853481}
+  - component: {fileID: 2052853480}
+  m_Layer: 0
+  m_Name: TitleManagerTest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2052853480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2052853479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cd992e74cad5994e97dbc63701542e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UserDataStore
+--- !u!114 &2052853481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2052853479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7729daf4230c3394eaad673bada1adc4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AuthService
+--- !u!114 &2052853482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2052853479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 049295862665d4c43bd64d4cfbf4c9b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TitleUI
+  _idInputField: {fileID: 685385003}
+  _pwInputField: {fileID: 1629313291}
+  _errorText: {fileID: 348516247}
+  _welcomeText: {fileID: 1350570698}
+  _authPanel: {fileID: 1913113082}
+  _signUpPanel: {fileID: 969713129}
+  _resultPanel: {fileID: 1254700295}
+  _emailField: {fileID: 191511429}
+  _passwordField: {fileID: 1576341643}
+  _passwordCheckField: {fileID: 1382723152}
+  _nickNameField: {fileID: 90601048}
+  _resultText: {fileID: 490027544}
+--- !u!114 &2052853483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2052853479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c28b45b59e6848c4f9ae0777bc4bc502, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TitleManagerTest
+  _minNameLength: 2
+  _maxNameLength: 8
+  _minPwLength: 6
+  _maxPwLength: 18
+  _titleUI: {fileID: 2052853482}
+  _authService: {fileID: 2052853481}
+  _userDataStore: {fileID: 2052853480}
+--- !u!4 &2052853484
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2052853479}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 450.9976, y: 552.0466, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2076283047
 GameObject:
   m_ObjectHideFlags: 0
@@ -6875,5 +6875,5 @@ SceneRoots:
   - {fileID: 1778942857}
   - {fileID: 474234360}
   - {fileID: 2007335480}
-  - {fileID: 1511225412}
   - {fileID: 265748546}
+  - {fileID: 2052853484}
