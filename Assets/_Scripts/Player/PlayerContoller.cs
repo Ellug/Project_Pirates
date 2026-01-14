@@ -14,12 +14,10 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
     private Camera _camera;
     private PhotonView _view;
     private PlayerInteraction _playerInteraction;
+    private Animator _animator;
 
     private void Awake()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        _inputMove = Vector2.zero;
-        _playerInteraction = GetComponent<PlayerInteraction>();
         _view = GetComponent<PhotonView>();
     }
 
@@ -28,11 +26,19 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
         if (!_view.IsMine) 
             return;
 
+        _animator = GetComponent<Animator>();
+        _playerInteraction = GetComponent<PlayerInteraction>();
+        
+        Cursor.lockState = CursorLockMode.Locked;
+        
         _camera = Camera.main;
-        _camera.transform.SetParent(transform.GetChild(0), false);
-        _camera.transform.localPosition = new Vector3(0f, 0f, 0.3f);
+        _camera.transform.SetParent(transform, false);
+        _camera.transform.localPosition = new Vector3(0f, 1.77f, 0f);
+        
+        _inputMove = Vector2.zero;
+
         InputSystem.actions["Move"].performed += OnMove;
-        InputSystem.actions["Move"].canceled += OnStop;
+        InputSystem.actions["Move"].canceled += OnMove;
         InputSystem.actions["Interact"].started += OnInteraction;
         InputSystem.actions["Look"].performed += OnLook;
     }
@@ -44,7 +50,7 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
 
         Cursor.lockState = CursorLockMode.None;
         InputSystem.actions["Move"].performed -= OnMove;
-        InputSystem.actions["Move"].canceled -= OnStop;
+        InputSystem.actions["Move"].canceled -= OnMove;
         InputSystem.actions["Interact"].started -= OnInteraction;
         InputSystem.actions["Look"].performed -= OnLook;
     }
@@ -63,11 +69,14 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
     public void OnMove(InputAction.CallbackContext ctx)
     {
         _inputMove = ctx.ReadValue<Vector2>();
-    }
-
-    public void OnStop(InputAction.CallbackContext ctx)
-    {
-         _inputMove = Vector2.zero;
+        if (ctx.performed)
+        {
+            _animator.SetFloat("MoveValue", 0.5f);
+        }
+        else
+        {
+            _animator.SetFloat("MoveValue", 0f);
+        }
     }
 
     private void OnInteraction(InputAction.CallbackContext ctx)
