@@ -1,60 +1,122 @@
-﻿using Photon.Pun;
-using System;
-using System.Collections;
+﻿using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class LobbyUI : MonoBehaviourPunCallbacks
+public class LobbyUI : MonoBehaviour
 {
-    [Header("룸 리스트")]
-    [SerializeField] private Transform _roomListPanel;
-    [SerializeField] private GameObject _roomPrefab;
-    [SerializeField] private TextMeshProUGUI _emptyText;
+    [Header("NickName")]
+    [SerializeField] private TMP_Text _nickNameText;
 
-    [Header("유저 인포")]
-    [SerializeField] private TextMeshProUGUI nickName;
+    [Header("UI")]
+    [SerializeField] private RoomListView _roomListView;
+    [SerializeField] private CreateRoomPanelView _createRoomPanel;
+    [SerializeField] private JoinPwPanelView _joinPwPanel;
 
-    [Header("방 만들기")]
-    [SerializeField] private GameObject _makeRoomPanel;
-    [SerializeField] private TMP_InputField _makeRoomTitle;
-    [SerializeField] private TMP_InputField _makeRoomPW;
-    [SerializeField] private TMP_Dropdown _makeRoomPlayerCount;
+    public event Action RefreshRequested;
+    public event Action<CreateRoomRequest> CreateRoomRequested;
+    public event Action<RoomSnapshot> JoinRequested;
+    public event Action<RoomSnapshot, string> PasswordJoinRequested;
+    public event Action QuickStartRequested;
+    public event Action LeaveToTitleRequested;
 
-    public static event Action<string, string, int> OnCreateRoomRequest;
-    public static event Action OnRefreshRoomListRequest;
-    
-    public Transform RoomListPanel => _roomListPanel;
-    public GameObject RoomPrefab => _roomPrefab;
-    public TextMeshProUGUI EmptyText => _emptyText;
-
-
-    private IEnumerator Start()
+    private void Awake()
     {
-        yield return new WaitUntil(() => PhotonNetwork.InLobby);
-        _makeRoomPanel.SetActive(false);
-        nickName.text = PhotonNetwork.NickName;
-        OnRefreshRoomListRequest?.Invoke();
+        if (_roomListView != null)
+            _roomListView.JoinClicked += HandleRoomJoinClicked;
+
+        if (_createRoomPanel != null)
+            _createRoomPanel.ApplyRequested += HandleCreateRoomApplyRequested;
+
+        if (_joinPwPanel != null)
+            _joinPwPanel.ApplyRequested += HandleJoinPwApplyRequested;
     }
+
+    private void OnDestroy()
+    {
+        if (_roomListView != null)
+            _roomListView.JoinClicked -= HandleRoomJoinClicked;
+
+        if (_createRoomPanel != null)
+            _createRoomPanel.ApplyRequested -= HandleCreateRoomApplyRequested;
+
+        if (_joinPwPanel != null)
+            _joinPwPanel.ApplyRequested -= HandleJoinPwApplyRequested;
+    }
+
+    public void SetNickname(string nickname)
+    {
+        if (_nickNameText != null)
+            _nickNameText.text = nickname;
+    }
+
+    public void RenderRooms(IReadOnlyList<RoomSnapshot> rooms)
+    {
+        if (_roomListView != null)
+            _roomListView.Render(rooms);
+    }
+
+    public void OpenJoinPassword(RoomSnapshot snap)
+    {
+        _joinPwPanel?.Open(snap);
+    }
+
+    public void CloseJoinPassword()
+    {
+        _joinPwPanel?.Close();
+    }
+
+    public void ShowJoinPasswordError(string message)
+    {
+        _joinPwPanel?.ShowError(message);
+    }
+
+    // ===== Buttons (인스펙터 연결) =====
 
     public void OnClickRefresh()
     {
-        OnRefreshRoomListRequest?.Invoke();
+        RefreshRequested?.Invoke();
     }
 
-    public void OnClickCreateRoom()
+    public void OnClickOpenCreateRoom()
     {
-        _makeRoomPanel.SetActive(true);
+        _createRoomPanel?.Open();
     }
 
-    public void OnClickApplyButton()
+    public void OnClickQuickStart()
     {
-        OnCreateRoomRequest?.Invoke(_makeRoomTitle.text, _makeRoomPW.text, _makeRoomPlayerCount.value + 1); //이벤트 호출
-
-        _makeRoomPanel.SetActive(false);
+        QuickStartRequested?.Invoke();
     }
 
-    public void OnClickCancleButton()
+    public void OnClickLeaveToTitle()
     {
-        _makeRoomPanel.SetActive(false);
+        LeaveToTitleRequested?.Invoke();
+    }
+
+    // ===== Internal =====
+
+    // 룸 조인 클릭시
+    private void HandleRoomJoinClicked(RoomSnapshot snap)
+    {
+        if (!snap.IsValid) return;
+
+        // 비밀 방이면 패스워드 패널 열기
+        if (snap.HasPassword)
+        {
+            OpenJoinPassword(snap);
+            return;
+        }
+
+        JoinRequested?.Invoke(snap);
+    }
+
+    private void HandleCreateRoomApplyRequested(CreateRoomRequest req)
+    {
+        CreateRoomRequested?.Invoke(req);
+    }
+
+    private void HandleJoinPwApplyRequested(RoomSnapshot snap, string pw)
+    {
+        PasswordJoinRequested?.Invoke(snap, pw);
     }
 }
