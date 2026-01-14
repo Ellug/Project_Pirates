@@ -7,168 +7,307 @@ using UnityEngine.SceneManagement;
 
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
-    [SerializeField] private LobbyUI _lobbyUI;
+    [SerializeField] private LobbyUI _ui;
 
-    private Dictionary<string, RoomInfo> _cachedRoomList = new();
+    [Header("Refresh")]
+    [SerializeField] private float _autoRefreshIntervalSeconds = 10f;
 
-    void Start()
+    private bool _leaveToTitleRequested;
+    private Coroutine _autoRefreshCo;
+
+    private readonly Dictionary<string, RoomInfo> _cachedRoomList = new();
+
+    private void Awake()
+    {
+        if (_ui == null) return;
+
+        _ui.RefreshRequested += ManualRefresh_RenderFromCache;
+
+        _ui.CreateRoomRequested += HandleCreateRoomRequested;
+        _ui.JoinRequested += HandleJoinRequested;
+        _ui.PasswordJoinRequested += HandlePasswordJoinRequested;
+
+        _ui.QuickStartRequested += HandleQuickStartRequested;
+        _ui.LeaveToTitleRequested += HandleLeaveToTitleRequested;
+    }
+
+    private void OnDestroy()
+    {
+        StopAutoRefresh();
+
+        if (_ui == null) return;
+
+        _ui.RefreshRequested -= ManualRefresh_RenderFromCache;
+
+        _ui.CreateRoomRequested -= HandleCreateRoomRequested;
+        _ui.JoinRequested -= HandleJoinRequested;
+        _ui.PasswordJoinRequested -= HandlePasswordJoinRequested;
+
+        _ui.QuickStartRequested -= HandleQuickStartRequested;
+        _ui.LeaveToTitleRequested -= HandleLeaveToTitleRequested;
+    }
+
+    private void Start()
     {
         GameManager.Instance.SetSceneState(SceneState.Lobby);
         StartCoroutine(ConnectCheckCoroutine());
     }
 
-    private IEnumerator ConnectCheckCoroutine() 
+    private IEnumerator ConnectCheckCoroutine()
     {
         if (!PhotonNetwork.IsConnected)
-        {
             PhotonNetwork.ConnectUsingSettings();
-        }
+
         yield return new WaitUntil(() => PhotonNetwork.IsConnectedAndReady);
-        Debug.Log("Master 서버 연결 완료");
+        Debug.Log("[Lobby] Connected to Master");
 
         PhotonNetwork.JoinLobby();
-
         yield return new WaitUntil(() => PhotonNetwork.InLobby);
-        Debug.Log("로비 입장 완료");
+        Debug.Log("[Lobby] Joined Lobby");
 
-        RefreshRoomUI();
+        _ui?.SetNickname(PhotonNetwork.NickName);
+
+        // 최초 1회 렌더 (캐시가 비어도 EmptyText 처리)
+        RenderRoomsFromCache("Initial Render");
+
+        // 자동 리프레시 시작
+        StartAutoRefresh();
     }
 
-    public override void OnEnable()
+    // ===== Photon Callbacks =====
+
+    public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
-        base.OnEnable();
-        LobbyUI.OnCreateRoomRequest += CreateRoom;
-        LobbyUI.OnRefreshRoomListRequest += RefreshRoomUI;
-        RoomPrefab.OnTryJoinRoom += TryJoinRoom;
+        for (int i = 0; i < roomList.Count; i++)
+        {
+            var info = roomList[i];
+
+            if (info.RemovedFromList)
+                _cachedRoomList.Remove(info.Name);
+            else
+                _cachedRoomList[info.Name] = info;
+        }
+
+        RenderRoomsFromCache($"OnRoomListUpdate (delta={roomList.Count})");
     }
 
-    public override void OnDisable()
+    // ===== Refresh =====
+
+    // 버튼용: 캐시 기반 리프레쉬
+    private void ManualRefresh_RenderFromCache()
     {
-        base.OnDisable();
-        LobbyUI.OnCreateRoomRequest -= CreateRoom;
-        LobbyUI.OnRefreshRoomListRequest -= RefreshRoomUI;
-        RoomPrefab.OnTryJoinRoom -= TryJoinRoom;
+        RenderRoomsFromCache("Manual Refresh Button");
     }
 
-    // 빠른 참가 버튼에 연결된 메서드
-    // 다른 버튼은 다 LobbyUI에서 메서드 연결 됐는데 얘만 Manager에서 연결됨.
-    public void OnClickQuickStart()
+    // 주기용: 10초마다 캐시 기반 리프레쉬
+    private void StartAutoRefresh()
     {
-        ExitGames.Client.Photon.Hashtable expectedProps =
-        new ExitGames.Client.Photon.Hashtable
+        if (_autoRefreshCo != null) return;
+
+        Debug.Log($"[Lobby] AutoRefresh started: every {_autoRefreshIntervalSeconds:0}s (render from cache)");
+        _autoRefreshCo = StartCoroutine(Co_AutoRefreshRender());
+    }
+
+    private void StopAutoRefresh()
+    {
+        if (_autoRefreshCo == null) return;
+
+        StopCoroutine(_autoRefreshCo);
+        _autoRefreshCo = null;
+        Debug.Log("[Lobby] AutoRefresh stopped");
+    }
+
+    private IEnumerator Co_AutoRefreshRender()
+    {
+        var wait = new WaitForSeconds(_autoRefreshIntervalSeconds);
+
+        while (true)
+        {
+            yield return wait;
+
+            if (_leaveToTitleRequested)
+                continue;
+
+            RenderRoomsFromCache("Auto Refresh Tick");
+        }
+    }
+
+    // 캐시 -> Snapshot -> UI 렌더
+    private void RenderRoomsFromCache(string reason)
+    {
+        if (_ui == null)
+        {
+            Debug.LogWarning($"[Lobby] Render skipped (ui null). reason={reason}");
+            return;
+        }
+
+        var snaps = new List<RoomSnapshot>(_cachedRoomList.Count);
+
+        foreach (var info in _cachedRoomList.Values)
+        {
+            bool hasPw =
+                info.CustomProperties != null &&
+                info.CustomProperties.TryGetValue("pw", out object pwObj) &&
+                !string.IsNullOrEmpty(pwObj as string);
+
+            snaps.Add(new RoomSnapshot(
+                info.Name,
+                info.PlayerCount,
+                (int)info.MaxPlayers,
+                hasPw,
+                info.IsOpen
+            ));
+        }
+
+        _ui.RenderRooms(snaps);
+        Debug.Log($"[Lobby] RenderRoomsFromCache: {snaps.Count} rooms. reason={reason}");
+    }
+
+    // ===== Create Room =====
+
+    private void HandleCreateRoomRequested(CreateRoomRequest req)
+    {
+        Debug.Log("[Lobby] HandleCreateRoomRequested");
+
+        string roomName = string.IsNullOrWhiteSpace(req.Name) ? "room_00" : req.Name;
+        string roomPW = req.Password ?? string.Empty;
+        int maxPlayer = Mathf.Clamp(req.MaxPlayers, 1, 16);
+
+        var props = new ExitGames.Client.Photon.Hashtable
+        {
+            { "pw", roomPW }
+        };
+
+        var options = new RoomOptions
+        {
+            MaxPlayers = (byte)maxPlayer,
+            IsVisible = true,
+            IsOpen = true,
+            CustomRoomProperties = props,
+            CustomRoomPropertiesForLobby = new[] { "pw" }
+        };
+
+        PhotonNetwork.CreateRoom(roomName, options);
+    }
+
+    // ===== QuickStart =====
+
+    private void HandleQuickStartRequested()
+    {
+        Debug.Log("[Lobby] Try QuickStart");
+
+        var expectedProps = new ExitGames.Client.Photon.Hashtable
         {
             { "pw", string.Empty }
         };
 
         PhotonNetwork.JoinRandomRoom(expectedProps, 0);
-        // TODO: 방이 없을 때 방이 없다고 알려줘야 함
     }
 
-    // 얘 쓰이고 있는지? 어떤 용도인지 궁금.
-    // 예상으론 방제에 아무것도 입력 안했을 때 디폴트로 생성하는 로직 같아보임!
-    public void CreateRoom()
+    public override void OnJoinRandomFailed(short returnCode, string message)
     {
-        Debug.Log("[Lobby] Create Room");
-        PhotonNetwork.CreateRoom("room_00", new RoomOptions { MaxPlayers = 8});
+        Debug.LogWarning($"[Lobby] QuickStart failed: {returnCode} / {message}");
+        // UI로도 알려줘?
     }
 
-    public void CreateRoom(string roomName, string roomPW, int maxPlayer)
-    {
-        bool hasPassword = !string.IsNullOrEmpty(roomPW);
+    // ===== Join =====
 
-        ExitGames.Client.Photon.Hashtable customProps =
-            new ExitGames.Client.Photon.Hashtable
-            {
-                { "pw", roomPW }
-            };
-        RoomOptions options = new RoomOptions
-        {
-            MaxPlayers = (byte)maxPlayer,
-            IsVisible = true,
-            IsOpen = true,
-            CustomRoomProperties = customProps,
-            CustomRoomPropertiesForLobby = new string[] { "pw" }
-        };
-        PhotonNetwork.CreateRoom(roomName, options);
+    private void HandleJoinRequested(RoomSnapshot snap)
+    {
+        if (!snap.IsValid) return;
+        if (!_cachedRoomList.TryGetValue(snap.Name, out RoomInfo info)) return;
+        if (!CanJoin(info)) return;
+
+        PhotonNetwork.JoinRoom(snap.Name);
     }
 
-    public void TryJoinRoom(RoomInfo roomInfo, string inputPW)
+    private void HandlePasswordJoinRequested(RoomSnapshot snap, string inputPw)
     {
-        if (roomInfo == null)
-        {
-            Debug.LogWarning("TryJoinRoom 호출 시 RoomInfo가 null!");
-            return;
-        }
-        if (roomInfo.CustomProperties.TryGetValue("pw", out object pwObj))
-        {
-            string roomPW = pwObj as string;
-            if (roomPW != inputPW)
-            {
-                Debug.Log("비밀번호 틀림");
-                return;
-            }
-        }
-        PhotonNetwork.JoinRoom(roomInfo.Name);
-    }
+        if (_ui == null) return;
 
-    // RoomListUI
-    // 현재 만들어진 방 목록을 새로고침한다.
-    private void RefreshRoomUI()
-    {
-        // 먼저, 지금 띄워진 방 목록을 모두 제거한다.
-        foreach (Transform child in _lobbyUI.RoomListPanel)
+        if (!snap.IsValid)
         {
-            Destroy(child.gameObject);
-        }
-
-        if (_cachedRoomList.Count == 0)
-        {
-            _lobbyUI.EmptyText.text = "방이 없습니다...";
+            _ui.ShowJoinPasswordError("방 정보를 찾을 수 없습니다.");
             return;
         }
 
-        _lobbyUI.EmptyText.text = string.Empty;
-        
-        // 방이 있으면 해당 정보들을 다시 생성한다.
-        foreach (var roomInfo in _cachedRoomList.Values)
+        if (!_cachedRoomList.TryGetValue(snap.Name, out RoomInfo info))
         {
-            var room = Instantiate(_lobbyUI.RoomPrefab, _lobbyUI.RoomListPanel);
-            var roomList = room.GetComponent<RoomPrefab>();
-            roomList.Init(roomInfo);
+            _ui.ShowJoinPasswordError("방 정보를 찾을 수 없습니다.");
+            return;
         }
+
+        if (!CanJoin(info))
+        {
+            _ui.ShowJoinPasswordError("현재 입장할 수 없는 방입니다.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(inputPw))
+        {
+            _ui.ShowJoinPasswordError("비밀번호를 입력해주세요.");
+            return;
+        }
+
+        string roomPw = string.Empty;
+        if (info.CustomProperties != null &&
+            info.CustomProperties.TryGetValue("pw", out object pwObj))
+        {
+            roomPw = pwObj as string ?? string.Empty;
+        }
+
+        if (roomPw != inputPw)
+        {
+            _ui.ShowJoinPasswordError("비밀번호가 틀렸습니다.");
+            return;
+        }
+
+        _ui.CloseJoinPassword();
+        PhotonNetwork.JoinRoom(snap.Name);
     }
 
-    // CB
-    public override void OnRoomListUpdate(List<RoomInfo> roomList)
+    private bool CanJoin(RoomInfo info)
     {
-        foreach (var info in roomList)
-        {
-            if (info.RemovedFromList)
-            {
-                _cachedRoomList.Remove(info.Name);
-            }
-            else
-            {
-                _cachedRoomList[info.Name] = info;
-            }
-        }
-        RefreshRoomUI();
+        if (!info.IsOpen) return false;
+        if (info.PlayerCount >= info.MaxPlayers) return false;
+        return true;
     }
+
+    // ===== Leave To Title =====
+
+    private void HandleLeaveToTitleRequested()
+    {
+        Debug.Log("[Lobby] Try to Leave to Title");
+        if (_leaveToTitleRequested) return;
+        _leaveToTitleRequested = true;
+
+        StopAutoRefresh();
+        StartCoroutine(Co_DisconnectAndGoTitle());
+    }
+
+    private IEnumerator Co_DisconnectAndGoTitle()
+    {
+        if (PhotonNetwork.IsConnected)
+        {
+            PhotonNetwork.Disconnect();
+            yield return new WaitUntil(() => !PhotonNetwork.IsConnected);
+        }
+
+        Debug.Log("[Lobby] DisConnect Complete. Go to Title...");
+        SceneManager.LoadScene("Title");
+    }
+
+    // ===== Scene =====
 
     public override void OnJoinedRoom()
     {
-        Debug.Log("Lobby CB : 룸 입장");
+        Debug.Log("[Lobby] CB: Joined Room");
         SceneManager.LoadScene("Room");
     }
 
     public override void OnLeftLobby()
     {
-        Debug.Log("Lobby CB : 로비에서 나갔음");
+        Debug.Log("[Lobby] CB: Left Lobby -> Go to Title");
         SceneManager.LoadScene("Title");
-    }
-
-    public override void OnLeftRoom()
-    {
-        PhotonNetwork.LeaveLobby();
     }
 }

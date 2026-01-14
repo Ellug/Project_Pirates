@@ -112,9 +112,15 @@ crashlytics-build.properties
 /[Aa]ssets/Plugins/iOS/Firebase/
 /[Aa]ssets/Plugins/tvOS/Firebase/
 
+# 파일과 메타 파일을 세트로 이그노어
 /[Aa]ssets/[Ss]treaming[Aa]ssets/google-services-desktop.json
+/[Aa]ssets/[Ss]treaming[Aa]ssets/google-services-desktop.json.meta
+
 /[Aa]ssets/[Ss]treaming[Aa]ssets/google-services.json
+/[Aa]ssets/[Ss]treaming[Aa]ssets/google-services.json.meta
+
 /[Aa]ssets/[Ss]treaming[Aa]ssets/Firebase/
+/[Aa]ssets/[Ss]treaming[Aa]ssets/Firebase.meta
 
 # =========================================================================
 # Firebase Configuration Files (Optional but recommended for Public Repos)
