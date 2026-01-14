@@ -2427,7 +2427,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoomManager
   _playerListView: {fileID: 1814616601}
   _startButton: {fileID: 1101905010}
-  _logView: {fileID: 0}
+  _logView: {fileID: 1011678952}
 --- !u!4 &1814616600
 Transform:
   m_ObjectHideFlags: 0
