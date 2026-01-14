@@ -29,6 +29,11 @@ public class TitleManager : MonoBehaviourPunCallbacks
 
         InputSystem.actions["Submit"].started += OnClickEnter;
 
+        Init();
+    }
+
+    public void Init()
+    {
         FirebaseApp.CheckAndFixDependenciesAsync()
             .ContinueWithOnMainThread(task =>
             {
