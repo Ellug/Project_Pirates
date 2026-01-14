@@ -1,36 +1,25 @@
 ﻿using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
+using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public sealed class RoomManager : MonoBehaviourPunCallbacks
 {
+    private const string READY_KEY = "ready";
+
     [Header("UI")]
     [SerializeField] private RoomPlayerListView _playerListView;
     [SerializeField] private Button _startButton;
+    [SerializeField] private TMP_Text _startButtonText;
 
     [Header("Chat Log View")]
-    [SerializeField] private ChatLogView _logView;
+    [SerializeField] private ChatLogView _roomLogView;
 
     private readonly RoomReadyStateCheck _ready = new();
     private Player[] _cache = new Player[16];
-
-    // 키 나중에 버튼 도입하고 지워
-    Keyboard key = Keyboard.current;
-
-    private void LogRoom(string text)
-    {
-        Debug.Log(text);
-
-        // 채팅 UI 에 같이 출력
-        if(_logView != null)
-        {
-            _logView.AddMessage(text);
-        }
-    }
 
     void Start()
     {
@@ -38,51 +27,47 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
         
         GameManager.Instance.SetSceneState(SceneState.Room);
 
-        _ready.SetLocalReady(false);
-        
-        if (_startButton != null)
-        {
-            _startButton.gameObject.SetActive(false);
-            _startButton.onClick.RemoveListener(OnClickStartGame);
-            _startButton.onClick.AddListener(OnClickStartGame);
-        }
+        _ready.SetLocalReady(false);        
 
         // 방 진입 후 내 상태 출력
         if(PhotonNetwork.InRoom)
         {
             string roomName = PhotonNetwork.CurrentRoom?.Name ?? "Unknown";
-            LogRoom($"{roomName} 방에 참여 했습니다.\n 방장 : {PhotonNetwork.MasterClient?.NickName}");
+            LogRoom($"[Room] {roomName} 방에 참여 했습니다. [MasterClient] : {PhotonNetwork.MasterClient?.NickName}");
         }
 
         RefreshRoomUI("Start");
     }
 
-    void OnDestroy()
+    // 룸 로그 출력
+    private void LogRoom(string text)
     {
-        if (_startButton != null)
-        {
-            _startButton.onClick.RemoveListener(OnClickStartGame);
-            _startButton.onClick.RemoveListener(ToggleReady);
-        }
+        Debug.Log(text);
+
+        // 채팅 UI 에 같이 출력
+        if(_roomLogView != null)
+            _roomLogView.AddMessage(text);
     }
 
-    // 임시. 나중에 버틴 도입하고 지워 변경
-    void Update()
-    {        
-        if (key == null) return;
+    // 스타트or레디 버튼 클릭
+    public void OnClickStartButton()
+    {
+        if (!PhotonNetwork.InRoom) return;
 
-        if (key.lKey.wasPressedThisFrame)
-            LeaveRoom();
-
-        if (key.rKey.wasPressedThisFrame)
+        if (PhotonNetwork.IsMasterClient)
+            OnClickStartGame();
+        else
             ToggleReady();
     }
 
     // ToggleReady
     public void ToggleReady()
     {
+        if (!PhotonNetwork.InRoom) return;
+
         _ready.ToggleLocalReady();
-        RefreshRoomUI("ToggleReady");        
+
+        RefreshRoomUI("ToggleReady");
     }
 
     private int Refresh()
@@ -121,21 +106,48 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
         Debug.Log($"[Room] UI Refresh ({reason}) players={count}");
     }
 
+    
+    // 메인 버튼(방장: GameStart / 비방장: Ready 토글)
     private void RefreshStartButton(Player[] players, int count)
     {
         if (_startButton == null) return;
 
-        // 방장이 아니라면 스타트 버튼 안보임
-        if (!PhotonNetwork.IsMasterClient) 
+        _startButton.gameObject.SetActive(true);
+
+        if (PhotonNetwork.IsMasterClient)
         {
-            _startButton.gameObject.SetActive(false);
+            SetStartButtonText("GameStart");
+
+            bool canStart = CanMasterStart(players, count);
+            _startButton.interactable = canStart;
             return;
         }
 
-        // 전부 레디하면 인터랙터블 킴
-        bool show = _ready.AreAllPlayersReady(players, count);
-        _startButton.gameObject.SetActive(show);
-        _startButton.interactable = show;
+        bool localReady = IsPlayerReady(PhotonNetwork.LocalPlayer);
+        SetStartButtonText(localReady ? "UnReady" : "Ready");
+        _startButton.interactable = true;
+    }
+
+    // 방장 시작 가능 조건: 방장 제외 전원 레디 (혼자 방이면 true)
+    private bool CanMasterStart(Player[] players, int count)
+    {
+        if (players == null || count <= 0) return false;
+
+        Player master = PhotonNetwork.MasterClient;
+
+        for (int i = 0; i < count; i++)
+        {
+            var p = players[i];
+            if (p == null) continue;
+
+            if (master != null && p.ActorNumber == master.ActorNumber)
+                continue;
+
+            if (!IsPlayerReady(p))                
+                return false;
+        }
+
+        return true;
     }
 
     // 방장이 게임 시작 누를 시
@@ -146,22 +158,48 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
         int count = Refresh();
         var players = _cache;
 
-        if (!_ready.AreAllPlayersReady(players, count)) return;
+        if (!CanMasterStart(players, count)) return;
+        LogRoom("[Room] All Player is Ready. Game Start!");
 
-        Debug.Log("[Room] Start Game → LoadLevel(InGame) for all");
         PhotonNetwork.LoadLevel("InGame");
+    }
+
+    private static string GetDisplayName(Player p)
+    {
+        if (p == null) return "Unknown";
+        if (!string.IsNullOrEmpty(p.NickName)) return p.NickName;
+        if (!string.IsNullOrEmpty(p.UserId)) return p.UserId;
+        return $"Actor#{p.ActorNumber}";
+    }
+
+    private static bool IsPlayerReady(Player p)
+    {
+        if (p == null) return false;
+
+        var props = p.CustomProperties;
+        if (props != null && props.TryGetValue(READY_KEY, out object v) && v is bool b)
+            return b;
+
+        return false;
+    }
+
+    private void SetStartButtonText(string value)
+    {
+        if (_startButtonText != null)
+            _startButtonText.text = value;
     }
 
     // LeaveRoom
     public void LeaveRoom()
     {
-        Debug.Log("[Room] L pressed → Room Out");
+        Debug.Log("[Room] Exit Button pressed → Room Out");
         PhotonNetwork.LeaveRoom();
     }
 
+    // CB
     public override void OnLeftRoom()
     {
-        Debug.Log("[Room] OnLeftRoom -> Go to Lobby");
+        Debug.Log("[Room] CB : OnLeftRoom -> Go to Lobby");
         SceneManager.LoadScene("Lobby");
     }
 
@@ -169,7 +207,7 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         string name = string.IsNullOrEmpty(newPlayer.NickName) ? newPlayer.UserId : newPlayer.NickName;
-        LogRoom($"{name} 님이 입장 했습니다.");
+        LogRoom($"[Room] {name} 님이 입장 했습니다.");
         RefreshRoomUI("OnPlayerEnteredRoom");
     }
 
@@ -178,24 +216,33 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
     {
         bool wasMaster = (PhotonNetwork.MasterClient != null && otherPlayer.ActorNumber == PhotonNetwork.MasterClient.ActorNumber);
         string name = string.IsNullOrEmpty(otherPlayer.NickName) ? otherPlayer.UserId : otherPlayer.NickName;
-        LogRoom($"{name} 님이 떠났습니다. " + (wasMaster ? " (방장이 떠났습니다.)" : ""));
+        LogRoom($"[Room] {name} 님이 떠났습니다. " + (wasMaster ? " (방장이 떠났습니다.)" : ""));
         RefreshRoomUI("OnPlayerLeftRoom");
     }
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
-        // ready 변경 포함이면 갱신
         if (_ready.IsReadyChanged(changedProps))
+        {
+            if (targetPlayer != null)
+            {
+                bool readyNow = IsPlayerReady(targetPlayer);
+                string name = GetDisplayName(targetPlayer);
+                LogRoom($"[Room] {name} 님이 {(readyNow ? "Ready" : "Ready 해제")} 했습니다.");
+            }
+
             RefreshRoomUI("OnPlayerPropertiesUpdate:ready");
-        else
-            RefreshRoomUI("OnPlayerPropertiesUpdate");
+            return;
+        }
+
+        RefreshRoomUI("OnPlayerPropertiesUpdate");
     }
 
     // 방장 승계 감지 & 출력
     public override void OnMasterClientSwitched(Player newMasterClient)
     {
         string name = string.IsNullOrEmpty(newMasterClient.NickName) ? newMasterClient.UserId : newMasterClient.NickName;
-        LogRoom($"{name} 님이 방장이 되셨습니다.");
+        LogRoom($"[Room] {name} 님이 방장이 되셨습니다.");
         RefreshRoomUI("OnMasterClientSwitched");
     }
 }
