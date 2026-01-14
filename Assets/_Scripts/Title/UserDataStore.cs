@@ -13,7 +13,7 @@ public class UserData
     [FirestoreProperty] public int lose { get; set; }
 }
 
-    public class UserDataStore : MonoBehaviour
+public class UserDataStore : MonoBehaviour
 {
     private FirebaseFirestore _firestore;
 
@@ -96,6 +96,7 @@ public class UserData
         }
 
         var data = snapshot.ConvertTo<UserData>();
+        UserDataManager.Instance.ApplyFromFirestore(data.uuid, data.nickName, data.win, data.lose);
         onSuccess?.Invoke(data);
     }
 }
