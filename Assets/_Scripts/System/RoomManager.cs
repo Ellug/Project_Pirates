@@ -51,7 +51,7 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
         if(PhotonNetwork.InRoom)
         {
             string roomName = PhotonNetwork.CurrentRoom?.Name ?? "Unknown";
-            LogRoom($"{roomName} 방에 참여 했습니다.\r 방장 : {PhotonNetwork.MasterClient?.NickName}");
+            LogRoom($"{roomName} 방에 참여 했습니다.\n 방장 : {PhotonNetwork.MasterClient?.NickName}");
         }
 
         RefreshRoomUI("Start");
@@ -192,7 +192,7 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
     }
 
     // 방장 승계 감지 & 출력
-    public override void OnMasterClientSwitched(Player newMasterClient) //=> RefreshRoomUI("OnMasterClientSwitched");
+    public override void OnMasterClientSwitched(Player newMasterClient)
     {
         string name = string.IsNullOrEmpty(newMasterClient.NickName) ? newMasterClient.UserId : newMasterClient.NickName;
         LogRoom($"{name} 님이 방장이 되셨습니다.");
