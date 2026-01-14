@@ -72,7 +72,7 @@ public class TitleUI : MonoBehaviour
     }
     #endregion
 
-    private void Start()
+    void Start()
     {
         if (_welcomeText != null)
             _welcomeText.gameObject.SetActive(false);

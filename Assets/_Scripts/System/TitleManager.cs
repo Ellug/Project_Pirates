@@ -23,7 +23,7 @@ public class TitleManager : MonoBehaviourPunCallbacks
     private bool _isHandling;
 
 
-    private void Start()
+    void Start()
     {
         GameManager.Instance.SetSceneState(SceneState.Title);
 
@@ -43,12 +43,12 @@ public class TitleManager : MonoBehaviourPunCallbacks
             });
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         InputSystem.actions["Submit"].started -= OnClickEnter;
     }
 
-    #region 로그인
+#region 로그인
 
     public void OnClickConnect()
     {
@@ -106,9 +106,9 @@ public class TitleManager : MonoBehaviourPunCallbacks
         ));
     }
 
-    #endregion
+#endregion
 
-    #region 회원가입
+#region 회원가입
 
     public void OnClickCheckSignUp()
     {
@@ -235,9 +235,9 @@ public class TitleManager : MonoBehaviourPunCallbacks
             });
     }
 
-    #endregion
+#endregion
 
-    #region 닉네임 중복 체크
+#region 닉네임 중복 체크
 
     public void OnCheckDuplicateName()
     {
@@ -274,9 +274,9 @@ public class TitleManager : MonoBehaviourPunCallbacks
             }));
     }
 
-    #endregion
+#endregion
 
-    #region 네트워크
+#region 네트워크
 
     private void ConnectToServer(string nickname)
     {
@@ -289,5 +289,5 @@ public class TitleManager : MonoBehaviourPunCallbacks
         SceneManager.LoadScene("Lobby");
     }
 
-    #endregion
+#endregion
 }

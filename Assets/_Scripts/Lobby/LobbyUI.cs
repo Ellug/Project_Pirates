@@ -20,7 +20,7 @@ public class LobbyUI : MonoBehaviour
     public event Action QuickStartRequested;
     public event Action LeaveToTitleRequested;
 
-    private void Awake()
+    void Awake()
     {
         if (_roomListView != null)
             _roomListView.JoinClicked += HandleRoomJoinClicked;
@@ -32,7 +32,7 @@ public class LobbyUI : MonoBehaviour
             _joinPwPanel.ApplyRequested += HandleJoinPwApplyRequested;
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (_roomListView != null)
             _roomListView.JoinClicked -= HandleRoomJoinClicked;
