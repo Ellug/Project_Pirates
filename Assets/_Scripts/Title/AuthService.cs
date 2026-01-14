@@ -37,6 +37,7 @@ public class AuthService : MonoBehaviour
         Action<FirebaseUser> onSuccess,
         Action<FirebaseException> onFail)
     {
+        Debug.Log("[Auth] Start Login");
         var task = Auth.CreateUserWithEmailAndPasswordAsync(email, password);
         yield return new WaitUntil(() => task.IsCompleted);
 

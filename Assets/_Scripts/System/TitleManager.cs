@@ -127,7 +127,6 @@ public class TitleManager : MonoBehaviourPunCallbacks
             MinNick = _minNameLength,
             MaxNick = _maxNameLength
         };
-        Debug.Log(isOnlyNickname + "크앜앜앜");
         if (!isOnlyNickname)
         {
             var result = new ExceptionChecker<SignUpInput>()
@@ -159,7 +158,6 @@ public class TitleManager : MonoBehaviourPunCallbacks
 
     private void StartSignUp(string email, string pw, string nick, bool isOnlyNickname = false)
     {
-        Debug.Log(isOnlyNickname + "크앜크앜");
         if (_isHandling) return;
         _isHandling = true;
 

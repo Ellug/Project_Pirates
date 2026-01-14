@@ -25,6 +25,7 @@ public class UserData
     //아이디에 데이터값 만들기
     public IEnumerator CreateUserData(string uuid, string nick, Action onSuccess, Action<string> onFail)
     {
+        Debug.Log("[Firestore] Start CreateData");
         var data = new Dictionary<string, object>
         {
             { "uuid", uuid },
@@ -49,9 +50,10 @@ public class UserData
         onSuccess?.Invoke();
     }
 
-    //아이디 중복 확인.
+    //닉네임 중복 확인.
     public IEnumerator CheckNicknameDuplicate(string nickname, Action<bool> onResult, Action<string> onFail)
     {
+        Debug.Log("[Firestore] Start Check nickName table");
         var task = _firestore
             .Collection("users")
             .WhereEqualTo("nickName", nickname)
@@ -68,9 +70,10 @@ public class UserData
         onResult?.Invoke(task.Result.Count > 0);
     }
 
-    //유저 닉네임 가져오기.
+    //해당 유저 닉네임 가져오기.
     public IEnumerator GetUserData(string uuid, Action<UserData> onSuccess, Action<string> onFail)
     {
+        Debug.Log("[Firestore] Start users Data");
         var task = _firestore
             .Collection("users")
             .Document(uuid)
