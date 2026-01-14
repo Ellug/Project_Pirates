@@ -7607,8 +7607,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5fb19dd660a3b74ba36a6810317b9e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerContoller
-  _moveSpeed: 5
   _mouseSensitivity: 10
+  walkSpeed: 4
+  runSpeed: 8
+  crouchSpeed: 1.5
+  jumpPower: 5
 --- !u!114 &5235569673981443865
 MonoBehaviour:
   m_ObjectHideFlags: 0
