@@ -330,6 +330,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4092379444472333383}
   - component: {fileID: 2829876681920596483}
+  - component: {fileID: 7754610255484977750}
   m_Layer: 0
   m_Name: HandLight
   m_TagString: Untagged
@@ -368,4 +369,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LightController
   lightList:
   - {fileID: 2783785697539943781}
-  toggleKey: 101
+  isLampsOn: 1
+  rpcCooldown: 0.25
+--- !u!114 &7754610255484977750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5231609154607985669}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PhotonUnityNetworking::Photon.Pun.PhotonView
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
