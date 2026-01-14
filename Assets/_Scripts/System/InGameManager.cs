@@ -19,7 +19,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
 
         if (PlayerContoller.LocalInstancePlayer == null)
             PlayerContoller.LocalInstancePlayer = 
-                PhotonNetwork.Instantiate("Player", new Vector3(0f, 3f, 0f), Quaternion.identity);
+                PhotonNetwork.Instantiate("PlayerMale", new Vector3(0f, 3f, 0f), Quaternion.identity);
     }
 
     void Update()
