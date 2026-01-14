@@ -837,9 +837,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DevConsoleManager
   _dontDestroyOnLoad: 1
   _viewPrefab: {fileID: 8090688919392227487, guid: 6a45d2e34ec62e44c9c32934d51600f6, type: 3}
-  _captureUnityLogs: 1
-  _maxLines: 300
-  _refreshInterval: 0.1
 --- !u!1 &272574425
 GameObject:
   m_ObjectHideFlags: 0
@@ -4134,6 +4131,8 @@ GameObject:
   - component: {fileID: 1511225412}
   - component: {fileID: 1511225411}
   - component: {fileID: 1511225413}
+  - component: {fileID: 1511225415}
+  - component: {fileID: 1511225414}
   m_Layer: 0
   m_Name: TitleManager
   m_TagString: Untagged
@@ -4158,6 +4157,8 @@ MonoBehaviour:
   _minPwLength: 6
   _maxPwLength: 18
   _titleUI: {fileID: 1511225413}
+  _authService: {fileID: 1511225415}
+  _userDataStore: {fileID: 1511225414}
 --- !u!4 &1511225412
 Transform:
   m_ObjectHideFlags: 0
@@ -4197,6 +4198,30 @@ MonoBehaviour:
   _passwordCheckField: {fileID: 1382723152}
   _nickNameField: {fileID: 90601048}
   _resultText: {fileID: 490027544}
+--- !u!114 &1511225414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1511225410}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cd992e74cad5994e97dbc63701542e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UserDataStore
+--- !u!114 &1511225415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1511225410}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7729daf4230c3394eaad673bada1adc4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AuthService
 --- !u!1 &1525341528
 GameObject:
   m_ObjectHideFlags: 0
