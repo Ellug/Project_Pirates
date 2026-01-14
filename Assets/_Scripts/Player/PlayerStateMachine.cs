@@ -66,7 +66,7 @@ public class MoveState : IPlayerState
 
         if (_player.IsRunning)
         {
-            _player.Animator.SetBool("Running", true);
+            _player.Animator.SetBool(_player.animNameOfRun, true);
             _player.Animator.SetFloat(_player.animNameOfMove, 1f);
             _player.transform.Translate(Time.fixedDeltaTime * _player.runSpeed * dir);
             return;

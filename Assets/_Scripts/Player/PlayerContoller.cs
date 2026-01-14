@@ -163,9 +163,17 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
     private void OnCrouch(InputAction.CallbackContext ctx)
     {
         if (ctx.performed)
+        {
             IsCrouching = true;
+            if (_stateMachine.CurrentState == _idle)
+                _stateMachine.ChangeState(_crouch);
+        }
         else
+        {
             IsCrouching = false;
+            if (_stateMachine.CurrentState == _crouch)
+                _stateMachine.ChangeState(_idle);
+        }   
     }
 
     private void OnJump(InputAction.CallbackContext ctx)
