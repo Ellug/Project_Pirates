@@ -12,11 +12,25 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
     [SerializeField] private RoomPlayerListView _playerListView;
     [SerializeField] private Button _startButton;
 
+    [Header("Chat Log View")]
+    [SerializeField] private ChatLogView _logView;
+
     private readonly RoomReadyStateCheck _ready = new();
     private Player[] _cache = new Player[16];
 
     // 키 나중에 버튼 도입하고 지워
     Keyboard key = Keyboard.current;
+
+    private void LogRoom(string text)
+    {
+        Debug.Log(text);
+
+        // 채팅 UI 에 같이 출력
+        if(_logView != null)
+        {
+            _logView.AddMessage(text);
+        }
+    }
 
     void Start()
     {
@@ -32,6 +46,13 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
             _startButton.onClick.RemoveListener(OnClickStartGame);
             _startButton.onClick.AddListener(OnClickStartGame);
         }
+
+        if(PhotonNetwork.InRoom)
+        {
+            string roomName = PhotonNetwork.CurrentRoom?.Name ?? "Unknown";
+            LogRoom($"{roomName} 방에 참여 했습니다.\r 방장 : {PhotonNetwork.MasterClient?.NickName}");
+        }
+
         RefreshRoomUI("Start");
     }
 
@@ -143,8 +164,15 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
         SceneManager.LoadScene("Lobby");
     }
 
-    public override void OnPlayerEnteredRoom(Player newPlayer) => RefreshRoomUI("OnPlayerEnteredRoom");
-    public override void OnPlayerLeftRoom(Player otherPlayer) => RefreshRoomUI("OnPlayerLeftRoom");
+    public override void OnPlayerEnteredRoom(Player newPlayer) //=> RefreshRoomUI("OnPlayerEnteredRoom");
+    {
+        string name = string.IsNullOrEmpty(newPlayer.NickName) ? newPlayer.UserId : newPlayer.NickName;
+        LogRoom($"{name} 님이 입장 했습니다.");
+    }
+    public override void OnPlayerLeftRoom(Player otherPlayer) //=> RefreshRoomUI("OnPlayerLeftRoom");
+    {
+
+    }
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
