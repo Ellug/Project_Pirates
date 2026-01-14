@@ -6,23 +6,35 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
 {
     public static GameObject LocalInstancePlayer;
 
-    [SerializeField] private float _moveSpeed;
     [SerializeField] private float _mouseSensitivity;
 
-    private Vector2 _inputMove;
     private Vector2 _mouseDelta;
     private float _xRotation;
     private Camera _camera;
     private PhotonView _view;
     private PlayerInteraction _playerInteraction;
     private PlayerStateMachine _stateMachine;
-    private Animator _animator;
 
     // Player State
     private IdleState _idle;
     private MoveState _move;
     private JumpState _jump;
     private CrouchState _crouch;
+
+    public float walkSpeed;
+    public float runSpeed;
+    public float crouchSpeed;
+    public float jumpPower;
+    public Animator Animator { get; private set; }
+    public Vector2 InputMove { get; private set; }
+    public bool IsRunning { get; private set; }
+    public bool IsCrouching { get; private set; }
+    public bool IsGrounded { get; set; }
+
+    public readonly string animNameOfMove = "MoveValue";
+    public readonly string animNameOfRun = "Running";
+    public readonly string animNameOfCrouch = "Crouching";
+    public readonly string animNameOfJump = "Jumping";
 
     private void Awake()
     {
@@ -31,19 +43,14 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
         if (!_view.IsMine)
             return;
 
-        _stateMachine = new PlayerStateMachine(_idle);
-        _idle = new IdleState();
-        _move = new MoveState();
-        _jump = new JumpState();
-        _crouch = new CrouchState();
-
         Cursor.lockState = CursorLockMode.Locked;
 
         _camera = Camera.main;
         _camera.transform.SetParent(transform, false);
         _camera.transform.localPosition = new Vector3(0f, 1.77f, 0f);
 
-        _inputMove = Vector2.zero;
+        InputMove = Vector2.zero;
+        IsGrounded = true;
     }
 
     void Start()
@@ -51,13 +58,27 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
         if (!_view.IsMine) 
             return;
 
-        _animator = GetComponent<Animator>();
+        Animator = GetComponent<Animator>();
         _playerInteraction = GetComponent<PlayerInteraction>();
+
+        _idle = new IdleState(this);
+        _move = new MoveState(this);
+        _jump = new JumpState(this);
+        _crouch = new CrouchState(this);
+
+        _stateMachine = new PlayerStateMachine(_idle);
 
         InputSystem.actions["Move"].performed += OnMove;
         InputSystem.actions["Move"].canceled += OnMove;
-        InputSystem.actions["Interact"].started += OnInteraction;
+        InputSystem.actions["Sprint"].performed += OnSprint;
+        InputSystem.actions["Sprint"].canceled += OnSprint;
+        InputSystem.actions["Crouch"].performed += OnCrouch;
+        InputSystem.actions["Crouch"].canceled += OnCrouch;
+
         InputSystem.actions["Look"].performed += OnLook;
+        InputSystem.actions["Look"].canceled += OnLook;
+        InputSystem.actions["Interact"].started += OnInteraction;
+        InputSystem.actions["Jump"].started += OnJump;
     }
 
     void OnDestroy()
@@ -68,24 +89,30 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
         Cursor.lockState = CursorLockMode.None;
         InputSystem.actions["Move"].performed -= OnMove;
         InputSystem.actions["Move"].canceled -= OnMove;
-        InputSystem.actions["Interact"].started -= OnInteraction;
+        InputSystem.actions["Sprint"].performed -= OnSprint;
+        InputSystem.actions["Sprint"].canceled -= OnSprint;
+        InputSystem.actions["Crouch"].performed -= OnCrouch;
+        InputSystem.actions["Crouch"].canceled -= OnCrouch;
+
         InputSystem.actions["Look"].performed -= OnLook;
+        InputSystem.actions["Look"].canceled -= OnLook;
+        InputSystem.actions["Interact"].started -= OnInteraction;
+        InputSystem.actions["Jump"].started -= OnJump;
+    }
+
+    private void Update()
+    {
+        _stateMachine.CurrentState.FrameUpdate();
     }
 
     void FixedUpdate()
     {
-        PlayerMove();
+        _stateMachine.CurrentState.PhysicsUpdate();
     }
 
     private void LateUpdate()
     {
         PlayerLook();
-    }
-
-    private void PlayerMove()
-    {
-        Vector3 dir = new Vector3(_inputMove.x, 0f, _inputMove.y).normalized;
-        transform.Translate(Time.fixedDeltaTime * _moveSpeed * dir);
     }
 
     private void PlayerLook()
@@ -103,14 +130,15 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
 
     public void OnMove(InputAction.CallbackContext ctx)
     {
-        _inputMove = ctx.ReadValue<Vector2>();
+        InputMove = ctx.ReadValue<Vector2>();
         if (ctx.performed)
-        {
-            _animator.SetFloat("MoveValue", 0.5f);
-        }
+            _stateMachine.ChangeState(_move);
         else
         {
-            _animator.SetFloat("MoveValue", 0f);
+            if (IsCrouching)
+                _stateMachine.ChangeState(_crouch);
+            else
+                _stateMachine.ChangeState(_idle);
         }
     }
 
@@ -123,5 +151,25 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
     private void OnLook(InputAction.CallbackContext ctx)
     {
         _mouseDelta = ctx.ReadValue<Vector2>();
+    }
+    private void OnSprint(InputAction.CallbackContext ctx)
+    {
+        if (ctx.performed)
+            IsRunning = true;
+        else 
+            IsRunning = false;
+    }
+
+    private void OnCrouch(InputAction.CallbackContext ctx)
+    {
+        if (ctx.performed)
+            IsCrouching = true;
+        else
+            IsCrouching = false;
+    }
+
+    private void OnJump(InputAction.CallbackContext ctx)
+    {
+        _stateMachine.ChangeState(_jump);
     }
 }
