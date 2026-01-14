@@ -25,7 +25,7 @@ public class DevConsoleView : MonoBehaviour
         _bound = true;
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (_input != null)
             _input.onSubmit.RemoveListener(OnSubmit);
