@@ -1,29 +1,17 @@
 ﻿using UnityEngine;
-using Photon.Pun;
 
-public class InteractableButton : MonoBehaviour, IInteractable
+public class InteractableButton : InteractionObject
 {
     [SerializeField] private bool _isVictoryBtn;
-    private PhotonView _view;
 
-    private void Awake()
+    public override void OnInteract()
     {
-        _view = GetComponent<PhotonView>();
+        Debug.Log("내가 게임을 끝냈다");
+        GameManager.Instance.GameOverAndResult(_isVictoryBtn);
     }
-
-    public float GetInteractionDistance()
+    public override void OnOthersInteract()
     {
-        return 4f;
-    }
-
-    public void OnInteract(GameObject player)
-    {
-        _view.RPC(nameof(GameOverAndPopUpResult), RpcTarget.All);
-    }
-
-    [PunRPC]
-    private void GameOverAndPopUpResult()
-    {
+        Debug.Log("누군가 게임을 끝냈다");
         GameManager.Instance.GameOverAndResult(_isVictoryBtn);
     }
 }
