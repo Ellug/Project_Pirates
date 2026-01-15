@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -12,6 +13,11 @@ public class LobbyUI : MonoBehaviour
     [SerializeField] private RoomListView _roomListView;
     [SerializeField] private CreateRoomPanelView _createRoomPanel;
     [SerializeField] private JoinPwPanelView _joinPwPanel;
+
+    [Header("Notice")]
+    [SerializeField] private TMP_Text _noticeText;
+    [SerializeField] private float _noticeCorDuration = 2.5f;
+    private Coroutine _noticeCor;
 
     public event Action RefreshRequested;
     public event Action<CreateRoomRequest> CreateRoomRequested;
@@ -118,5 +124,26 @@ public class LobbyUI : MonoBehaviour
     private void HandleJoinPwApplyRequested(RoomSnapshot snap, string pw)
     {
         PasswordJoinRequested?.Invoke(snap, pw);
+    }
+
+    public void ShowNotice(string message)
+    {
+        if (_noticeText == null) return;
+
+        if (_noticeCor != null)
+            StopCoroutine(_noticeCor);
+
+        _noticeCor = StartCoroutine(CorShowNotice(message));
+    }
+
+    private IEnumerator CorShowNotice(string message)
+    {
+        _noticeText.text = message;
+        _noticeText.gameObject.SetActive(true);
+
+        yield return new WaitForSeconds(_noticeCorDuration);
+
+        _noticeText.gameObject.SetActive(false);
+        _noticeCor = null;
     }
 }

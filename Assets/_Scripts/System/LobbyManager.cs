@@ -207,7 +207,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
         Debug.LogWarning($"[Lobby] QuickStart failed: {returnCode} / {message}");
-        // UI로도 알려줘?
+
+        _ui.ShowNotice("빠른 시작에 실패했습니다. \n 잠시 후 다시 시도해주세요.");
     }
 
     // ===== Join =====
