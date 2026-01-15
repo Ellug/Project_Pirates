@@ -7,6 +7,8 @@ public class CreateVoice : MonoBehaviourPun
 {
     public void CreateVoicePV(Photon.Realtime.Player player, Transform parent = null)
     {
+        // 로컬 플레이어만
+        if (player != PhotonNetwork.LocalPlayer) return; 
 
         // 씬 내 위치에 VoicePrefab 생성
         GameObject voiceObj = PhotonNetwork.Instantiate("VoicePrefab", Vector3.zero, Quaternion.identity);
@@ -16,10 +18,6 @@ public class CreateVoice : MonoBehaviourPun
 
         Speaker speaker = voiceObj.GetComponent<Speaker>();
         PhotonView pv = voiceObj.GetComponent<PhotonView>();
-
-        // 로컬 플레이어만
-        if (player != PhotonNetwork.LocalPlayer) return; 
-
         // userData로 PhotonView 전달
         PunVoiceClient.Instance.AddSpeaker(speaker, pv);
     }
