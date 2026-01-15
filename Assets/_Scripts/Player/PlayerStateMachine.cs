@@ -169,7 +169,8 @@ public class AttackState : IPlayerState
             {
                 float force = 20f;
 
-                targetView.RPC("RpcGetHitKnockBack", targetView.Owner, direction, force);
+                targetView.RPC("RpcGetHitKnockBack", RpcTarget.Others, direction, force);
+                Debug.Log($"RPC 쐈음 {targetView.ViewID}");
             }
         }
         else

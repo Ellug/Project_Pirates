@@ -17,11 +17,13 @@ public class PlayerHit : MonoBehaviour
     public void GetImpact(Vector3 dir, float force)
     {
         _rigidbody.AddForce(dir * force, ForceMode.Impulse);
+        Debug.Log("충격 받음");
     }
 
     [PunRPC]
     public void RpcGetHitKnockBack(Vector3 dir, float force)
     {
+        Debug.Log($"RPC 수신됨 {_view.ViewID}");
         // 해당하는 사람이 아니면 실행할 필요 없음
         if (_view.IsMine) return;
 
