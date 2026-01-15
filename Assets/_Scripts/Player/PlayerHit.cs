@@ -25,7 +25,7 @@ public class PlayerHit : MonoBehaviour
     {
         Debug.Log($"RPC 수신됨 {_view.ViewID}");
         // 해당하는 사람이 아니면 실행할 필요 없음
-        if (_view.IsMine) return;
+        if (!_view.IsMine) return;
 
         GetImpact(dir, force);
     }
