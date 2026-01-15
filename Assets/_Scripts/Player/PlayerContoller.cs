@@ -48,6 +48,16 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
             return;
         }
 
+        // 내 아바타는 숨김 처리한다.
+        // 다른 사람 아바타는 볼 수 있고 내 아바타도 남한테는 보인다.
+        SkinnedMeshRenderer[] myAvatar =
+            transform.GetComponentsInChildren<SkinnedMeshRenderer>();
+
+        foreach (var avatar in myAvatar) 
+        {
+            avatar.enabled = false;
+        }
+
         Cursor.lockState = CursorLockMode.Locked;
 
         _camera = Camera.main;
