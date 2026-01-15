@@ -5,8 +5,8 @@ using Photon.Pun;
 // 씬 전환 없이 PhotonNetwork 테스트 할 용도
 public class TestSceneChanger : MonoBehaviourPunCallbacks
 {
-    [SerializeField] private GameObject _playerPrefab;
-    public GameObject _myObj;
+    //[SerializeField] private GameObject _playerPrefab;
+    //public GameObject _myObj;
 
     private void Awake()
     {
@@ -15,7 +15,7 @@ public class TestSceneChanger : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        PhotonNetwork.JoinRandomOrCreateRoom();
+        //PhotonNetwork.JoinRandomOrCreateRoom();
     }
 
     public override void OnJoinedRoom()
