@@ -5,6 +5,9 @@ using UnityEngine.InputSystem;
 
 public class InGameManager : MonoBehaviourPunCallbacks
 {
+    [Header("Create Voice Prefab")]
+    [SerializeField] private CreateVoice _createVoice;
+
     private bool _ended;
 
     public override void OnEnable()
@@ -20,6 +23,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
         if (PlayerContoller.LocalInstancePlayer == null)
             PlayerContoller.LocalInstancePlayer = 
                 PhotonNetwork.Instantiate("PlayerMale", new Vector3(0f, 3f, 0f), Quaternion.identity);
+        _createVoice.CreateVoicePV(PhotonNetwork.LocalPlayer, PlayerContoller.LocalInstancePlayer.transform);
     }
 
     void Update()

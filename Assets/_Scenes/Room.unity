@@ -1177,6 +1177,50 @@ MonoBehaviour:
   m_Spacing: {x: 20, y: 20}
   m_Constraint: 0
   m_ConstraintCount: 2
+--- !u!1 &498735700
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 498735702}
+  - component: {fileID: 498735701}
+  m_Layer: 0
+  m_Name: CreateVoice
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &498735701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 498735700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ab12280532334b40b0b73247e862c80, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CreateVoice
+--- !u!4 &498735702
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 498735700}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.14318, y: 0, z: 0.7876}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &611098469
 GameObject:
   m_ObjectHideFlags: 0
@@ -2886,6 +2930,7 @@ MonoBehaviour:
   _startButton: {fileID: 1753963749}
   _startButtonText: {fileID: 915106063}
   _roomLogView: {fileID: 2041022687}
+  _createVoice: {fileID: 498735701}
 --- !u!4 &1814616600
 Transform:
   m_ObjectHideFlags: 0
@@ -3628,3 +3673,4 @@ SceneRoots:
   - {fileID: 976696581}
   - {fileID: 187840509}
   - {fileID: 1814616600}
+  - {fileID: 498735702}
