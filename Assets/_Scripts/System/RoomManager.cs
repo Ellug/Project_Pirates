@@ -7,10 +7,11 @@ using UnityEngine.UI;
 using System;
 using System.Collections;
 
-public sealed class RoomManager : MonoBehaviourPunCallbacks
+public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
 {
     private const string READY_KEY = "ready";
     private const string ROOM_PW_KEY = "pw";
+    public const byte KickEventCode = 201;
 
     [Header("UI")]
     [SerializeField] private RoomUI _roomUI;
@@ -23,11 +24,17 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
     private readonly RoomReadyStateCheck _ready = new();
     private Player[] _cache = new Player[16];
 
-    private void Awake()
+    public override void OnEnable()
     {
-        if (_roomUI == null)
-            _roomUI = GetComponent<RoomUI>();
+        base.OnEnable();
+        PhotonNetwork.AddCallbackTarget(this);
     }
+
+    public override void OnDisable()
+    {
+        base.OnDisable();
+        PhotonNetwork.RemoveCallbackTarget(this);
+    }   
 
     void Start()
     {
@@ -239,7 +246,7 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
     // LeaveRoom
     public void LeaveRoom()
     {
-        Debug.Log("[Room] Exit Button pressed → Room Out");
+        Debug.Log("[Room] Triggered LeaveRoom.");
         ReadyCallBack(() => PhotonNetwork.LeaveRoom());
     }
 
@@ -255,6 +262,20 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
         _ready.SetLocalReady(false);
 
         RefreshRoomUI("OnJoinedRoom");
+    }
+
+    public void OnEvent(ExitGames.Client.Photon.EventData photonEvent)
+    {
+        Debug.Log("[Room] OnEvent " + photonEvent.Code);
+        if (photonEvent == null) return;
+        
+        if (photonEvent.Code == KickEventCode)
+        {
+            if (!PhotonNetwork.InRoom) return;
+
+            if (photonEvent.CustomData is int targetActor && PhotonNetwork.LocalPlayer.ActorNumber == targetActor)
+                PhotonNetwork.LeaveRoom();
+        }
     }
 
     // 입장 감지 & 출력
