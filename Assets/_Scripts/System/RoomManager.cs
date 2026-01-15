@@ -11,7 +11,7 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
 {
     private const string READY_KEY = "ready";
     private const string ROOM_PW_KEY = "pw";
-    public const byte KickEventCode = 201;
+    public const byte KickEventCode = 101;
 
     [Header("UI")]
     [SerializeField] private RoomUI _roomUI;
