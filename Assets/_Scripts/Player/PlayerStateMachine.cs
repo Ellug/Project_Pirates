@@ -167,9 +167,7 @@ public class AttackState : IPlayerState
             PhotonView targetView = hit.transform.GetComponent<PhotonView>();
             if (targetView != null)
             {
-                float force = 3f;
-
-                targetView.RPC("RpcGetHitKnockBack", RpcTarget.Others, direction, force);
+                targetView.RPC("RpcGetHitKnockBack", RpcTarget.Others, direction, _player.knockBackForce);
                 Debug.Log($"RPC 쐈음 {targetView.ViewID}");
             }
         }

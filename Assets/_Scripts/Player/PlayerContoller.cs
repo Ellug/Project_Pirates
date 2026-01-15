@@ -7,6 +7,7 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
     public static GameObject LocalInstancePlayer;
 
     [SerializeField] private float _mouseSensitivity;
+    public float knockBackForce = 5f;
 
     private Vector2 _mouseDelta;
     private float _xRotation;
