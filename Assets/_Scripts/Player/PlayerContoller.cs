@@ -7,6 +7,7 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
     public static GameObject LocalInstancePlayer;
 
     [SerializeField] private float _mouseSensitivity;
+    public float knockBackForce = 5f;
 
     private Vector2 _mouseDelta;
     private float _xRotation;
@@ -20,6 +21,7 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
     private MoveState _move;
     private JumpState _jump;
     private CrouchState _crouch;
+    private AttackState _attack;
 
     public float walkSpeed;
     public float runSpeed;
@@ -40,12 +42,24 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
     {
         _view = GetComponent<PhotonView>();
 
-        // 내 것이 아니면 이 컴포넌트를 아예 비활성화
+        // 내 것이 아니면 컴포넌트를 아예 비활성화
         // 다른 사람의 Update, FixedUpdate 같은 것들이 호출 자체가 안됨
         if (!_view.IsMine)
         {
+            _playerInteraction = GetComponent<PlayerInteraction>();
+            _playerInteraction.enabled = false;
             this.enabled = false;
             return;
+        }
+
+        // 내 아바타는 숨김 처리한다.
+        // 다른 사람 아바타는 볼 수 있고 내 아바타도 남한테는 보인다.
+        SkinnedMeshRenderer[] myAvatar =
+            transform.GetComponentsInChildren<SkinnedMeshRenderer>();
+
+        foreach (var avatar in myAvatar) 
+        {
+            avatar.enabled = false;
         }
 
         Cursor.lockState = CursorLockMode.Locked;
@@ -67,6 +81,7 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
         _move = new MoveState(this);
         _jump = new JumpState(this);
         _crouch = new CrouchState(this);
+        _attack = new AttackState(this);
 
         _stateMachine = new PlayerStateMachine(_idle);
 
@@ -76,6 +91,7 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
         InputSystem.actions["Sprint"].canceled += OnSprint;
         InputSystem.actions["Crouch"].performed += OnCrouch;
         InputSystem.actions["Crouch"].canceled += OnCrouch;
+        InputSystem.actions["Attack"].started += OnAttack;
 
         InputSystem.actions["Look"].performed += OnLook;
         InputSystem.actions["Look"].canceled += OnLook;
@@ -92,6 +108,7 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
         InputSystem.actions["Sprint"].canceled -= OnSprint;
         InputSystem.actions["Crouch"].performed -= OnCrouch;
         InputSystem.actions["Crouch"].canceled -= OnCrouch;
+        InputSystem.actions["Attack"].started -= OnAttack;
 
         InputSystem.actions["Look"].performed -= OnLook;
         InputSystem.actions["Look"].canceled -= OnLook;
@@ -157,6 +174,17 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
             IsRunning = true;
         else 
             IsRunning = false;
+    }
+
+    private void OnAttack(InputAction.CallbackContext ctx)
+    {
+        // 공격키가 무시되는 조건
+        // 1. 공중에 떠 있을 때
+        // 2. 앉아 있을 때
+        if (IsCrouching) return;
+        else if (!IsGrounded) return;
+
+        _stateMachine.ChangeState(_attack);
     }
 
     private void OnCrouch(InputAction.CallbackContext ctx)
