@@ -128,6 +128,7 @@ GameObject:
   - component: {fileID: 3816734626492357668}
   - component: {fileID: 9222327640546775486}
   - component: {fileID: 246840290259086362}
+  - component: {fileID: -8848503391146223751}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -264,7 +265,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4404421439486600313}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3ccd9bc44aeabf342813047a0330e627, type: 3}
   m_Name: 
@@ -280,7 +281,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4404421439486600313}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e5fb19dd660a3b74ba36a6810317b9e1, type: 3}
   m_Name: 
@@ -326,3 +327,16 @@ MonoBehaviour:
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 0
   m_UseLocal: 1
+--- !u!114 &-8848503391146223751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4404421439486600313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 546dc04fe7e712041b4da4ef17e8c2d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChatNetwork
+  _logView: {fileID: 0}

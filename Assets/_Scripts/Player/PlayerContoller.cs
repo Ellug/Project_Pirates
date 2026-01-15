@@ -40,8 +40,13 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
     {
         _view = GetComponent<PhotonView>();
 
+        // 내 것이 아니면 이 컴포넌트를 아예 비활성화
+        // 다른 사람의 Update, FixedUpdate 같은 것들이 호출 자체가 안됨
         if (!_view.IsMine)
+        {
+            this.enabled = false;
             return;
+        }
 
         Cursor.lockState = CursorLockMode.Locked;
 
@@ -55,9 +60,6 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
 
     void Start()
     {
-        if (!_view.IsMine) 
-            return;
-
         Animator = GetComponent<Animator>();
         _playerInteraction = GetComponent<PlayerInteraction>();
 
@@ -83,9 +85,6 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
 
     void OnDestroy()
     {
-        if (!_view.IsMine)
-            return;
-
         Cursor.lockState = CursorLockMode.None;
         InputSystem.actions["Move"].performed -= OnMove;
         InputSystem.actions["Move"].canceled -= OnMove;
