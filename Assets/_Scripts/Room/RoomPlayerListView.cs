@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
@@ -38,12 +38,13 @@ public class RoomPlayerListView : MonoBehaviour
             var p = players[i];
             bool isMe = p == localPlayer;
             bool ready = IsReady(p);
+            int displayNumber = i + 1;
 
             string name = string.IsNullOrWhiteSpace(p.NickName) ? $"Player {p.ActorNumber}" : p.NickName;
             if (isMe)
                 name = $"<color={_meColor}>{name} (ME)</color>";
 
-            _sb.Append('[').Append(p.ActorNumber).Append("] ")
+            _sb.Append('[').Append(displayNumber).Append("] ")
                .Append(name).Append("  ")
                .AppendLine(ready ? "READY" : "-----");
         }

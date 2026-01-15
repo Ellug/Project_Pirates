@@ -203,6 +203,13 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
         SceneManager.LoadScene("Lobby");
     }
 
+    public override void OnJoinedRoom() 
+    {
+        _ready.SetLocalReady(false);
+
+        RefreshRoomUI("OnJoinedRoom");
+    }
+
     // 입장 감지 & 출력
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {

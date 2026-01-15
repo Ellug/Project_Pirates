@@ -12,8 +12,13 @@ public class RoomReadyStateCheck
             return;
 
         // TODO : 이거 해시테이블 값 바뀔 때마다 새로 생성하는 문제 수정 필요.
+        var p = PhotonNetwork.LocalPlayer;
+
+        if (p.CustomProperties != null && p.CustomProperties.TryGetValue(READY, out object v) && v is bool b && b == ready)
+            return;
+
         var props = new Hashtable { { READY, ready } };
-        PhotonNetwork.LocalPlayer.SetCustomProperties(props);
+        p.SetCustomProperties(props);
     }
 
     public void ToggleLocalReady()
