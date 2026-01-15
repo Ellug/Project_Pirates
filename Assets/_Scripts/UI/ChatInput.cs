@@ -6,7 +6,8 @@ using TMPro;
 public class ChatInput : MonoBehaviour
 {
     [SerializeField] private TMP_InputField _input;
-    [SerializeField] private ChatLogView _chatLog;
+    //[SerializeField] private ChatLogView _chatLog;
+    [SerializeField] private ChatNetwork _network;
 
     public void Send()
     {
@@ -14,7 +15,8 @@ public class ChatInput : MonoBehaviour
 
         if (string.IsNullOrEmpty(text)) return;
 
-        _chatLog.AddMessage(text);
+        //_chatLog.AddMessage(text);
+        _network.SendChat(text);
 
         _input.text = "";
         _input.ActivateInputField();
