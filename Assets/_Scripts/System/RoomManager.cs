@@ -282,7 +282,7 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         string name = string.IsNullOrEmpty(newPlayer.NickName) ? newPlayer.UserId : newPlayer.NickName;
-        LogRoom($"[Room] {name} 님이 입장 했습니다.");
+        LogRoom($"[Room] {name} is Enter the Room.");
         RefreshRoomUI("OnPlayerEnteredRoom");
     }
 
@@ -291,7 +291,7 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         bool wasMaster = (PhotonNetwork.MasterClient != null && otherPlayer.ActorNumber == PhotonNetwork.MasterClient.ActorNumber);
         string name = string.IsNullOrEmpty(otherPlayer.NickName) ? otherPlayer.UserId : otherPlayer.NickName;
-        LogRoom($"[Room] {name} 님이 떠났습니다. " + (wasMaster ? " (방장이 떠났습니다.)" : ""));
+        LogRoom($"[Room] {name} is left. " + (wasMaster ? " (MasterClient is left.)" : ""));
         RefreshRoomUI("OnPlayerLeftRoom");
     }
 
