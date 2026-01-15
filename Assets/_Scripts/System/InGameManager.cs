@@ -23,7 +23,9 @@ public class InGameManager : MonoBehaviourPunCallbacks
         if (PlayerContoller.LocalInstancePlayer == null)
             PlayerContoller.LocalInstancePlayer = 
                 PhotonNetwork.Instantiate("PlayerMale", new Vector3(0f, 3f, 0f), Quaternion.identity);
-        _createVoice.CreateVoicePV(PhotonNetwork.LocalPlayer, PlayerContoller.LocalInstancePlayer.transform);
+        
+        PhotonView myPV = PlayerContoller.LocalInstancePlayer.GetComponent<PhotonView>();
+        _createVoice.CreateVoicePV(myPV, PlayerContoller.LocalInstancePlayer.transform);
     }
 
     void Update()
