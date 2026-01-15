@@ -19,7 +19,7 @@ public class RoomReadyStateCheck
         if (p.CustomProperties != null && p.CustomProperties.TryGetValue(READY, out object v) && v is bool b && b == ready)
             return;
 
-        _table.Add(READY, ready);
+        _table[READY] = ready;
         p.SetCustomProperties(_table);
     }
 
