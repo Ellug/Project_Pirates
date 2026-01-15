@@ -1,14 +1,25 @@
 ﻿using Photon.Pun;
 using UnityEngine;
-using Photon.Realtime;
+//using Photon.Realtime;
 
 // RPC로 방 전체 전달
 public class ChatNetwork : MonoBehaviourPun
 {
     [SerializeField] private ChatLogView _logView;
-    //[SerializeField] private int _maxChars = 80;
+    private PhotonView _photonView;
 
     // ChatInput 에서 호출
+    private void Awake()
+    {
+        if(_logView == null)
+        {
+            var panel = GameObject.Find("ChatPanel");
+            if (panel != null) _logView = panel.GetComponent<ChatLogView>();
+        }
+
+        _photonView = GetComponent<PhotonView>();
+    }
+
     public void SendChat(string rawText)
     {
         if (!PhotonNetwork.InRoom) return;
@@ -22,6 +33,17 @@ public class ChatNetwork : MonoBehaviourPun
 
         int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
 
-        //photonView.RPC()
+        _photonView.RPC(nameof(RPC_ReceiveChat), RpcTarget.All, actorNumber, nickName, text);
+    }
+
+    [PunRPC]
+    private void RPC_ReceiveChat(int sendActorNumber, string sendNickname, string text)
+    {
+        if (_logView == null) return;
+
+        bool isMine = (PhotonNetwork.LocalPlayer != null &&
+            sendActorNumber == PhotonNetwork.LocalPlayer.ActorNumber);
+
+        _logView.AddMessage($"[{sendNickname}] : {text}");
     }
 }
