@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System;
 
 public sealed class RoomManager : MonoBehaviourPunCallbacks
 {
@@ -189,11 +190,17 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
             _startButtonText.text = value;
     }
 
+    private void ReadyCallBack(Action callback) 
+    {
+        _ready.SetLocalReady(false);
+        callback?.Invoke();
+    }
+
     // LeaveRoom
     public void LeaveRoom()
     {
         Debug.Log("[Room] Exit Button pressed → Room Out");
-        PhotonNetwork.LeaveRoom();
+        ReadyCallBack(() => PhotonNetwork.LeaveRoom());
     }
 
     // CB
