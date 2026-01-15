@@ -1,18 +1,19 @@
-﻿using ExitGames.Client.Photon;
-using Photon.Pun;
+﻿using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System;
+using System.Collections;
 
 public sealed class RoomManager : MonoBehaviourPunCallbacks
 {
     private const string READY_KEY = "ready";
+    private const string ROOM_PW_KEY = "pw";
 
     [Header("UI")]
-    [SerializeField] private RoomPlayerListView _playerListView;
+    [SerializeField] private RoomUI _roomUI;
     [SerializeField] private Button _startButton;
     [SerializeField] private TMP_Text _startButtonText;
 
@@ -22,9 +23,15 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
     private readonly RoomReadyStateCheck _ready = new();
     private Player[] _cache = new Player[16];
 
+    private void Awake()
+    {
+        if (_roomUI == null)
+            _roomUI = GetComponent<RoomUI>();
+    }
+
     void Start()
     {
-        Debug.Log($"[Room] Start. startButtonAssigned={_startButton != null}, listViewAssigned={_playerListView != null && _playerListView.HasText}");
+        Debug.Log($"[Room] Start. startButtonAssigned={_startButton != null}");
         
         GameManager.Instance.SetSceneState(SceneState.Room);
 
@@ -34,13 +41,19 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
             PhotonNetwork.CurrentRoom.IsOpen = true;
 
         // 방 진입 후 내 상태 출력
-        if (PhotonNetwork.InRoom)
-        {
-            string roomName = PhotonNetwork.CurrentRoom?.Name ?? "Unknown";
-            LogRoom($"[Room] {roomName} 방에 참여 했습니다. [MasterClient] : {PhotonNetwork.MasterClient?.NickName}");
-        }
+        StartCoroutine(CoWaitRoomThenRefresh());
+    }
 
-        RefreshRoomUI("Start");
+    private IEnumerator CoWaitRoomThenRefresh()
+    {
+        // 룸 진입 완료까지 기다렸다가 1회 강제 갱신
+        while (!PhotonNetwork.InRoom || PhotonNetwork.CurrentRoom == null)
+            yield return null;
+
+        string roomName = PhotonNetwork.CurrentRoom?.Name ?? "Unknown";
+        LogRoom($"[Room] {roomName} 방에 참여 했습니다. [MasterClient] : {PhotonNetwork.MasterClient?.NickName}");
+
+        RefreshRoomUI("CoWaitRoomThenRefresh");
     }
 
     // 룸 로그 출력
@@ -97,7 +110,6 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
     {
         if (!PhotonNetwork.InRoom)
         {
-            if (_playerListView != null) _playerListView.SetNotInRoom();
             if (_startButton != null) _startButton.gameObject.SetActive(false);
             return;
         }
@@ -105,12 +117,34 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
         int count = Refresh();
         var players = _cache;
 
-        if (_playerListView != null)
-            _playerListView.Render(PhotonNetwork.CurrentRoom?.Name, players, count, PhotonNetwork.LocalPlayer);
+        // Header 전용
+        string roomName = PhotonNetwork.CurrentRoom?.Name ?? string.Empty;
+        bool hasPassword = GetHasPassword(PhotonNetwork.CurrentRoom);
+
+        if (_roomUI != null)
+            _roomUI.Render(roomName, hasPassword, players, count, PhotonNetwork.LocalPlayer);
 
         RefreshStartButton(players, count);
 
         Debug.Log($"[Room] UI Refresh ({reason}) players={count}");
+    }
+
+    private bool GetHasPassword(Room room)
+    {
+        if (room == null) return false;
+
+        var props = room.CustomProperties;
+        if (props == null) return false;
+
+        // string pw (비어있지 않으면 잠금)
+        if (props.TryGetValue(ROOM_PW_KEY, out object v))
+        {
+            if (v is string s) return !string.IsNullOrWhiteSpace(s);
+            if (v is bool b) return b;
+            if (v != null) return true; // 값이 존재하면 잠금으로 간주
+        }
+
+        return false;
     }
 
     
@@ -240,7 +274,7 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
         RefreshRoomUI("OnPlayerLeftRoom");
     }
 
-    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
     {
         if (_ready.IsReadyChanged(changedProps))
         {
@@ -256,6 +290,18 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
         }
 
         RefreshRoomUI("OnPlayerPropertiesUpdate");
+    }
+
+    // 룸 프로퍼티 바꼇을 때 리프레쉬
+    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
+    {
+        if (propertiesThatChanged != null && propertiesThatChanged.ContainsKey(ROOM_PW_KEY))
+        {
+            RefreshRoomUI("OnRoomPropertiesUpdate:pw");
+            return;
+        }
+
+        RefreshRoomUI("OnRoomPropertiesUpdate");
     }
 
     // 방장 승계 감지 & 출력

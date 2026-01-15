@@ -28,7 +28,7 @@ public class TitleUI : MonoBehaviour
     private bool _isUserDataMissingAfterLogin = false;
     private string _loginEmail;
 
-    #region 프로퍼티
+#region 프로퍼티
     // Login Window
     public TMP_InputField IdInputField => _idInputField;
     public TMP_InputField PwInputField => _pwInputField;
@@ -70,7 +70,7 @@ public class TitleUI : MonoBehaviour
         get => _loginEmail;
         set => _loginEmail = value;
     }
-    #endregion
+#endregion
 
     void Start()
     {
