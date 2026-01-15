@@ -71,7 +71,6 @@ public sealed class RoomPlayerContentView : MonoBehaviour
         _boundPlayer = null;
         _onKick = null;
 
-        // 필요하면 UI 초기화도 여기서 처리 가능
         if (_markMaster != null) _markMaster.SetActive(false);
         if (_kickButton != null) _kickButton.gameObject.SetActive(false);
     }

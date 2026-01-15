@@ -4,6 +4,7 @@ using Photon.Realtime;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using ExitGames.Client.Photon;
 
 public sealed class RoomUI: MonoBehaviour
 {
@@ -132,13 +133,14 @@ public sealed class RoomUI: MonoBehaviour
             _roomSettingsPanel.Open();
     }
 
+    // 강퇴 -> RoomPlayerContentView 온 킥에 연결
     private void HandleKickRequested(Player target)
     {
-        // 실제 킥은 RoomManager/권한 관리 쪽에서 처리 -> 여기서는 요청만
         if (target == null) return;
         if (!PhotonNetwork.IsMasterClient) return;
 
-        PhotonNetwork.CloseConnection(target);
+        var options = new RaiseEventOptions { TargetActors = new[] { target.ActorNumber } };
+        PhotonNetwork.RaiseEvent(RoomManager.KickEventCode, target.ActorNumber, options, SendOptions.SendReliable);
     }
 
     private static bool IsReady(Player p)
