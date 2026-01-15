@@ -1,5 +1,8 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
 public class TitleUI : MonoBehaviour
 {
@@ -28,7 +31,7 @@ public class TitleUI : MonoBehaviour
     private bool _isUserDataMissingAfterLogin = false;
     private string _loginEmail;
 
-    #region 프로퍼티
+#region 프로퍼티
     // Login Window
     public TMP_InputField IdInputField => _idInputField;
     public TMP_InputField PwInputField => _pwInputField;
@@ -70,9 +73,9 @@ public class TitleUI : MonoBehaviour
         get => _loginEmail;
         set => _loginEmail = value;
     }
-    #endregion
+#endregion
 
-    void Start()
+    private void Start()
     {
         if (_welcomeText != null)
             _welcomeText.gameObject.SetActive(false);
@@ -85,6 +88,36 @@ public class TitleUI : MonoBehaviour
         
         if (_resultPanel != null)
             _resultPanel.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (Keyboard.current == null) return;
+        if (!Keyboard.current.tabKey.wasPressedThisFrame) return;
+
+        MoveByNextNavi();
+    }
+
+    private void MoveByNextNavi()
+    {
+        if (EventSystem.current == null) return;
+
+        var go = EventSystem.current.currentSelectedGameObject;
+        if (go == null) return;
+
+        // 현재 선택된 UI 가 셀렉터블인지?
+        var cur = go.GetComponent<Selectable>();
+        if (cur == null) return;
+
+        Selectable next = cur.FindSelectableOnDown();
+        if (next == null) return;
+
+        next.Select();
+
+        // 다음이 인풋필드이면 입력 활성화
+        var nextTmp = next.GetComponent<TMP_InputField>();
+        if (nextTmp != null)
+            nextTmp.ActivateInputField();
     }
 
     public void OnClickSignUp()
