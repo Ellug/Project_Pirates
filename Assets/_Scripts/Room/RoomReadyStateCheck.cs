@@ -5,6 +5,7 @@ using Photon.Realtime;
 public class RoomReadyStateCheck
 {
     private const string READY = "ready";
+    private Hashtable _table = new Hashtable {};
 
     public void SetLocalReady(bool ready)
     {
@@ -12,13 +13,14 @@ public class RoomReadyStateCheck
             return;
 
         // TODO : 이거 해시테이블 값 바뀔 때마다 새로 생성하는 문제 수정 필요.
+        // 1차 수정완료
         var p = PhotonNetwork.LocalPlayer;
 
         if (p.CustomProperties != null && p.CustomProperties.TryGetValue(READY, out object v) && v is bool b && b == ready)
             return;
 
-        var props = new Hashtable { { READY, ready } };
-        p.SetCustomProperties(props);
+        _table.Add(READY, ready);
+        p.SetCustomProperties(_table);
     }
 
     public void ToggleLocalReady()
