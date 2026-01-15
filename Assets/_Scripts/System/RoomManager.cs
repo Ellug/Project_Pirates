@@ -28,10 +28,13 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
         
         GameManager.Instance.SetSceneState(SceneState.Room);
 
-        _ready.SetLocalReady(false);        
+        _ready.SetLocalReady(false);
+
+        if (PhotonNetwork.IsMasterClient)
+            PhotonNetwork.CurrentRoom.IsOpen = true;
 
         // 방 진입 후 내 상태 출력
-        if(PhotonNetwork.InRoom)
+        if (PhotonNetwork.InRoom)
         {
             string roomName = PhotonNetwork.CurrentRoom?.Name ?? "Unknown";
             LogRoom($"[Room] {roomName} 방에 참여 했습니다. [MasterClient] : {PhotonNetwork.MasterClient?.NickName}");
@@ -56,7 +59,10 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks
         if (!PhotonNetwork.InRoom) return;
 
         if (PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.CurrentRoom.IsOpen = false;
             OnClickStartGame();
+        }            
         else
             ToggleReady();
     }
