@@ -8,14 +8,8 @@ public class ChatNetwork : MonoBehaviourPun
     private PhotonView _photonView;
 
     // ChatInput 에서 호출
-    private void Awake()
+    void Awake()
     {
-        if(_logView == null)
-        {
-            var panel = GameObject.Find("ChatPanel");
-            if (panel != null) _logView = panel.GetComponent<ChatLogView>();
-        }
-
         _photonView = GetComponent<PhotonView>();
     }
 
@@ -40,9 +34,19 @@ public class ChatNetwork : MonoBehaviourPun
     {
         if (_logView == null) return;
 
-        bool isMine = (PhotonNetwork.LocalPlayer != null &&
-            sendActorNumber == PhotonNetwork.LocalPlayer.ActorNumber);
+        bool isMine = sendActorNumber == PhotonNetwork.LocalPlayer.ActorNumber;
 
-        _logView.AddMessage($"[{sendNickname}] : {text}");
+        if (isMine)
+        {
+            _logView.AddMessage(
+                $"<color=#FFD400>[ {sendNickname} ] : {text}</color>"
+            );
+        }
+        else
+        {
+            _logView.AddMessage(
+                $"[ {sendNickname} ] : {text}"
+            );
+        }
     }
 }
