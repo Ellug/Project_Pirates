@@ -8,7 +8,8 @@ public class PlayerInteraction : MonoBehaviour
 
     private GameObject _interactionBtn;
     private Camera _camera;
-    private IInteractable _curInteractable;
+    private InteractionObject _curInteractable;
+    private InteractionObjectRpcManager _rpcManager;
 
     void Awake()
     {
@@ -19,6 +20,8 @@ public class PlayerInteraction : MonoBehaviour
     private void Start()
     {
         _interactionBtn = GameObject.Find("InteractionKey");
+        _rpcManager = FindFirstObjectByType<InteractionObjectRpcManager>();
+
         if (_interactionBtn != null)
             _interactionBtn.SetActive(false);
     }
@@ -38,7 +41,7 @@ public class PlayerInteraction : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, _raycastDistance, _interactableLayer))
         {
-            IInteractable interactObj = hit.collider.GetComponent<IInteractable>();
+            InteractionObject interactObj = hit.collider.GetComponent<InteractionObject>();
 
             if (interactObj != null)
             {
@@ -59,6 +62,11 @@ public class PlayerInteraction : MonoBehaviour
     public void InteractObj()
     {
         if (_curInteractable != null)
-            _curInteractable.OnInteract(gameObject);
+        {
+            // 상호작용 한 사람의 로직을 실행하고
+            _curInteractable.OnInteract();
+            // 다른 이들에게 일어나야할 일을 요청한다.
+            _rpcManager.RequestNetworkInteraction(_curInteractable.uniqueID);
+        }
     }
 }
