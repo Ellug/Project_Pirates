@@ -1,6 +1,5 @@
 ﻿using Photon.Pun;
 using UnityEngine;
-//using Photon.Realtime;
 
 // RPC로 방 전체 전달
 public class ChatNetwork : MonoBehaviourPun

@@ -2093,7 +2093,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChatInput
   _input: {fileID: 980860074}
-  _chatLog: {fileID: 1011678952}
+  _network: {fileID: 1814616602}
 --- !u!1 &1011678947
 GameObject:
   m_ObjectHideFlags: 0
@@ -2861,6 +2861,8 @@ GameObject:
   - component: {fileID: 1814616600}
   - component: {fileID: 1814616599}
   - component: {fileID: 1814616601}
+  - component: {fileID: 1814616602}
+  - component: {fileID: 1814616603}
   m_Layer: 0
   m_Name: RoomManager
   m_TagString: Untagged
@@ -2920,6 +2922,41 @@ MonoBehaviour:
   _meNickColorHtml: '#c3ec22'
   _readyOnColorHtml: '#00C853'
   _readyOffColorHtml: '#B0B0B0'
+--- !u!114 &1814616602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1814616598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 546dc04fe7e712041b4da4ef17e8c2d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChatNetwork
+  _logView: {fileID: 1011678952}
+--- !u!114 &1814616603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1814616598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PhotonUnityNetworking::Photon.Pun.PhotonView
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 1
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
 --- !u!1 &1863828645
 GameObject:
   m_ObjectHideFlags: 0
