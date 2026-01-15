@@ -161,21 +161,14 @@ public class AttackState : IPlayerState
         if (Physics.SphereCast(
             _player.transform.position, 0.5f, direction, out hit, range, layerMask))
         {
-            Debug.Log($"맞은 사람 : {hit.collider.name}");
             if (hit.transform == _player.transform) return;
 
             PhotonView targetView = hit.transform.GetComponent<PhotonView>();
             if (targetView != null)
             {
                 targetView.RPC("RpcGetHitKnockBack", RpcTarget.Others, direction, _player.knockBackForce);
-                Debug.Log($"RPC 쐈음 {targetView.ViewID}");
             }
         }
-        else
-        {
-            Debug.Log("맞은 사람 없음");
-        }
-
     }
 
     public void FrameUpdate() { }
