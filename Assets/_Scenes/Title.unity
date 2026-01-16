@@ -2053,9 +2053,9 @@ MonoBehaviour:
   ApplyDontDestroyOnLoad: 1
   runInBackground: 1
   statsResetInterval: 1000
-  speakerPrefab: {fileID: 0}
-  primaryRecorder: {fileID: 0}
-  usePrimaryRecorder: 0
+  speakerPrefab: {fileID: 2256935207639891113, guid: 4d7427577b028f540945672afec93c92, type: 3}
+  primaryRecorder: {fileID: 355709304}
+  usePrimaryRecorder: 1
   cppCompatibilityMode: 0
   Settings:
     AppIdRealtime: 
@@ -2099,8 +2099,8 @@ MonoBehaviour:
   reliableMode: 0
   encrypt: 0
   transmitEnabled: 1
-  samplingRate: 24000
-  frameDuration: 40000
+  samplingRate: 48000
+  frameDuration: 20000
   bitrate: 30000
   sourceType: 0
   microphoneType: 0
