@@ -62,7 +62,9 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
         string roomName = PhotonNetwork.CurrentRoom?.Name ?? "Unknown";
         LogRoom($"[Room] {roomName} 방에 참여 했습니다. [MasterClient] : {PhotonNetwork.MasterClient?.NickName}");
-        _createVoice.CreateVoicePV(this.photonView);
+        
+        //보이스 프리팹 안전 생성
+        _createVoice.CreateVoicePV();
         RefreshRoomUI("CoWaitRoomThenRefresh");
     }
 

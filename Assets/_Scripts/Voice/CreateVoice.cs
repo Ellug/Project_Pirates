@@ -1,13 +1,14 @@
 ﻿using Photon.Pun;
-using Photon.Voice.PUN;
-using Photon.Voice.Unity;
 using UnityEngine;
 
 public class CreateVoice : MonoBehaviourPun
 {
-    public void CreateVoicePV(PhotonView requesterPV, Transform parent = null)
+    public void CreateVoicePV(PhotonView requesterPV = null, Transform parent = null)
     {
-        if (!requesterPV.IsMine) return;
+        if (requesterPV != null )
+        {
+            if (!requesterPV.IsMine) return;
+        }
 
         // 부모의 ViewID를 데이터에 담습니다 (부모가 없으면 0)
         object[] initData = new object[1];
