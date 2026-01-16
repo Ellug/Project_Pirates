@@ -4937,7 +4937,8 @@ GameObject:
   - component: {fileID: 2929540226426288815}
   - component: {fileID: 753312872029953314}
   - component: {fileID: 5235569673981443865}
-  m_Layer: 0
+  - component: {fileID: 7177283211974919599}
+  m_Layer: 7
   m_Name: PlayerMale
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -4953,7 +4954,7 @@ Transform:
   m_GameObject: {fileID: 7431940883202560913}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.49267483, y: 0.574, z: -4.835243}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5155,6 +5156,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerContoller
   _mouseSensitivity: 10
+  knockBackForce: 5
   walkSpeed: 4
   runSpeed: 8
   crouchSpeed: 1.5
@@ -5175,6 +5177,18 @@ MonoBehaviour:
   _interactableLayer:
     serializedVersion: 2
     m_Bits: 64
+--- !u!114 &7177283211974919599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7431940883202560913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc77d186628589f41963bf9fe9b50d06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHit
 --- !u!1 &7531048272763147095
 GameObject:
   m_ObjectHideFlags: 0
