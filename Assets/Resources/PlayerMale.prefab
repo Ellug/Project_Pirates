@@ -5156,6 +5156,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerContoller
   _mouseSensitivity: 10
+  knockBackForce: 5
   walkSpeed: 4
   runSpeed: 8
   crouchSpeed: 1.5
