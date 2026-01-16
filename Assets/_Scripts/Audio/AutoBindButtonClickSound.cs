@@ -36,10 +36,6 @@ public class AutoBindButtonClickSound : MonoBehaviour
     private void OnButtonClicked()
     {
         if (AudioManager.Instance != null)
-        {
-            Debug.Log("유아이 클릭음");
             AudioManager.Instance.PlayUi(_clickClip);
-            
-        }
     }
 }
