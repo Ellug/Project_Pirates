@@ -28,6 +28,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
         _createVoice.CreateVoicePV(myPV, PlayerContoller.LocalInstancePlayer.transform);
     }
 
+    // 이건 인게임에서 esc키로 패널 띄우고 게임 나가는거 구현되면 지우기
     void Update()
     {
         var kb = Keyboard.current;

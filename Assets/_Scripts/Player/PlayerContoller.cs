@@ -15,6 +15,7 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
     private PhotonView _view;
     private PlayerInteraction _playerInteraction;
     private PlayerStateMachine _stateMachine;
+    private PlayerModel _model;
 
     // Player State
     private IdleState _idle;
@@ -27,6 +28,7 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
     public float runSpeed;
     public float crouchSpeed;
     public float jumpPower;
+
     public Animator Animator { get; private set; }
     public Vector2 InputMove { get; private set; }
     public bool IsRunning { get; private set; }
@@ -144,7 +146,7 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
         transform.Rotate(Vector3.up * mouseX); // 플레이어 몸체 전체가 좌우로 회전
     }
 
-    public void OnMove(InputAction.CallbackContext ctx)
+    private void OnMove(InputAction.CallbackContext ctx)
     {
         InputMove = ctx.ReadValue<Vector2>();
         if (ctx.performed)
@@ -206,5 +208,11 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
     private void OnJump(InputAction.CallbackContext ctx)
     {
         _stateMachine.ChangeState(_jump);
+    }
+
+    [PunRPC]
+    public void IsMafia()
+    {
+        Debug.Log("당신은 마피아입니다.");
     }
 }

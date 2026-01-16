@@ -52,6 +52,7 @@ MonoBehaviour:
   - RpcInteractionObject
   - RpcGetHitKnockBack
   - RPC_SyncVoiceParent
+  - IsMafia
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0
