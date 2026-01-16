@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
 {
@@ -23,6 +24,7 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
     private readonly RoomReadyStateCheck _ready = new();
     private Player[] _cache = new Player[16];
+    private readonly HashSet<int> _readyFirstUpdate = new();
 
     public override void OnEnable()
     {
@@ -111,7 +113,6 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
         return count;
     }
 
-
     // 룸 UI 새로고침 
     private void RefreshRoomUI(string reason)
     {
@@ -153,7 +154,6 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
         return false;
     }
-
     
     // 메인 버튼(방장: GameStart / 비방장: Ready 토글)
     private void RefreshStartButton(Player[] players, int count)
@@ -259,8 +259,8 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
     public override void OnJoinedRoom() 
     {
+        _readyFirstUpdate.Clear();
         _ready.SetLocalReady(false);
-
         RefreshRoomUI("OnJoinedRoom");
     }
 
@@ -301,15 +301,25 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
         {
             if (targetPlayer != null)
             {
+                int actor = targetPlayer.ActorNumber;
                 bool readyNow = IsPlayerReady(targetPlayer);
+
+                // 이 플레이어의 첫 ready 변경 콜백이면?
+                if(_readyFirstUpdate.Add(actor))
+                {
+                    // 첫 콜백이 false 이면 로그 출력하고 스킵
+                    if(!readyNow)
+                    {
+                        RefreshRoomUI("OnPlayerPropertiesUpdate:ready(first-skip)");
+                        return;
+                    }
+                }
                 string name = GetDisplayName(targetPlayer);
                 LogRoom($"[Room] {name} 님이 {(readyNow ? "Ready" : "Ready 해제")} 했습니다.");
             }
-
             RefreshRoomUI("OnPlayerPropertiesUpdate:ready");
             return;
         }
-
         RefreshRoomUI("OnPlayerPropertiesUpdate");
     }
 
