@@ -345,6 +345,14 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         string name = string.IsNullOrEmpty(newMasterClient.NickName) ? newMasterClient.UserId : newMasterClient.NickName;
         LogRoom($"[Room] {name} 님이 방장이 되셨습니다.");
+
+        if (PhotonNetwork.LocalPlayer != null
+            && newMasterClient != null
+            && PhotonNetwork.LocalPlayer.ActorNumber == newMasterClient.ActorNumber)
+        {
+            _ready.SetLocalReady(false);
+        }
+
         RefreshRoomUI("OnMasterClientSwitched");
     }
 }
