@@ -5,7 +5,6 @@ using Firebase.Firestore;
 
 
 [FirestoreData]
-
 public sealed class UserDataManager : Singleton<UserDataManager>
 {
     [Header("Runtime User Data")]
@@ -26,6 +25,10 @@ public sealed class UserDataManager : Singleton<UserDataManager>
     protected override void OnSingletonAwake()
     {
         _db = FirebaseFirestore.DefaultInstance;
+
+        // ********************* 최종 빌드시 지우는거 고려하셈 *********************
+        var settings = _db.Settings;
+        settings.PersistenceEnabled = false;
     }
 
     // Firestore 조회 결과 반영 + 문서 참조 세팅
