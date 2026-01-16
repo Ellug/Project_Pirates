@@ -10,25 +10,50 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
 
     private const string TimestampFormat = "HH:mm:ss:fff";
 
-    // Log 한 줄에 대한 구조체
+    // 보관 상한
+    private const int MaxLines = 2000;           // 화면/메모리 안정화
+    private const int MaxPendingItems = 1024;    // 콘솔 닫힌 상태 폭주 방지
+    private const int MaxMessageChars = 2000;
+    private const int MaxStackChars = 6000;
+
+    private static string Trunc(string s, int max)
+    {
+        if (string.IsNullOrEmpty(s) || s.Length <= max) return s;
+        return s.Substring(0, max) + " ...(truncated)";
+    }
+
+    // Log 한 줄에 대한 구조체 (중복 카운트 포함)
     private readonly struct LogItem
     {
-        public readonly System.DateTime time;
-        public readonly LogType type; // 유니티가 정의한 Enum : Log, Warning, Error, Exception
+        public readonly System.DateTime firstTime;
+        public readonly System.DateTime lastTime;
+        public readonly LogType type;
         public readonly string msg;
-        public readonly string stack; // 스택 트레이스
+        public readonly string stack;
+        public readonly int count;
 
         public LogItem(System.DateTime time, LogType type, string msg, string stack)
+            : this(time, time, type, msg, stack, 1) { }
+
+        private LogItem(System.DateTime first, System.DateTime last, LogType type, string msg, string stack, int count)
         {
-            this.time = time;
+            firstTime = first;
+            lastTime = last;
             this.type = type;
             this.msg = msg;
             this.stack = stack;
+            this.count = count;
         }
+
+        public bool IsSame(LogType type, string msg, string stack)
+            => this.type == type && this.msg == msg && this.stack == stack;
+
+        public LogItem Increment(System.DateTime now) => new(firstTime, now, type, msg, stack, count + 1);
     }
+
     
     private readonly object _lock = new(); // 여러 스레드가 동시에 접근하는 데이터를 보호하기 위한 잠금 객체
-    private readonly Queue<LogItem> _pending = new(256); // 로그 임시 저장 큐 (lock으로 보호)
+    private List<LogItem> _pending = new(256); // 로그 임시 저장 큐 (lock으로 보호)
     private readonly List<LogItem> _lines = new(512); // 실제 화면에 출력될 로그
 
     private DevConsoleView _view;
@@ -138,35 +163,105 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
     }
 
     private void AddLocal(LogType type, string msg, string stack)
-    {        
-        _lines.Add(new LogItem(System.DateTime.Now, type, msg, stack));
+    {
+        msg = Trunc(msg, MaxMessageChars);
+        stack = Trunc(stack, MaxStackChars);
 
+        var now = System.DateTime.Now;
+
+        if (_lines.Count > 0 && _lines[^1].IsSame(type, msg, stack))
+            _lines[^1] = _lines[^1].Increment(now);
+        else
+            _lines.Add(new LogItem(now, type, msg, stack));
+
+        TrimLines();
         _needsRender = true;
     }
 
     private void OnUnityLogThreaded(string condition, string stackTrace, LogType type)
     {
+        // 저장 전에 길이 제한(재귀/스택 폭주 방지)
+        condition = Trunc(condition, MaxMessageChars);
+        stackTrace = Trunc(stackTrace, MaxStackChars);
+
+        var now = System.DateTime.Now;
+
         lock (_lock)
         {
-            _pending.Enqueue(new LogItem(System.DateTime.Now, type, condition, stackTrace));
+            // pending 상한: UI가 닫혀있거나 렌더가 막혀도 게임은 살아야 함
+            if (_pending.Count >= MaxPendingItems)
+            {
+                const string overflowMsg = "[DevConsole] Pending overflow. Logs are being suppressed.";
+                if (_pending.Count > 0 && _pending[^1].IsSame(LogType.Warning, overflowMsg, null))
+                    _pending[^1] = _pending[^1].Increment(now);
+                else
+                    _pending.Add(new LogItem(now, LogType.Warning, overflowMsg, null));
+                return;
+            }
+
+            // 연속 중복 병합(마지막 pending과 동일하면 count++)
+            if (_pending.Count > 0 && _pending[^1].IsSame(type, condition, stackTrace))
+            {
+                _pending[^1] = _pending[^1].Increment(now);
+            }
+            else
+            {
+                _pending.Add(new LogItem(now, type, condition, stackTrace));
+            }
         }
     }
 
     private void FlushPendingToLines()
     {
-        bool hasNew = false;
+        List<LogItem> batch = null;
 
         lock (_lock)
         {
-            while (_pending.Count > 0)
+            if (_pending.Count == 0) return;
+
+            // ★ 스왑: 락 잡고 있는 시간을 극단적으로 줄임
+            batch = _pending;
+            _pending = new List<LogItem>(256);
+        }
+
+        bool hasNew = false;
+
+        for (int i = 0; i < batch.Count; i++)
+        {
+            var it = batch[i];
+
+            // lines의 마지막과도 연속 중복이면 병합
+            if (_lines.Count > 0 && _lines[^1].IsSame(it.type, it.msg, it.stack))
             {
-                _lines.Add(_pending.Dequeue()); // 큐에서 line으로
-                hasNew = true;
+                // batch에서 이미 count가 누적됐을 수 있으니 count만큼 합산
+                var last = _lines[^1];
+                var merged = last;
+
+                for (int k = 0; k < it.count; k++)
+                    merged = merged.Increment(it.lastTime);
+
+                _lines[^1] = merged;
             }
+            else
+            {
+                _lines.Add(it);
+            }
+
+            hasNew = true;
         }
 
         if (hasNew)
+        {
+            TrimLines();
             _needsRender = true;
+        }
+    }
+
+    private void TrimLines()
+    {
+        int overflow = _lines.Count - MaxLines;
+        if (overflow <= 0) return;
+        _lines.RemoveRange(0, overflow);
     }
 
     private string BuildText()
@@ -247,8 +342,14 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
 
     private static void AppendLogLine(StringBuilder sb, LogItem e)
     {
-        sb.Append('[').Append(e.time.ToString(TimestampFormat)).Append("][")
-            .Append(e.type).Append("] ").AppendLine(e.msg);
+        // 시간은 마지막 발생 기준
+        sb.Append('[').Append(e.lastTime.ToString(TimestampFormat)).Append("][")
+        .Append(e.type).Append("] ").Append(e.msg);
+
+        if (e.count > 1)
+            sb.Append(" [ +").Append(e.count - 1).Append(" ]"); // 요청하신 형태
+
+        sb.AppendLine();
     }
 
     // 종료시 txt 저장
