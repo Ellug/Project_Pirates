@@ -54,6 +54,8 @@ public class GameManager : Singleton<GameManager>
 
     public void GameOverAndResult(bool isCitizenVictory)
     {
+        if (PlayerManager.Instance != null)
+            PlayerManager.Instance.GameOver();
         if (isCitizenVictory)
             CitizenVictory();
         else

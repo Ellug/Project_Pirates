@@ -1,27 +1,38 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using Photon.Pun;
+﻿using Photon.Pun;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
-public class PlayerManager : MonoBehaviour
+public class PlayerManager : MonoBehaviourPunCallbacks
 {
     public static PlayerManager Instance { get; private set; }
+    public event Action allReadyComplete; 
 
     private PhotonView _view;
     private List<PlayerContoller> _players = new List<PlayerContoller>();
+    public int onLoadedPlayer = 0;
 
     void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
         _view = GetComponent<PhotonView>();
     }
 
     // 게임 시작시 세팅은 마스터 클라이언트만 실행
     // 결과를 나머지에게 알린다.
-    public void StartGameInit()
+    public void StartGameInit(int playerNumber)
     {
         if (!PhotonNetwork.IsMasterClient) return;
 
+        StartCoroutine(GameInitLogic(playerNumber));
+
+        return;
         // 씬의 모든 플레이어 찾아서 가져온 후 리스트에 담음
         _players = FindObjectsByType<PlayerContoller>(FindObjectsSortMode.None).ToList();
 
@@ -35,14 +46,14 @@ public class PlayerManager : MonoBehaviour
         int firstEnemy = -1;
         int secondEnemy = -1;
 
-        firstEnemy = Random.Range(0, _players.Count);
+        firstEnemy = UnityEngine.Random.Range(0, _players.Count);
 
         if (_players.Count > 7) // 플레이어 수 7 초과면 마피아 1명 더 선정
         {
             // 중복 선정되지 않도록 do while 문 사용
             do
             {
-                secondEnemy = Random.Range(0, _players.Count);
+                secondEnemy = UnityEngine.Random.Range(0, _players.Count);
             } while (firstEnemy == secondEnemy);
 
         }
@@ -50,5 +61,26 @@ public class PlayerManager : MonoBehaviour
         _view.RPC("IsMafia", _players[firstEnemy].photonView.Owner);
         if (secondEnemy != -1)
             _view.RPC("IsMafia", _players[secondEnemy].photonView.Owner);
+    }
+
+    private IEnumerator GameInitLogic(int playerNumber)
+    {
+        Debug.Log($"{playerNumber}");
+        // 모든 플레이어가 로딩될 때까지 기다린다.
+        yield return new WaitUntil(() => onLoadedPlayer >= playerNumber);
+
+        // 모든 플레이어가 로딩이 되면 인게임 씬으로 전환한다.
+        _view.RPC("ChangeInGameScene", RpcTarget.All);
+    }
+
+    [PunRPC]
+    public void ChangeInGameScene()
+    {
+        allReadyComplete.Invoke();
+    }
+
+    public void GameOver()
+    {
+        Destroy(gameObject);
     }
 }

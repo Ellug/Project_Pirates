@@ -214,7 +214,8 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
         if (!CanMasterStart(players, count)) return;
         LogRoom("[Room] All Player is Ready. Game Start!");
 
-        PhotonNetwork.LoadLevel("InGame");
+        PlayerManager.Instance.StartGameInit(count);
+        PhotonNetwork.LoadLevel("InGameLoading");
     }
 
     private static string GetDisplayName(Player p)
