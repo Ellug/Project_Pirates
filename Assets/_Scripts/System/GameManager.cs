@@ -27,8 +27,13 @@ public class GameManager : Singleton<GameManager>
     public void SetSceneState(SceneState state)
     {
         _flowState = state;
+
+        if (AudioManager.Instance != null)
+        AudioManager.Instance.PlayBgm(state);
     }
 
+
+    // 네트워크 게임이기에 Time.timeScale로 퍼즈하는 것 보단 게임 종료 연출을 따로 만드는 게 좋을 거 같음
     public void PauseGame()
     {
         Time.timeScale = 0f;
