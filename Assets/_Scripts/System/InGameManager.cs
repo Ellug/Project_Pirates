@@ -2,18 +2,37 @@
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
+using DG.Tweening;
+using TMPro;
 
 public class InGameManager : MonoBehaviourPunCallbacks
 {
     [Header("Create Voice Prefab")]
     [SerializeField] private CreateVoice _createVoice;
 
+    [Header("PopUp Ui")]
+    [SerializeField] private Image _playerRoleUi;
+
     private bool _ended;
+    private PlayerContoller _player;
 
     public override void OnEnable()
     {
         base.OnEnable();
         StartCoroutine(SpawnPlayer());        
+    }
+
+    private void Start()
+    {
+        if (PlayerManager.Instance != null) 
+            PlayerManager.Instance.allReadyComplete += PopUpPlayersRole;
+    }
+
+    private void OnDestroy()
+    {
+        if (PlayerManager.Instance != null)
+            PlayerManager.Instance.allReadyComplete -= PopUpPlayersRole;
     }
 
     IEnumerator SpawnPlayer()
@@ -26,6 +45,57 @@ public class InGameManager : MonoBehaviourPunCallbacks
         
         PhotonView myPV = PlayerContoller.LocalInstancePlayer.GetComponent<PhotonView>();
         _createVoice.CreateVoicePV(myPV, PlayerContoller.LocalInstancePlayer.transform);
+    }
+
+    public void PopUpPlayersRole()
+    {
+        StartCoroutine(StartGuide());
+    }
+
+    IEnumerator StartGuide()
+    {
+        yield return new WaitUntil(() => _player != null);
+
+        TextMeshProUGUI roleText = _playerRoleUi.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+        float duration = 0.8f;
+
+        yield return StartCoroutine(PopUpRole(roleText, duration));
+
+        yield return StartCoroutine(PopUpJob(roleText, duration));
+
+        _playerRoleUi.gameObject.SetActive(false);
+    }
+
+    IEnumerator PopUpRole(TextMeshProUGUI roleText, float duration)
+    {
+        if (_player.isMafia)
+        {
+            roleText.text = "당신은 \"마피아\" 입니다.";
+            roleText.color = new Color(1f, 0.25f, 0.25f, 0f);
+        }
+        _playerRoleUi.DOFade(1f, duration);
+        roleText.DOFade(1f, duration);
+        yield return new WaitForSeconds(duration * 3f);
+        _playerRoleUi.DOFade(0f, duration);
+        roleText.DOFade(0f, duration);
+        yield return new WaitForSeconds(duration);
+    }
+
+    IEnumerator PopUpJob(TextMeshProUGUI roleText, float duration)
+    {
+        roleText.text = "당신의 직업은 \"시민\" 입니다.";
+        roleText.color = new Color(1f, 1f, 1f, 0f);
+        _playerRoleUi.DOFade(1f, duration);
+        roleText.DOFade(1f, duration);
+        yield return new WaitForSeconds(duration * 3f);
+        _playerRoleUi.DOFade(0f, duration);
+        roleText.DOFade(0f, duration);
+        yield return new WaitForSeconds(duration);
+    }
+
+    public void RegistPlayer(PlayerContoller player)
+    {
+        _player = player;
     }
 
     // 이건 인게임에서 esc키로 패널 띄우고 게임 나가는거 구현되면 지우기
