@@ -252,9 +252,6 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
     // LeaveRoom
     public void LeaveRoom()
     {
-        if(PlayerManager.Instance != null)
-            Destroy(PlayerManager.Instance.gameObject);
-
         Debug.Log("[Room] Triggered LeaveRoom.");
         ReadyCallBack(() => PhotonNetwork.LeaveRoom());
     }
@@ -262,6 +259,9 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
     // CB
     public override void OnLeftRoom()
     {
+        if (PlayerManager.Instance != null)
+            Destroy(PlayerManager.Instance.gameObject);
+
         Debug.Log("[Room] CB : OnLeftRoom -> Go to Lobby");
         SceneManager.LoadScene("Lobby");
     }
