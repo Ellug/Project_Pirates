@@ -252,6 +252,9 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
     // LeaveRoom
     public void LeaveRoom()
     {
+        if(PlayerManager.Instance != null)
+            Destroy(PlayerManager.Instance.gameObject);
+
         Debug.Log("[Room] Triggered LeaveRoom.");
         ReadyCallBack(() => PhotonNetwork.LeaveRoom());
     }
