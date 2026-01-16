@@ -58,7 +58,7 @@ public class PlayerInteraction : MonoBehaviour
         }
         IsInteractable = false;
     }
-
+    // 오브젝트와 상호작용
     public void InteractObj()
     {
         if (_curInteractable != null)

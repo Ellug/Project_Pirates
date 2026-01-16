@@ -22,6 +22,9 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
     [Header("Chat Log View")]
     [SerializeField] private ChatLogView _roomLogView;
 
+    [Header("Create Voice Prefab")]
+    [SerializeField] private CreateVoice _createVoice;
+
     private readonly RoomReadyStateCheck _ready = new();
     private Player[] _cache = new Player[16];
     private readonly HashSet<int> _readyFirstUpdate = new();
@@ -61,7 +64,9 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
         string roomName = PhotonNetwork.CurrentRoom?.Name ?? "Unknown";
         LogRoom($"[Room] {roomName} 방에 참여 했습니다. [MasterClient] : {PhotonNetwork.MasterClient?.NickName}");
-
+        
+        //보이스 프리팹 안전 생성
+        _createVoice.CreateVoicePV();
         RefreshRoomUI("CoWaitRoomThenRefresh");
     }
 

@@ -50,6 +50,8 @@ MonoBehaviour:
   - GameOverAndPopUpResult
   - RPC_ReceiveChat
   - RpcInteractionObject
+  - RpcGetHitKnockBack
+  - RPC_SyncVoiceParent
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

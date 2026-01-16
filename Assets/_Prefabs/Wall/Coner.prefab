@@ -68,6 +68,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Coner
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 749b0074f776f26478f8ef7511ab9449, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     - target: {fileID: 1151388028547126963, guid: 749b0074f776f26478f8ef7511ab9449, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -87,6 +91,10 @@ PrefabInstance:
     - target: {fileID: 1151388028547126963, guid: 749b0074f776f26478f8ef7511ab9449, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0.28000072
+      objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: 749b0074f776f26478f8ef7511ab9449, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
