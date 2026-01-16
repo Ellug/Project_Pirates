@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
@@ -54,9 +54,18 @@ public sealed class RoomPlayerContentView : MonoBehaviour
         if (_markMaster != null)
             _markMaster.SetActive(isMaster);
 
-        // Ready indicator color
+        // Ready / Master indicator color
         if (_readyIndicator != null)
-            _readyIndicator.color = isReady ? readyOnColor : readyOffColor;
+        {
+            if(isMaster)
+            {
+                _readyIndicator.color = new Color(0.23f, 0.51f, 0.96f, 1f);
+            }
+            else
+            {
+                _readyIndicator.color = isReady ? readyOnColor : readyOffColor;
+            }
+        }
 
         // Kick button
         if (_kickButton != null)
