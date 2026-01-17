@@ -20,12 +20,18 @@ public sealed class RoomSettingsPanelView : MonoBehaviour
     {
         if (_closeButton != null)
             _closeButton.onClick.AddListener(Close);
+
+        if (_applyButton != null)
+            _applyButton.onClick.AddListener(ApplyClicked);
     }
 
     void OnDestroy()
     {
         if (_closeButton != null)
             _closeButton.onClick.RemoveListener(Close);
+
+        if (_applyButton != null)
+            _applyButton.onClick.RemoveListener(ApplyClicked);
     }
 
     public void Open()
@@ -47,4 +53,20 @@ public sealed class RoomSettingsPanelView : MonoBehaviour
         if (_applyButton != null) _applyButton.interactable = canEdit;
     }
 
+    private void ApplyClicked()
+    {
+        string title = _titleInput != null ? _titleInput.text.Trim() : "";
+        string pw = _pwInput != null ? _pwInput.text.Trim() : "";
+
+        int max = 0;
+        if(_maxPlayerDropdown != null && _maxPlayerDropdown.options.Count > 0)
+        {
+            string raw = _maxPlayerDropdown.options[_maxPlayerDropdown.value].text;
+            raw = raw.Replace("명", "").Trim();
+            int.TryParse(raw, out max);
+        }
+
+        ApplyRequested?.Invoke(title, pw, max);
+        Close();
+    }
 }
