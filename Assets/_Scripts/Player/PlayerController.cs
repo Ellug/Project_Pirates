@@ -13,20 +13,22 @@ public class PlayerController : MonoBehaviourPun
     private Camera _camera;
     private PhotonView _view;
     private PlayerInteraction _playerInteraction;
-    private PlayerStateMachine _stateMachine;
     private PlayerModel _model;
 
-    // Player State
-    private IdleState _idle;
-    private MoveState _move;
-    private JumpState _jump;
-    private CrouchState _crouch;
-    private AttackState _attack;
-
     private ExitGames.Client.Photon.Hashtable _table;
-
     
+    // Player State
+    public PlayerStateMachine StateMachine { get; private set; }
+    public IdleState StateIdle { get; private set; }
+    public MoveState StateMove { get; private set; }
+    public JumpState StateJump { get; private set; }
+    public CrouchState StateCrouch { get; private set; }
+    public AttackState StateAttack { get; private set; }
+
     public Vector2 InputMove { get; private set; }
+    public bool InputJump { get; private set; }
+    public bool InputKnockBack { get; private set; }
+    public bool InputAttack { get; private set; }
 
     private void Awake()
     {
@@ -61,6 +63,7 @@ public class PlayerController : MonoBehaviourPun
         _camera.transform.SetParent(transform, false);
         _camera.transform.localPosition = new Vector3(0f, 1.77f, 0f);
 
+        InputJump = false;
         InputMove = Vector2.zero;
 
         // 생성된 사람 출석 체크
@@ -76,13 +79,13 @@ public class PlayerController : MonoBehaviourPun
         _playerInteraction = GetComponent<PlayerInteraction>();
         FindFirstObjectByType<InGameManager>().RegistPlayer(this);
 
-        _idle = new IdleState(this);
-        _move = new MoveState(this);
-        _jump = new JumpState(this);
-        _crouch = new CrouchState(this);
-        _attack = new AttackState(this);
+        StateIdle = new IdleState(this);
+        StateMove = new MoveState(this);
+        StateJump = new JumpState(this);
+        StateCrouch = new CrouchState(this);
+        StateAttack = new AttackState(this);
 
-        _stateMachine = new PlayerStateMachine(_idle);
+        StateMachine = new PlayerStateMachine(StateIdle);
 
         InputSystem.actions["Move"].performed += OnMove;
         InputSystem.actions["Move"].canceled += OnMove;
@@ -91,11 +94,12 @@ public class PlayerController : MonoBehaviourPun
         InputSystem.actions["Crouch"].performed += OnCrouch;
         InputSystem.actions["Crouch"].canceled += OnCrouch;
         InputSystem.actions["Attack"].started += OnAttack;
+        InputSystem.actions["KnockBack"].started += OnKnockBack;
 
         InputSystem.actions["Look"].performed += OnLook;
         InputSystem.actions["Look"].canceled += OnLook;
         InputSystem.actions["Interact"].started += OnInteraction;
-        InputSystem.actions["Jump"].started += OnJump;
+        //InputSystem.actions["Jump"].started += OnJump;
     }
 
     void OnDestroy()
@@ -108,21 +112,22 @@ public class PlayerController : MonoBehaviourPun
         InputSystem.actions["Crouch"].performed -= OnCrouch;
         InputSystem.actions["Crouch"].canceled -= OnCrouch;
         InputSystem.actions["Attack"].started -= OnAttack;
+        InputSystem.actions["KnockBack"].started -= OnKnockBack;
 
         InputSystem.actions["Look"].performed -= OnLook;
         InputSystem.actions["Look"].canceled -= OnLook;
         InputSystem.actions["Interact"].started -= OnInteraction;
-        InputSystem.actions["Jump"].started -= OnJump;
+        //InputSystem.actions["Jump"].started -= OnJump;
     }
 
     private void Update()
     {
-        _stateMachine.CurrentState.FrameUpdate();
+        StateMachine.CurrentState.FrameUpdate();
     }
 
     void FixedUpdate()
     {
-        _stateMachine.CurrentState.PhysicsUpdate();
+        StateMachine.CurrentState.PhysicsUpdate();
     }
 
     private void LateUpdate()
@@ -146,15 +151,6 @@ public class PlayerController : MonoBehaviourPun
     private void OnMove(InputAction.CallbackContext ctx)
     {
         InputMove = ctx.ReadValue<Vector2>();
-        if (ctx.performed)
-            _stateMachine.ChangeState(_move);
-        else
-        {
-            if (_model.IsCrouching)
-                _stateMachine.ChangeState(_crouch);
-            else
-                _stateMachine.ChangeState(_idle);
-        }
     }
 
     private void OnInteraction(InputAction.CallbackContext ctx)
@@ -175,37 +171,37 @@ public class PlayerController : MonoBehaviourPun
             _model.IsRunning = false;
     }
 
-    private void OnAttack(InputAction.CallbackContext ctx)
-    {
-        // 공격키가 무시되는 조건
-        // 1. 공중에 떠 있을 때
-        // 2. 앉아 있을 때
-        if (_model.IsCrouching) return;
-        else if (!_model.IsGrounded) return;
-
-        _stateMachine.ChangeState(_attack);
-    }
-
     private void OnCrouch(InputAction.CallbackContext ctx)
     {
         if (ctx.performed)
-        {
             _model.IsCrouching = true;
-            if (_stateMachine.CurrentState == _idle)
-                _stateMachine.ChangeState(_crouch);
-        }
         else
-        {
             _model.IsCrouching = false;
-            if (_stateMachine.CurrentState == _crouch)
-                _stateMachine.ChangeState(_idle);
-        }   
     }
-
     private void OnJump(InputAction.CallbackContext ctx)
     {
-        _stateMachine.ChangeState(_jump);
+        InputJump = true;
     }
+
+    // 공격, 밀기, 직업 스킬 키가 무시되는 조건
+    // 1. 공중에 떠 있을 때
+    // 2. 앉아 있을 때
+    private void OnAttack(InputAction.CallbackContext ctx)
+    {
+        InputAttack = true;
+    }
+
+    private void OnKnockBack(InputAction.CallbackContext ctx)
+    {
+        InputKnockBack = true;
+    }
+
+    public void SetInitInput()
+    {
+        InputAttack = false;
+        InputKnockBack = false;
+    }
+
 
     [PunRPC]
     public void IsMafia()

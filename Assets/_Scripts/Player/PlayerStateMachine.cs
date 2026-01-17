@@ -44,9 +44,19 @@ public class IdleState : IPlayerState
     public void Enter() 
     {
         Debug.Log("Idle 상태 진입");
-        _model.Animator.SetFloat("MoveValue", 0f); 
+        _model.Animator.SetFloat(_model.animNameOfMove, 0f); 
     }
-    public void FrameUpdate() { }
+    public void FrameUpdate() 
+    {
+        if (_player.InputMove != Vector2.zero)
+            _player.StateMachine.ChangeState(_player.StateMove);
+        else if (_player.InputJump == true)
+            _player.StateMachine.ChangeState(_player.StateJump);
+        else if (_player.InputAttack == true || _player.InputKnockBack == true)
+            _player.StateMachine.ChangeState(_player.StateAttack);
+        else if (_model.IsCrouching == true)
+            _player.StateMachine.ChangeState(_player.StateCrouch);
+    }
     public void PhysicsUpdate() { }
     public void Exit() { }
 }
@@ -63,7 +73,16 @@ public class MoveState : IPlayerState
     }
 
     public void Enter() { Debug.Log("Move 상태 진입"); }
-    public void FrameUpdate() { }
+    public void FrameUpdate()
+    {
+        if (_player.InputMove == Vector2.zero)
+            _player.StateMachine.ChangeState(_player.StateIdle);
+        else if (_player.InputAttack == true || _player.InputKnockBack == true)
+            _player.StateMachine.ChangeState(_player.StateAttack);
+        else if (_player.InputJump == true)
+            _player.StateMachine.ChangeState(_player.StateJump);
+    }
+
     public void PhysicsUpdate() 
     {
         Vector2 input = _player.InputMove;
@@ -88,7 +107,7 @@ public class MoveState : IPlayerState
     }
     public void Exit() 
     {
-        _model.Animator.SetFloat(_model.animNameOfMove, 0f); 
+        _model.Animator.SetFloat(_model.animNameOfMove, 0f);
     }
 }
 
@@ -110,12 +129,15 @@ public class JumpState : IPlayerState
         Debug.Log("Jump 상태 진입");
         _playerRigidBody.AddForce(Vector3.up * _model.jumpPower, ForceMode.Impulse);
         _model.Animator.SetTrigger(_model.animNameOfJump);
-        _model.IsGrounded = false;
+        
     }
     public void FrameUpdate() { }
-    public void PhysicsUpdate() { }
+    public void PhysicsUpdate() 
+    { 
+    }
     public void Exit()
     {
+        _player.SetInitInput();
         _model.IsGrounded = true;
     }
 }
@@ -136,18 +158,28 @@ public class CrouchState : IPlayerState
         Debug.Log("Crouch 상태 진입");
         _model.Animator.SetBool(_model.animNameOfCrouch, true);
     }
-    public void FrameUpdate() { }
+    public void FrameUpdate() 
+    {
+        if (_player.InputMove != Vector2.zero)
+            _player.StateMachine.ChangeState(_player.StateMove);
+        else if (_model.IsCrouching == false)
+            _player.StateMachine.ChangeState(_player.StateIdle);
+
+    }
     public void PhysicsUpdate() { }
     public void Exit() 
     {
         _model.Animator.SetBool(_model.animNameOfCrouch, false);
+        _player.SetInitInput();
     }
 }
 
+// 어택과 밀치기는 이 상태가 됨.
 public class AttackState : IPlayerState
 {
     PlayerController _player;
     PlayerModel _model;
+    bool _isAttack;
 
     public AttackState(PlayerController player)
     {
@@ -157,6 +189,19 @@ public class AttackState : IPlayerState
 
     public void Enter() 
     {
+        // _isAttack의 값을 들어오자마자 고정하여
+        // 어택 또는 밀치기 둘 중 하나만 수행하도록 함
+        if (_player.InputAttack == true)
+            _isAttack = true;
+        else
+            _isAttack = false;
+
+        // 애니메이션 일단 실행
+        if (_isAttack)
+            _model.Animator.SetTrigger(_model.animNameOfAttack);
+        else
+            _model.Animator.SetTrigger(_model.animNameOfKnockBack);
+
         Debug.Log("Attack 상태 진입");
         // 어택 상태에 들어오면 자신의 앞에 판정을 검사할 무언가를 만든다.
         float range = 1.5f; // 유효거리
@@ -180,9 +225,24 @@ public class AttackState : IPlayerState
         }
     }
 
-    public void FrameUpdate() { }
+    
+    public void FrameUpdate() 
+    {
+        AnimatorStateInfo info = 
+            _model.Animator.GetCurrentAnimatorStateInfo(0);
+
+        // 애니메이션 종료 직전(95%)에 상태 전환함
+        if ((info.IsName(_model.animNameOfAttack) && info.normalizedTime >= 0.95f) ||
+            (info.IsName(_model.animNameOfKnockBack) && info.normalizedTime >= 0.95f))
+            _player.StateMachine.ChangeState(_player.StateIdle);
+
+    }
 
     public void PhysicsUpdate() { }
 
-    public void Exit() { }
+    public void Exit() 
+    {
+        // 상태 탈출할 때 입력 값 다시 true로 원복
+        _player.SetInitInput();
+    }
 }
