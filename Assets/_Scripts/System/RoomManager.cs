@@ -10,8 +10,10 @@ using System.Collections.Generic;
 
 public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
 {
-    private const string READY_KEY = "ready";
+    private const string ROOM_TITLE_KEY = "title";
     private const string ROOM_PW_KEY = "pw";
+    private const string ROOM_MAX_KEY = "max";
+    private const string READY_KEY = "ready";
     public const byte KickEventCode = 101;
 
     [Header("UI")]
@@ -333,14 +335,21 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
     }
 
     // 룸 프로퍼티 바꼇을 때 리프레쉬
-    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
+    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable changed)
     {
-        if (propertiesThatChanged != null && propertiesThatChanged.ContainsKey(ROOM_PW_KEY))
+        if(changed == null)
         {
-            RefreshRoomUI("OnRoomPropertiesUpdate:pw");
+            RefreshRoomUI("OnRoomPropertiesUpdate:null");
             return;
         }
 
+        if(changed.ContainsKey(ROOM_TITLE_KEY) ||
+           changed.ContainsKey(ROOM_PW_KEY) ||
+           changed.ContainsKey(ROOM_MAX_KEY))
+        {
+            RefreshRoomUI("OnRoomPropertiesUpdate:settings");
+            return;
+        }
         RefreshRoomUI("OnRoomPropertiesUpdate");
     }
 

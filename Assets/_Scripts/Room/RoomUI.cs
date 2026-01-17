@@ -111,9 +111,8 @@ public sealed class RoomUI: MonoBehaviour
         if (_headerRoomLocked != null)
             _headerRoomLocked.SetActive(hasPassword);
 
-        // 방 마스터만 방 세팅 버튼
         if (_headerRoomSetting != null)
-            _headerRoomSetting.interactable = PhotonNetwork.InRoom && PhotonNetwork.IsMasterClient;
+            _headerRoomSetting.interactable = PhotonNetwork.InRoom;
     }
 
     private void EnsureItemCount(int needed)
@@ -128,9 +127,15 @@ public sealed class RoomUI: MonoBehaviour
 
     private void OpenRoomSettingsPanel()
     {
-        // 패널은 아직 미구현이므로, 베이스만 열어둠
+        if (_roomSettingsPanel == null) return;
         if (_roomSettingsPanel != null)
+        {
             _roomSettingsPanel.Open();
+        }
+
+        // 열람은 모두 가능 / 편집은 방장만 가능
+        bool canEdit = PhotonNetwork.InRoom && PhotonNetwork.IsMasterClient;
+        _roomSettingsPanel.SetInteractable(canEdit);
     }
 
     // 강퇴 -> RoomPlayerContentView 온 킥에 연결
