@@ -7,8 +7,8 @@ public class PlayerModel : MonoBehaviour
     public float knockBackForce = 5f;
     public float baseSpeed;
     public float jumpPower;
-    public float runSpeed;
-    public float crouchSpeed;
+    [HideInInspector] public float runSpeed;
+    [HideInInspector] public float crouchSpeed;
 
     private float _healthPoint;
     private float _stamina;
@@ -29,6 +29,8 @@ public class PlayerModel : MonoBehaviour
         _healthPoint = 100f;
         _stamina = 100f;
         IsGrounded = true;
+        runSpeed = baseSpeed * 1.6f;
+        crouchSpeed = baseSpeed * 0.4f;
         Animator = GetComponent<Animator>();
     }
 
