@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class PlayerModel : MonoBehaviour
 {
@@ -48,10 +49,25 @@ public class PlayerModel : MonoBehaviour
 
         if (_curHealthPoint <= 0f)
         {
-            Debug.Log("사망하였습니다.");
             _curHealthPoint = 0f;
-            // TODO : 여기에 사망 로직 추가
+            Debug.Log("사망하였습니다.");
+            StartCoroutine(DeathCor());
         }
+    }
+
+    IEnumerator DeathCor()
+    {
+        PlayerController controller = GetComponent<PlayerController>();
+        controller.StateMachine.ChangeState(controller.StateDeath);
+        this.Animator.SetBool(animNameOfDeath, true);
+        AnimatorStateInfo info =
+            Animator.GetCurrentAnimatorStateInfo(0);
+        while (info.IsName(animNameOfDeath) && info.normalizedTime < 0.95f)
+        {
+            yield return null;
+            info = Animator.GetCurrentAnimatorStateInfo(0);
+        }
+        PlayerManager.Instance.NoticeDeathPlayer(controller);
     }
 
     public void HealingHealthPoint(float amount)

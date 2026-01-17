@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviourPun
     public JumpState StateJump { get; private set; }
     public CrouchState StateCrouch { get; private set; }
     public AttackState StateAttack { get; private set; }
+    public DeathState StateDeath { get; private set; }
 
     public Vector2 InputMove { get; private set; }
     public bool InputJump { get; private set; }
@@ -76,6 +77,7 @@ public class PlayerController : MonoBehaviourPun
 
     void Start()
     {
+        PlayerManager.Instance.RegistLocalPlayer(this);
         _playerInteraction = GetComponent<PlayerInteraction>();
         FindFirstObjectByType<InGameManager>().RegistPlayer(this);
 
@@ -84,6 +86,7 @@ public class PlayerController : MonoBehaviourPun
         StateJump = new JumpState(this);
         StateCrouch = new CrouchState(this);
         StateAttack = new AttackState(this);
+        StateDeath = new DeathState(this);
 
         StateMachine = new PlayerStateMachine(StateIdle);
 

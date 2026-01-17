@@ -260,3 +260,24 @@ public class AttackState : IPlayerState
         _player.SetInitInput();
     }
 }
+
+public class DeathState : IPlayerState
+{
+    PlayerController _player;
+
+    public DeathState(PlayerController player)
+    {
+        _player = player;
+    }
+
+    public void Enter()
+    {
+        Debug.Log("사망 상태 진입, 모든 키 입력을 무시함.");
+    }
+
+    public void FrameUpdate() { }
+
+    public void PhysicsUpdate() { }
+
+    public void Exit() { }
+}
