@@ -65,8 +65,29 @@ public sealed class RoomSettingsPanelView : MonoBehaviour
             raw = raw.Replace("명", "").Trim();
             int.TryParse(raw, out max);
         }
-
         ApplyRequested?.Invoke(title, pw, max);
         Close();
+    }
+
+    public void SetFields(string title, string pw, int maxPlayers)
+    {
+        if (_titleInput != null) _titleInput.text = title ?? "";
+        if (_pwInput != null) _pwInput.text = pw ?? "";
+
+        if(_maxPlayerDropdown != null && _maxPlayerDropdown.options.Count > 0)
+        {
+            int index = 0;
+            for(int i = 0; i < _maxPlayerDropdown.options.Count; i++)
+            {
+                string raw = _maxPlayerDropdown.options[i].text.Replace("명", "").Trim();
+                if(int.TryParse(raw, out int v) && v == maxPlayers)
+                {
+                    index = i;
+                    break;
+                }
+                _maxPlayerDropdown.value = index;
+                _maxPlayerDropdown.RefreshShownValue();
+            }
+        }
     }
 }
