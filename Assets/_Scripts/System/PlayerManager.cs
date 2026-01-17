@@ -11,7 +11,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     public event Action allReadyComplete; 
 
     private PhotonView _view;
-    private List<PlayerContoller> _players = new List<PlayerContoller>();
+    private List<PlayerController> _players = new List<PlayerController>();
     public int onLoadedPlayer = 0;
 
     void Awake()
@@ -47,7 +47,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         yield return new WaitUntil(() => onLoadedPlayer >= playerNumber);
 
         // 씬의 모든 플레이어 찾아서 가져온 후 리스트에 담음
-        _players = FindObjectsByType<PlayerContoller>(FindObjectsSortMode.None).ToList();
+        _players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None).ToList();
 
         // 모든 플레이어를 못 가져오는 등 뭔가 문제 발생 시 방어
         if (_players.Count != PhotonNetwork.CurrentRoom.PlayerCount)
