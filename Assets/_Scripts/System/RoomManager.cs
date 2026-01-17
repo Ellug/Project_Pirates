@@ -54,8 +54,17 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
         if (PhotonNetwork.IsMasterClient)
             PhotonNetwork.CurrentRoom.IsOpen = true;
 
+        if (_roomUI != null)
+            _roomUI.RoomSettingsApplyRequested += HandleRoomSettingsApplyRequested;
+
         // 방 진입 후 내 상태 출력
         StartCoroutine(CoWaitRoomThenRefresh());
+    }
+
+    private void OnDestroy()
+    {
+        if (_roomUI != null)
+            _roomUI.RoomSettingsApplyRequested -= HandleRoomSettingsApplyRequested;
     }
 
     private IEnumerator CoWaitRoomThenRefresh()
@@ -367,5 +376,30 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
         }
 
         RefreshRoomUI("OnMasterClientSwitched");
+    }
+
+    private void HandleRoomSettingsApplyRequested(string title, string pw, int max)
+    {
+        if (!PhotonNetwork.InRoom || PhotonNetwork.CurrentRoom == null) return;
+
+        // 방장만 변경 가능
+        if(!PhotonNetwork.IsMasterClient)
+        {
+            LogRoom("[Room] 방 설정은 방장만 변경할 수 있습니다.");
+            return;
+        }
+
+        var ht = new ExitGames.Client.Photon.Hashtable();
+
+        // 방제목 / 패스워드 저장
+        ht[ROOM_TITLE_KEY] = string.IsNullOrWhiteSpace(title) ? "" : title.Trim();
+        ht[ROOM_PW_KEY] = string.IsNullOrWhiteSpace(pw) ? "" : pw.Trim();
+
+        if (max > 0)
+            ht[ROOM_MAX_KEY] = max;
+
+        PhotonNetwork.CurrentRoom.SetCustomProperties(ht);
+
+        RefreshRoomUI("ApplyRoomSettings(local)");
     }
 }

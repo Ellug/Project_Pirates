@@ -85,9 +85,9 @@ public sealed class RoomSettingsPanelView : MonoBehaviour
                     index = i;
                     break;
                 }
-                _maxPlayerDropdown.value = index;
-                _maxPlayerDropdown.RefreshShownValue();
             }
+            _maxPlayerDropdown.value = index;
+            _maxPlayerDropdown.RefreshShownValue();
         }
     }
 }
