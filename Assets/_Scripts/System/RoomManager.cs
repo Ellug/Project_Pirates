@@ -142,7 +142,7 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
         var players = _cache;
 
         // Header 전용
-        string roomName = PhotonNetwork.CurrentRoom?.Name ?? string.Empty;
+        string roomName = GetRoomTitle(PhotonNetwork.CurrentRoom);
         bool hasPassword = GetHasPassword(PhotonNetwork.CurrentRoom);
 
         if (_roomUI != null)
@@ -401,5 +401,21 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
         PhotonNetwork.CurrentRoom.SetCustomProperties(ht);
 
         RefreshRoomUI("ApplyRoomSettings(local)");
+    }
+
+    private string GetRoomTitle(Room room)
+    {
+        if (room == null) return "";
+
+        var props = room.CustomProperties;
+        if(props != null &&
+            props.TryGetValue(ROOM_TITLE_KEY, out object value) &&
+            value is string str &&
+            !string.IsNullOrWhiteSpace(str))
+        {
+            return str;
+        }
+
+        return room.Name ?? "";
     }
 }
