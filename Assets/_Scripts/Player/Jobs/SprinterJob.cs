@@ -5,7 +5,8 @@ public class SprinterJob : BaseJob
 {
     public override void Initialize(PlayerModel model)
     {
-
+        name = "육상 선수";
+        model.baseSpeed *= 1.3f;
     }
 
     public override void UniqueSkill()

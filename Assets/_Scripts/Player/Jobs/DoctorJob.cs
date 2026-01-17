@@ -6,6 +6,7 @@ public class DoctorJob : BaseJob
     public override void Initialize(PlayerModel model)
     {
         base.Initialize(model);
+        name = "의사";
     }
 
     public override void UniqueSkill()
