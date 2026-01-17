@@ -3,12 +3,12 @@
 // 능력 : 타인을 치료 (액티브형 능력)
 public class DoctorJob : BaseJob
 {
-    protected override void Initialize()
+    public override void Initialize(PlayerModel model)
     {
-        base.Initialize();
+        base.Initialize(model);
     }
 
-    protected override void UniqueSkill()
+    public override void UniqueSkill()
     {
         
     }

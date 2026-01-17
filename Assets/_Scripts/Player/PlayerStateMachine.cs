@@ -32,17 +32,19 @@ public class PlayerStateMachine
 
 public class IdleState : IPlayerState
 {
-    PlayerContoller _player;
+    PlayerController _player;
+    PlayerModel _model;
 
-    public IdleState(PlayerContoller player)
+    public IdleState(PlayerController player)
     {
         _player = player;
+        _model = _player.GetComponent<PlayerModel>();
     }
 
     public void Enter() 
     {
         Debug.Log("Idle 상태 진입");
-        _player.Animator.SetFloat("MoveValue", 0f); 
+        _model.Animator.SetFloat("MoveValue", 0f); 
     }
     public void FrameUpdate() { }
     public void PhysicsUpdate() { }
@@ -51,11 +53,13 @@ public class IdleState : IPlayerState
 
 public class MoveState : IPlayerState
 {
-    PlayerContoller _player;
+    PlayerController _player;
+    PlayerModel _model;
 
-    public MoveState(PlayerContoller player)
+    public MoveState(PlayerController player)
     {
         _player = player;
+        _model = _player.GetComponent<PlayerModel>();
     }
 
     public void Enter() { Debug.Log("Move 상태 진입"); }
@@ -65,84 +69,90 @@ public class MoveState : IPlayerState
         Vector2 input = _player.InputMove;
         Vector3 dir = new Vector3(input.x, 0f, input.y).normalized;
 
-        if (_player.IsRunning)
+        if (_model.IsRunning)
         {
-            _player.Animator.SetBool(_player.animNameOfRun, true);
-            _player.Animator.SetFloat(_player.animNameOfMove, 1f);
-            _player.transform.Translate(Time.fixedDeltaTime * _player.runSpeed * dir);
+            _model.Animator.SetBool(_model.animNameOfRun, true);
+            _model.Animator.SetFloat(_model.animNameOfMove, 1f);
+            _player.transform.Translate(Time.fixedDeltaTime * _model.runSpeed * dir);
             return;
         }
-        if (_player.IsCrouching)
+        if (_model.IsCrouching)
         {
-            _player.Animator.SetBool(_player.animNameOfCrouch, true);
-            _player.Animator.SetFloat(_player.animNameOfMove, 0.01f);
-            _player.transform.Translate(Time.fixedDeltaTime * _player.crouchSpeed * dir);
+            _model.Animator.SetBool(_model.animNameOfCrouch, true);
+            _model.Animator.SetFloat(_model.animNameOfMove, 0.01f);
+            _player.transform.Translate(Time.fixedDeltaTime * _model.crouchSpeed * dir);
             return;
         }
-        _player.Animator.SetFloat(_player.animNameOfMove, 0.5f);
-        _player.transform.Translate(Time.fixedDeltaTime * _player.walkSpeed * dir);
+        _model.Animator.SetFloat(_model.animNameOfMove, 0.5f);
+        _player.transform.Translate(Time.fixedDeltaTime * _model.baseSpeed * dir);
     }
     public void Exit() 
-    { 
-        _player.Animator.SetFloat(_player.animNameOfMove, 0f); 
+    {
+        _model.Animator.SetFloat(_model.animNameOfMove, 0f); 
     }
 }
 
 public class JumpState : IPlayerState
 {
-    PlayerContoller _player;
+    PlayerController _player;
+    PlayerModel _model;
     Rigidbody _playerRigidBody;
 
-    public JumpState(PlayerContoller player)
+    public JumpState(PlayerController player)
     {
         _player = player;
         _playerRigidBody = _player.GetComponent<Rigidbody>();
+        _model = _player.GetComponent<PlayerModel>();
     }
 
     public void Enter() 
     {
         Debug.Log("Jump 상태 진입");
-        _playerRigidBody.AddForce(Vector3.up * _player.jumpPower, ForceMode.Impulse);
-        _player.Animator.SetTrigger(_player.animNameOfJump);
-        _player.IsGrounded = false;
+        _playerRigidBody.AddForce(Vector3.up * _model.jumpPower, ForceMode.Impulse);
+        _model.Animator.SetTrigger(_model.animNameOfJump);
+        _model.IsGrounded = false;
     }
     public void FrameUpdate() { }
     public void PhysicsUpdate() { }
     public void Exit()
     {
-        _player.IsGrounded = true;
+        _model.IsGrounded = true;
     }
 }
 
 public class CrouchState : IPlayerState
 {
-    PlayerContoller _player;
+    PlayerController _player;
+    PlayerModel _model;
 
-    public CrouchState(PlayerContoller player)
+    public CrouchState(PlayerController player)
     {
         _player = player;
+        _model = _player.GetComponent<PlayerModel>();
     }
 
     public void Enter()
     {
         Debug.Log("Crouch 상태 진입");
-        _player.Animator.SetBool(_player.animNameOfCrouch, true);
+        _model.Animator.SetBool(_model.animNameOfCrouch, true);
     }
     public void FrameUpdate() { }
     public void PhysicsUpdate() { }
     public void Exit() 
     {
-        _player.Animator.SetBool(_player.animNameOfCrouch, false);
+        _model.Animator.SetBool(_model.animNameOfCrouch, false);
     }
 }
 
 public class AttackState : IPlayerState
 {
-    PlayerContoller _player;
+    PlayerController _player;
+    PlayerModel _model;
 
-    public AttackState(PlayerContoller player)
+    public AttackState(PlayerController player)
     {
         _player = player;
+        _model = _player.GetComponent<PlayerModel>();
     }
 
     public void Enter() 
@@ -165,7 +175,7 @@ public class AttackState : IPlayerState
             PhotonView targetView = hit.transform.GetComponent<PhotonView>();
             if (targetView != null)
             {
-                targetView.RPC("RpcGetHitKnockBack", RpcTarget.Others, direction, _player.knockBackForce);
+                targetView.RPC("RpcGetHitKnockBack", RpcTarget.Others, direction, _model.knockBackForce);
             }
         }
     }
