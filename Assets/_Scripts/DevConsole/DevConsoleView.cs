@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class DevConsoleView : MonoBehaviour
@@ -12,6 +13,7 @@ public class DevConsoleView : MonoBehaviour
 
     private DevConsoleManager _mgr;
     private bool _bound;
+    private bool _lockFocus;
 
     public void Bind(DevConsoleManager mgr)
     {
@@ -25,12 +27,36 @@ public class DevConsoleView : MonoBehaviour
         _bound = true;
     }
 
+    void LateUpdate()
+    {
+        if (_lockFocus) ForceFocus();
+    }
+
     void OnDestroy()
     {
         if (_input != null)
             _input.onSubmit.RemoveListener(OnSubmit);
 
         _bound = false;
+    }
+
+    private void ForceFocus()
+    {
+        if (_input == null) return;
+
+        // 선택이 다른 곳으로 튀면 되돌림
+        var es = EventSystem.current;
+        if (es != null && es.currentSelectedGameObject != _input.gameObject)
+            es.SetSelectedGameObject(_input.gameObject);
+
+        if (!_input.isFocused)
+        {
+            _input.ActivateInputField();
+            _input.Select();
+        }
+
+        _input.caretPosition = _input.text.Length;
+        _input.ForceLabelUpdate();
     }
 
     private void OnSubmit(string value)
@@ -50,6 +76,8 @@ public class DevConsoleView : MonoBehaviour
     {
         if (_root != null) _root.SetActive(visible);
         else gameObject.SetActive(visible);
+
+        _lockFocus = visible;
 
         if (visible)
             EnsureInputFocused();

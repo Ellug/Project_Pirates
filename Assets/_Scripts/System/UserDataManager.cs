@@ -27,8 +27,7 @@ public sealed class UserDataManager : Singleton<UserDataManager>
         _db = FirebaseFirestore.DefaultInstance;
 
         // ********************* 최종 빌드시 지우는거 고려하셈 *********************
-        var settings = _db.Settings;
-        settings.PersistenceEnabled = false;
+        _db.Settings.PersistenceEnabled = true;
     }
 
     // Firestore 조회 결과 반영 + 문서 참조 세팅
