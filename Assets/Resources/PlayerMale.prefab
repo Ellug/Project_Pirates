@@ -5141,6 +5141,12 @@ MonoBehaviour:
   - Type: 9
     SynchronizeType: 1
     Name: KnockBack
+  - Type: 9
+    SynchronizeType: 1
+    Name: Attack
+  - Type: 4
+    SynchronizeType: 1
+    Name: Death
   m_SynchronizeLayers:
   - SynchronizeType: 0
     LayerIndex: 0

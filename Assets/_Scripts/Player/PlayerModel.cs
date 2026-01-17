@@ -19,6 +19,9 @@ public class PlayerModel : MonoBehaviour
     public readonly string animNameOfRun = "Running";
     public readonly string animNameOfCrouch = "Crouching";
     public readonly string animNameOfJump = "Jumping";
+    public readonly string animNameOfAttack = "Attack";
+    public readonly string animNameOfKnockBack = "KnockBack";
+    public readonly string animNameOfDeath = "Death";
 
     public Animator Animator { get; private set; }
     public bool IsRunning { get; set; }
