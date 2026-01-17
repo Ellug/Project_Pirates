@@ -4938,6 +4938,7 @@ GameObject:
   - component: {fileID: 753312872029953314}
   - component: {fileID: 5235569673981443865}
   - component: {fileID: 7177283211974919599}
+  - component: {fileID: 2144387517096788460}
   m_Layer: 7
   m_Name: PlayerMale
   m_TagString: Player
@@ -5152,15 +5153,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 7431940883202560913}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5fb19dd660a3b74ba36a6810317b9e1, type: 3}
+  m_Script: {fileID: 11500000, guid: e2779c794e6b5ec4f83f8b63c5efa52e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerContoller
-  _mouseSensitivity: 10
-  knockBackForce: 5
-  walkSpeed: 4
-  runSpeed: 8
-  crouchSpeed: 1.5
-  jumpPower: 5
   isMafia: 0
 --- !u!114 &5235569673981443865
 MonoBehaviour:
@@ -5190,6 +5185,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc77d186628589f41963bf9fe9b50d06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHit
+--- !u!114 &2144387517096788460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7431940883202560913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57c2376dc4f016640885d4e2ea241a64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerModel
+  mouseSensitivity: 10
+  knockBackForce: 5
+  baseSpeed: 5
+  jumpPower: 5
+  runSpeed: 0
+  crouchSpeed: 0
 --- !u!1 &7531048272763147095
 GameObject:
   m_ObjectHideFlags: 0
