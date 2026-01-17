@@ -44,8 +44,11 @@ public class PlayerModel : MonoBehaviour
     public void TakeDamage(float damage)
     {
         _curHealthPoint -= damage;
+        Debug.Log($"{damage}의 피해를 받았고 남은 체력은 {_curHealthPoint} 입니다.");
+
         if (_curHealthPoint <= 0f)
         {
+            Debug.Log("사망하였습니다.");
             _curHealthPoint = 0f;
             // TODO : 여기에 사망 로직 추가
         }

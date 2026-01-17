@@ -189,6 +189,7 @@ public class AttackState : IPlayerState
 
     public void Enter() 
     {
+        Debug.Log("Attack 상태 진입");
         // _isAttack의 값을 들어오자마자 고정하여
         // 어택 또는 밀치기 둘 중 하나만 수행하도록 함
         if (_player.InputAttack == true)
@@ -202,7 +203,6 @@ public class AttackState : IPlayerState
         else
             _model.Animator.SetTrigger(_model.animNameOfKnockBack);
 
-        Debug.Log("Attack 상태 진입");
         // 어택 상태에 들어오면 자신의 앞에 판정을 검사할 무언가를 만든다.
         float range = 1.5f; // 유효거리
         Vector3 direction = _player.transform.forward; // 바라보는 방향 (미는 방향)
@@ -220,7 +220,10 @@ public class AttackState : IPlayerState
             PhotonView targetView = hit.transform.GetComponent<PhotonView>();
             if (targetView != null)
             {
-                targetView.RPC("RpcGetHitKnockBack", targetView.Owner, direction, _model.knockBackForce);
+                if (_isAttack)
+                    targetView.RPC("RpcGetHitAttack", targetView.Owner, 20f);
+                else
+                    targetView.RPC("RpcGetHitKnockBack", targetView.Owner, direction, _model.knockBackForce);
             }
         }
     }
