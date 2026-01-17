@@ -24,10 +24,15 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
     private CrouchState _crouch;
     private AttackState _attack;
 
+    private ExitGames.Client.Photon.Hashtable _table;
+
     public float walkSpeed;
     public float runSpeed;
     public float crouchSpeed;
     public float jumpPower;
+
+    // 마피아 여부 (임시)
+    public bool isMafia;
 
     public Animator Animator { get; private set; }
     public Vector2 InputMove { get; private set; }
@@ -65,6 +70,7 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
         }
 
         Cursor.lockState = CursorLockMode.Locked;
+        isMafia = false;
 
         _camera = Camera.main;
         _camera.transform.SetParent(transform, false);
@@ -72,12 +78,20 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
 
         InputMove = Vector2.zero;
         IsGrounded = true;
+
+        // 생성된 사람 출석 체크
+        _table = new ExitGames.Client.Photon.Hashtable {
+                { "IsMafia", true }
+            };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(_table);
+        PlayerManager.Instance.photonView.RPC("PlayerEnterCheck", RpcTarget.MasterClient);
     }
 
     void Start()
     {
         Animator = GetComponent<Animator>();
         _playerInteraction = GetComponent<PlayerInteraction>();
+        FindFirstObjectByType<InGameManager>().RegistPlayer(this);
 
         _idle = new IdleState(this);
         _move = new MoveState(this);
@@ -214,5 +228,6 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
     public void IsMafia()
     {
         Debug.Log("당신은 마피아입니다.");
+        isMafia = true;
     }
 }

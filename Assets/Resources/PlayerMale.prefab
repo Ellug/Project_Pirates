@@ -5161,6 +5161,7 @@ MonoBehaviour:
   runSpeed: 8
   crouchSpeed: 1.5
   jumpPower: 5
+  isMafia: 0
 --- !u!114 &5235569673981443865
 MonoBehaviour:
   m_ObjectHideFlags: 0

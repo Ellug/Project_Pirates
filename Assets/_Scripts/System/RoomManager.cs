@@ -214,7 +214,8 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
         if (!CanMasterStart(players, count)) return;
         LogRoom("[Room] All Player is Ready. Game Start!");
 
-        PhotonNetwork.LoadLevel("InGame");
+        PlayerManager.Instance.StartGameInit(count);
+        PhotonNetwork.LoadLevel("InGameLoading");
     }
 
     private static string GetDisplayName(Player p)
@@ -258,6 +259,9 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
     // CB
     public override void OnLeftRoom()
     {
+        if (PlayerManager.Instance != null)
+            Destroy(PlayerManager.Instance.gameObject);
+
         Debug.Log("[Room] CB : OnLeftRoom -> Go to Lobby");
         SceneManager.LoadScene("Lobby");
     }
