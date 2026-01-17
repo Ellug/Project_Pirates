@@ -52,7 +52,8 @@ public class IdleState : IPlayerState
             _player.StateMachine.ChangeState(_player.StateMove);
         else if (_player.InputJump == true)
             _player.StateMachine.ChangeState(_player.StateJump);
-        else if (_player.InputAttack == true || _player.InputKnockBack == true)
+        else if (_model.IsCrouching == false &&
+            (_player.InputAttack == true || _player.InputKnockBack == true))
             _player.StateMachine.ChangeState(_player.StateAttack);
         else if (_model.IsCrouching == true)
             _player.StateMachine.ChangeState(_player.StateCrouch);
@@ -72,7 +73,16 @@ public class MoveState : IPlayerState
         _model = _player.GetComponent<PlayerModel>();
     }
 
-    public void Enter() { Debug.Log("Move 상태 진입"); }
+    public void Enter() 
+    { 
+        Debug.Log("Move 상태 진입");
+        if (_model.IsRunning)
+            _model.Animator.SetFloat(_model.animNameOfMove, 1f);
+        else if (_model.IsCrouching)
+            _model.Animator.SetFloat(_model.animNameOfMove, 0.01f);
+        else
+            _model.Animator.SetFloat(_model.animNameOfMove, 0.5f);
+    }
     public void FrameUpdate()
     {
         if (_player.InputMove == Vector2.zero)
