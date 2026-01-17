@@ -77,7 +77,8 @@ public class MoveState : IPlayerState
     {
         if (_player.InputMove == Vector2.zero)
             _player.StateMachine.ChangeState(_player.StateIdle);
-        else if (_player.InputAttack == true || _player.InputKnockBack == true)
+        else if (_model.IsCrouching == false && 
+            (_player.InputAttack == true || _player.InputKnockBack == true))
             _player.StateMachine.ChangeState(_player.StateAttack);
         else if (_player.InputJump == true)
             _player.StateMachine.ChangeState(_player.StateJump);
