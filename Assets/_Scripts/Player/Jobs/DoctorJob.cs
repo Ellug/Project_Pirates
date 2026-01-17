@@ -5,6 +5,7 @@ public class DoctorJob : BaseJob
 {
     public override void Initialize(PlayerModel model)
     {
+        _isActive = true;
         base.Initialize(model);
         name = "의사";
     }
@@ -12,10 +13,5 @@ public class DoctorJob : BaseJob
     public override void UniqueSkill()
     {
         
-    }
-
-    void Start()
-    {
-
     }
 }
