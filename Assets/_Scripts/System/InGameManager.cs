@@ -15,7 +15,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
     [SerializeField] private Image _playerRoleUi;
 
     private bool _ended;
-    private PlayerContoller _player;
+    private PlayerController _player;
 
     public override void OnEnable()
     {
@@ -39,12 +39,12 @@ public class InGameManager : MonoBehaviourPunCallbacks
     {
         yield return new WaitUntil(() => PhotonNetwork.InRoom);
 
-        if (PlayerContoller.LocalInstancePlayer == null)
-            PlayerContoller.LocalInstancePlayer = 
+        if (PlayerController.LocalInstancePlayer == null)
+            PlayerController.LocalInstancePlayer = 
                 PhotonNetwork.Instantiate("PlayerMale", new Vector3(0f, 3f, 0f), Quaternion.identity);
         
-        PhotonView myPV = PlayerContoller.LocalInstancePlayer.GetComponent<PhotonView>();
-        _createVoice.CreateVoicePV(myPV, PlayerContoller.LocalInstancePlayer.transform);
+        PhotonView myPV = PlayerController.LocalInstancePlayer.GetComponent<PhotonView>();
+        _createVoice.CreateVoicePV(myPV, PlayerController.LocalInstancePlayer.transform);
     }
 
     public void PopUpPlayersRole()
@@ -93,7 +93,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
         yield return new WaitForSeconds(duration);
     }
 
-    public void RegistPlayer(PlayerContoller player)
+    public void RegistPlayer(PlayerController player)
     {
         _player = player;
     }
@@ -127,8 +127,8 @@ public class InGameManager : MonoBehaviourPunCallbacks
 
         _ended = true;
 
-        if (PlayerContoller.LocalInstancePlayer != null)
-            PhotonNetwork.Destroy(PlayerContoller.LocalInstancePlayer);
+        if (PlayerController.LocalInstancePlayer != null)
+            PhotonNetwork.Destroy(PlayerController.LocalInstancePlayer);
 
         Debug.Log("[InGame] EndGameForAll -> LoadLevel(Room)");
         PhotonNetwork.LoadLevel("Room");
@@ -143,8 +143,8 @@ public class InGameManager : MonoBehaviourPunCallbacks
 
         // Photon 룸은 유지한 채, 로컬 씬만 이동
         // PN 뭔가 해줘야한다 -> 플레이어를 명시적으로 파괴해야함.
-        if (PlayerContoller.LocalInstancePlayer != null)
-            PhotonNetwork.Destroy(PlayerContoller.LocalInstancePlayer);
+        if (PlayerController.LocalInstancePlayer != null)
+            PhotonNetwork.Destroy(PlayerController.LocalInstancePlayer);
 
         UnityEngine.SceneManagement.SceneManager.LoadScene("Room");
     }

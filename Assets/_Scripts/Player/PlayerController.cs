@@ -2,12 +2,11 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerContoller : MonoBehaviourPunCallbacks
+public class PlayerController : MonoBehaviourPun
 {
     public static GameObject LocalInstancePlayer;
 
-    [SerializeField] private float _mouseSensitivity;
-    public float knockBackForce = 5f;
+    [HideInInspector] public bool isMafia;
 
     private Vector2 _mouseDelta;
     private float _xRotation;
@@ -26,24 +25,8 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
 
     private ExitGames.Client.Photon.Hashtable _table;
 
-    public float walkSpeed;
-    public float runSpeed;
-    public float crouchSpeed;
-    public float jumpPower;
-
-    // 마피아 여부 (임시)
-    public bool isMafia;
-
-    public Animator Animator { get; private set; }
+    
     public Vector2 InputMove { get; private set; }
-    public bool IsRunning { get; private set; }
-    public bool IsCrouching { get; private set; }
-    public bool IsGrounded { get; set; }
-
-    public readonly string animNameOfMove = "MoveValue";
-    public readonly string animNameOfRun = "Running";
-    public readonly string animNameOfCrouch = "Crouching";
-    public readonly string animNameOfJump = "Jumping";
 
     private void Awake()
     {
@@ -58,6 +41,8 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
             this.enabled = false;
             return;
         }
+
+        _model = GetComponent<PlayerModel>();
 
         // 내 아바타는 숨김 처리한다.
         // 다른 사람 아바타는 볼 수 있고 내 아바타도 남한테는 보인다.
@@ -77,7 +62,6 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
         _camera.transform.localPosition = new Vector3(0f, 1.77f, 0f);
 
         InputMove = Vector2.zero;
-        IsGrounded = true;
 
         // 생성된 사람 출석 체크
         _table = new ExitGames.Client.Photon.Hashtable {
@@ -89,7 +73,6 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
 
     void Start()
     {
-        Animator = GetComponent<Animator>();
         _playerInteraction = GetComponent<PlayerInteraction>();
         FindFirstObjectByType<InGameManager>().RegistPlayer(this);
 
@@ -149,8 +132,8 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
 
     private void PlayerLook()
     {
-        float mouseX = _mouseDelta.x * _mouseSensitivity * Time.deltaTime;
-        float mouseY = _mouseDelta.y * _mouseSensitivity * Time.deltaTime;
+        float mouseX = _mouseDelta.x * _model.mouseSensitivity * Time.deltaTime;
+        float mouseY = _mouseDelta.y * _model.mouseSensitivity * Time.deltaTime;
 
         _xRotation -= mouseY;
         _xRotation = Mathf.Clamp(_xRotation, -90f, 90f); // 위아래 90도 제한
@@ -167,7 +150,7 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
             _stateMachine.ChangeState(_move);
         else
         {
-            if (IsCrouching)
+            if (_model.IsCrouching)
                 _stateMachine.ChangeState(_crouch);
             else
                 _stateMachine.ChangeState(_idle);
@@ -187,9 +170,9 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
     private void OnSprint(InputAction.CallbackContext ctx)
     {
         if (ctx.performed)
-            IsRunning = true;
-        else 
-            IsRunning = false;
+            _model.IsRunning = true;
+        else
+            _model.IsRunning = false;
     }
 
     private void OnAttack(InputAction.CallbackContext ctx)
@@ -197,8 +180,8 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
         // 공격키가 무시되는 조건
         // 1. 공중에 떠 있을 때
         // 2. 앉아 있을 때
-        if (IsCrouching) return;
-        else if (!IsGrounded) return;
+        if (_model.IsCrouching) return;
+        else if (!_model.IsGrounded) return;
 
         _stateMachine.ChangeState(_attack);
     }
@@ -207,13 +190,13 @@ public class PlayerContoller : MonoBehaviourPunCallbacks
     {
         if (ctx.performed)
         {
-            IsCrouching = true;
+            _model.IsCrouching = true;
             if (_stateMachine.CurrentState == _idle)
                 _stateMachine.ChangeState(_crouch);
         }
         else
         {
-            IsCrouching = false;
+            _model.IsCrouching = false;
             if (_stateMachine.CurrentState == _crouch)
                 _stateMachine.ChangeState(_idle);
         }   
