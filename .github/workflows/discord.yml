@@ -1,7 +1,7 @@
 name: Discord Notification
 on:
   push:
-    branches: [ "main", "master", "develop" ]
+    branches: [ "main", "prototype", "alpha-0.1v", "beta-0.1v", "develop" ]
   pull_request:
     types: [opened, closed]
 
