@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using ExitGames.Client.Photon;
+using System;
 
 public sealed class RoomUI: MonoBehaviour
 {
@@ -29,6 +30,11 @@ public sealed class RoomUI: MonoBehaviour
     [SerializeField] private string _readyOnColorHtml = "#00C853";
     [SerializeField] private string _readyOffColorHtml = "#B0B0B0";
 
+    public event Action<string, string, int> RoomSettingsApplyRequested;
+
+    private const string ROOM_TITLE_KEY = "title";
+    private const string ROOM_PW_KEY = "pw";
+
     private readonly List<RoomPlayerContentView> _items = new();
 
     private Color _meNickColor;
@@ -43,12 +49,18 @@ public sealed class RoomUI: MonoBehaviour
 
         if (_headerRoomSetting != null)
             _headerRoomSetting.onClick.AddListener(OpenRoomSettingsPanel);
+
+        if (_roomSettingsPanel != null)
+            _roomSettingsPanel.ApplyRequested += HandleSettingsApplyRequested;
     }
 
     void OnDestroy()
     {
         if (_headerRoomSetting != null)
             _headerRoomSetting.onClick.RemoveListener(OpenRoomSettingsPanel);
+
+        if (_roomSettingsPanel != null)
+            _roomSettingsPanel.ApplyRequested -= HandleSettingsApplyRequested;
     }
 
     // 외부(RoomManager)에서 호출 - 방 이름/잠금 상태 갱신 & 컨테이너에 플레이어 프리팹으로 목록 렌더
@@ -111,9 +123,8 @@ public sealed class RoomUI: MonoBehaviour
         if (_headerRoomLocked != null)
             _headerRoomLocked.SetActive(hasPassword);
 
-        // 방 마스터만 방 세팅 버튼
         if (_headerRoomSetting != null)
-            _headerRoomSetting.interactable = PhotonNetwork.InRoom && PhotonNetwork.IsMasterClient;
+            _headerRoomSetting.interactable = PhotonNetwork.InRoom;
     }
 
     private void EnsureItemCount(int needed)
@@ -128,9 +139,36 @@ public sealed class RoomUI: MonoBehaviour
 
     private void OpenRoomSettingsPanel()
     {
-        // 패널은 아직 미구현이므로, 베이스만 열어둠
-        if (_roomSettingsPanel != null)
+        if (_roomSettingsPanel == null) return;
             _roomSettingsPanel.Open();
+
+        // 열람은 모두 가능 / 편집은 방장만 가능
+        bool canEdit = PhotonNetwork.InRoom && PhotonNetwork.IsMasterClient;
+        _roomSettingsPanel.SetInteractable(canEdit);
+
+        var room = PhotonNetwork.CurrentRoom;
+        if(room == null)
+        {
+            _roomSettingsPanel.SetFields("", "", 0);
+            return;
+        }
+
+        string title = "";
+        string pw = "";
+        int max = room.MaxPlayers;
+
+        var props = room.CustomProperties;
+        if (props != null)
+        {
+            if (props.TryGetValue(ROOM_TITLE_KEY, out object titleValue) &&
+                titleValue is string ts)
+                title = ts;
+
+            if (props.TryGetValue(ROOM_PW_KEY, out object pwValue) &&
+                pwValue is string ps)
+                pw = ps;
+        }
+        _roomSettingsPanel.SetFields(title, pw, max);
     }
 
     // 강퇴 -> RoomPlayerContentView 온 킥에 연결
@@ -155,5 +193,10 @@ public sealed class RoomUI: MonoBehaviour
         if (!string.IsNullOrWhiteSpace(html) && ColorUtility.TryParseHtmlString(html, out var c))
             return c;
         return fallback;
+    }
+
+    private void HandleSettingsApplyRequested(string title, string pw, int max)
+    {
+        RoomSettingsApplyRequested?.Invoke(title, pw, max);
     }
 }
