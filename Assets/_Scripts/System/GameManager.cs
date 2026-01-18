@@ -57,20 +57,18 @@ public class GameManager : Singleton<GameManager>
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.GameOver();
         if (isCitizenVictory)
-            CitizenVictory();
+            Victory();
         else
-            PiratesVictory();
+            Defeat();
     }
 
-    // 시민의 승리
-    public void CitizenVictory()
+    public void Victory()
     {
         _controller.Victory();
         GameOver();
     }
 
-    // 해적의 승리
-    public void PiratesVictory()
+    public void Defeat()
     {
         _controller.Defeat();
         GameOver();
@@ -78,7 +76,9 @@ public class GameManager : Singleton<GameManager>
 
     public void GameOver()
     {
-        PauseGame();
+        if(PlayerManager.Instance != null)
+            PlayerManager.Instance.GameOver();
         Cursor.lockState = CursorLockMode.None;
+        PauseGame();
     }
 }

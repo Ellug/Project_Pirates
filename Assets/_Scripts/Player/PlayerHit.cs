@@ -6,11 +6,13 @@ public class PlayerHit : MonoBehaviour
 {
     private PhotonView _view;
     private Rigidbody _rigidbody;
+    private PlayerModel _model;
 
     void Awake()
     {
         _view = GetComponent<PhotonView>();
         _rigidbody = GetComponent<Rigidbody>();
+        _model = GetComponent<PlayerModel>();
     }
 
     // 다른 사람에게 밀려 충격을 받는 로직
@@ -26,5 +28,13 @@ public class PlayerHit : MonoBehaviour
         if (!_view.IsMine) return;
 
         GetImpact(dir, force);
+    }
+
+    [PunRPC]
+    public void RpcGetHitAttack(float damage)
+    {
+        if (!_view.IsMine) return;
+
+        _model.TakeDamage(damage);
     }
 }
