@@ -9,13 +9,13 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     public static PlayerManager Instance { get; private set; }
     private PlayerController _localPlayer;
     private PhotonView _view;
+    public event Action allReadyComplete; 
 
     // 아래 필드들은 마스터 클라이언트만 쓴다.
     private Dictionary<int, PlayerController> _playersId = new Dictionary<int, PlayerController>();
     private int _mafiaNum = 0;
     private int _citizenNum = 0;
     public int onLoadedPlayer = 0;
-    public event Action allReadyComplete; 
 
     void Awake()
     {
@@ -63,18 +63,17 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             yield break;
         }
         Debug.Log($"총 플레이어 수 : {players.Length}");
+
+        // ============ 마피아 무작위로 부여 ============
         int firstEnemy = -1;
         int secondEnemy = -1;
-
         firstEnemy = UnityEngine.Random.Range(0, players.Length);
-        // 마피아 수 기억
-        _mafiaNum++;
+        _mafiaNum++; // 마피아 수 기억
 
         if (players.Length > 7) // 플레이어 수 7 초과면 마피아 1명 더 선정
         {
             _mafiaNum++;
-            // 중복 선정되지 않도록 do while 문 사용
-            do
+            do // 중복 선정되지 않도록 do while 문 사용
             {
                 secondEnemy = UnityEngine.Random.Range(0, players.Length);
             } while (firstEnemy == secondEnemy);
@@ -89,10 +88,37 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             players[secondEnemy].photonView.RPC("IsMafia", players[secondEnemy].photonView.Owner);
         yield return null;
 
-        // 직업도 무작위로 부여함 (아직 미구현)
+        // ============ 직업도 무작위로 부여 ============
+        List<JobId> jobDeck = new List<JobId>();
+
+        // 플레이어 수가 5 미만이면 1명에게만 부여
+        // 이건 테스트용으로 실제 게임에선 최소 5명의 플레이어가 요구됨
+        if (players.Length < 5)
+            jobDeck.Add(JobId.Doctor); // 테스트할 땐 여기 직업 바꿈
+        else // 5명 이상 이면 직업들 여기 넣음
+        {
+            jobDeck.Add(JobId.Doctor);
+            jobDeck.Add(JobId.Sprinter);
+        }
+        // 나머지는 무직으로 채움
+        while (jobDeck.Count < players.Length)
+            jobDeck.Add(JobId.None);
+
+        // 리스트 섞기 (피셔-예이츠 셔플)
+        for (int i = 0; i < jobDeck.Count; i++)
+        {
+            int rnd = UnityEngine.Random.Range(i, jobDeck.Count);
+            JobId temp = jobDeck[i];
+            jobDeck[i] = jobDeck[rnd];
+            jobDeck[rnd] = temp;
+        }
+
+        for (int i = 0; i < players.Length; i++)
+            players[i].photonView.RPC("AssignJob", players[i].photonView.Owner, (int)jobDeck[i]);
+        
         yield return null;
 
-        // 게임 시작을 모두에게 선언!
+        // ============ 게임 시작을 모두에게 선언! ============
         _view.RPC(nameof(ChangeInGameScene), RpcTarget.All);
     }
 

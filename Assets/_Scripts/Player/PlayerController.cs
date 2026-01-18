@@ -30,6 +30,7 @@ public class PlayerController : MonoBehaviourPun
     public bool InputJump { get; private set; }
     public bool InputKnockBack { get; private set; }
     public bool InputAttack { get; private set; }
+    public JobId PlayerJob { get; private set; }
 
     private void Awake()
     {
@@ -205,11 +206,23 @@ public class PlayerController : MonoBehaviourPun
         InputKnockBack = false;
     }
 
+    public BaseJob GetPlayerJob()
+    {
+        return _model.MyJob;
+    }
 
     [PunRPC]
     public void IsMafia()
     {
         Debug.Log("당신은 마피아입니다.");
         isMafia = true;
+    }
+
+    [PunRPC]
+    public void AssignJob(int jobId)
+    {
+        JobId myJob = (JobId)jobId;
+        _model.AssignJob(myJob);
+        PlayerJob = myJob;
     }
 }
