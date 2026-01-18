@@ -12,8 +12,9 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
 {
     private const string ROOM_TITLE_KEY = "title";
     private const string ROOM_PW_KEY = "pw";
-    private const string ROOM_MAX_KEY = "max";
     private const string READY_KEY = "ready";
+    private const int MIN_PLAYERS = 1;
+    private const int MAX_PLAYERS_LIMIT = 8;
     public const byte KickEventCode = 101;
 
     [Header("UI")]
@@ -260,7 +261,6 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
         callback?.Invoke();
     }
 
-    // LeaveRoom
     public void LeaveRoom()
     {
         Debug.Log("[Room] Triggered LeaveRoom.");
@@ -353,8 +353,7 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
         }
 
         if(changed.ContainsKey(ROOM_TITLE_KEY) ||
-           changed.ContainsKey(ROOM_PW_KEY) ||
-           changed.ContainsKey(ROOM_MAX_KEY))
+           changed.ContainsKey(ROOM_PW_KEY))
         {
             RefreshRoomUI("OnRoomPropertiesUpdate:settings");
             return;
@@ -389,18 +388,57 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
             return;
         }
 
-        var ht = new ExitGames.Client.Photon.Hashtable();
+        Room room = PhotonNetwork.CurrentRoom;
 
-        // 방제목 / 패스워드 저장
-        ht[ROOM_TITLE_KEY] = string.IsNullOrWhiteSpace(title) ? "" : title.Trim();
-        ht[ROOM_PW_KEY] = string.IsNullOrWhiteSpace(pw) ? "" : pw.Trim();
+        // 방제/비밀번호는 커스텀 프로퍼티로 유지
+        var ht = new ExitGames.Client.Photon.Hashtable
+        {
+            [ROOM_TITLE_KEY] = string.IsNullOrWhiteSpace(title) ? "" : title.Trim(),
+            [ROOM_PW_KEY] = string.IsNullOrWhiteSpace(pw) ? "" : pw.Trim(),
+        };
+        room.SetCustomProperties(ht);
 
-        if (max > 0)
-            ht[ROOM_MAX_KEY] = max;
+        if(max <= 0)
+        {
+            RefreshRoomUI("ApplyRoomSettings(local:no-max-change)");
+            return;
+        }
 
-        PhotonNetwork.CurrentRoom.SetCustomProperties(ht);
+        int clamped = Mathf.Clamp(max, MIN_PLAYERS, MAX_PLAYERS_LIMIT);
+
+        // 현재 인원보다 작게 줄이려는 시도는 거부
+        int currentCount = room.PlayerCount;
+        if(clamped < currentCount)
+        {
+            LogRoom($"[Room] 현재 인원({currentCount})보다 작은 MaxPlayers({clamped})로 변경할 수 없습니다.");
+            RefreshRoomUI("ApplyRoomSettings(local:reject-max)");
+            return;
+        }
+
+        // Room.MaxPlayers 타입 byte
+        byte newMax = (byte)clamped;
+        if(room.MaxPlayers != newMax)
+        {
+            PhotonNetwork.CurrentRoom.MaxPlayers = newMax;
+            LogRoom($"[Room] MaxPlayers 변경: {room.MaxPlayers}");
+        }
+        roomCapacitySafe("ApplyRoomSettings");
 
         RefreshRoomUI("ApplyRoomSettings(local)");
+    }
+
+    private void roomCapacitySafe(string reason)
+    {
+        if (!PhotonNetwork.InRoom || PhotonNetwork.CurrentRoom == null) return;
+
+        var room = PhotonNetwork.CurrentRoom;
+        if(room.PlayerCount > room.MaxPlayers)
+        {
+            if (PhotonNetwork.IsMasterClient)
+                room.IsOpen = false;
+
+            LogRoom($"[Room] 인원 초과 상태 감지: {room.PlayerCount}/{room.MaxPlayers}");
+        }
     }
 
     private string GetRoomTitle(Room room)
@@ -408,14 +446,13 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
         if (room == null) return "";
 
         var props = room.CustomProperties;
-        if(props != null &&
+        if (props != null &&
             props.TryGetValue(ROOM_TITLE_KEY, out object value) &&
             value is string str &&
             !string.IsNullOrWhiteSpace(str))
         {
             return str;
         }
-
         return room.Name ?? "";
     }
 }

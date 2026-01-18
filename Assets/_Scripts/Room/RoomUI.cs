@@ -34,7 +34,6 @@ public sealed class RoomUI: MonoBehaviour
 
     private const string ROOM_TITLE_KEY = "title";
     private const string ROOM_PW_KEY = "pw";
-    private const string ROOM_MAX_KEY = "max";
 
     private readonly List<RoomPlayerContentView> _items = new();
 
@@ -141,10 +140,7 @@ public sealed class RoomUI: MonoBehaviour
     private void OpenRoomSettingsPanel()
     {
         if (_roomSettingsPanel == null) return;
-        if (_roomSettingsPanel != null)
-        {
             _roomSettingsPanel.Open();
-        }
 
         // 열람은 모두 가능 / 편집은 방장만 가능
         bool canEdit = PhotonNetwork.InRoom && PhotonNetwork.IsMasterClient;
@@ -164,14 +160,13 @@ public sealed class RoomUI: MonoBehaviour
         var props = room.CustomProperties;
         if (props != null)
         {
-            if (props.TryGetValue(ROOM_TITLE_KEY, out object titleValue) && titleValue is string titleString) title = titleString;
-            if (props.TryGetValue(ROOM_PW_KEY, out object pwValue) && pwValue is string pwString) pw = pwString;
+            if (props.TryGetValue(ROOM_TITLE_KEY, out object titleValue) &&
+                titleValue is string ts)
+                title = ts;
 
-            if(props.TryGetValue(ROOM_MAX_KEY, out object mxValue))
-            {
-                if (mxValue is int mxInt) max = mxInt;
-                else if (mxValue is byte mxByte) max = mxByte;
-            }
+            if (props.TryGetValue(ROOM_PW_KEY, out object pwValue) &&
+                pwValue is string ps)
+                pw = ps;
         }
         _roomSettingsPanel.SetFields(title, pw, max);
     }
