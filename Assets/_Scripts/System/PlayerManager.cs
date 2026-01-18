@@ -103,6 +103,11 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             player.GetComponent<PhotonView>().ViewID);
     }
 
+    public void NoticeGameOverToAllPlayers(bool isCitizenVictory)
+    {
+        _view.RPC(nameof(GameOverAndJudge), RpcTarget.All, isCitizenVictory);
+    }
+
     [PunRPC]
     public void ChangeInGameScene()
     {
@@ -126,7 +131,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
         // 마피아 승리
         if (_citizenNum == 0)
-            _view.RPC(nameof(GameOverAndJudge), RpcTarget.All, false);
+            NoticeGameOverToAllPlayers(false);  
     }
 
     [PunRPC]

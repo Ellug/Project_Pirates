@@ -76,7 +76,9 @@ public class GameManager : Singleton<GameManager>
 
     public void GameOver()
     {
-        PauseGame();
+        if(PlayerManager.Instance != null)
+            PlayerManager.Instance.GameOver();
         Cursor.lockState = CursorLockMode.None;
+        PauseGame();
     }
 }
