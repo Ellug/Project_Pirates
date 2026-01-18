@@ -15,7 +15,7 @@ MonoBehaviour:
   AppSettings:
     AppIdRealtime: 8a717cab-49c5-4d07-b1c8-f8c023dea2b0
     AppIdFusion: 
-    AppIdChat: 
+    AppIdChat: 838beb1c-700c-4ae1-9d6c-a6951fd3c2a2
     AppIdVoice: eac2ef48-36ce-4634-8e80-a033f1cb1bd3
     AppVersion: 
     UseNameServer: 1
@@ -48,6 +48,17 @@ MonoBehaviour:
   - GameOver
   - TriggerObject
   - GameOverAndPopUpResult
+  - RPC_ReceiveChat
+  - RpcInteractionObject
+  - RpcGetHitKnockBack
+  - RPC_SyncVoiceParent
+  - IsMafia
+  - ChangeInGameScene
+  - PlayerEnterCheck
+  - GameStart
+  - RpcGetHitAttack
+  - PlayerDeathCheck
+  - GameOverAndJudge
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0
