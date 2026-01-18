@@ -141,7 +141,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         // 각 플레이어들은 자신의 세력을 보고 승리 또는 패배 패널 중 하나를 띄움.
         if (_localPlayer != null)
         {
-            if (isCitizenVictory && (_localPlayer.isMafia == false))
+            if (isCitizenVictory != _localPlayer.isMafia)
                 GameManager.Instance.Victory();
             else
                 GameManager.Instance.Defeat();
