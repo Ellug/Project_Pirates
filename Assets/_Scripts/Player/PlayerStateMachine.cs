@@ -99,8 +99,12 @@ public class MoveState : IPlayerState
         Vector2 input = _player.InputMove;
         Vector3 dir = new Vector3(input.x, 0f, input.y).normalized;
 
-        if (_model.IsRunning)
+        if (_model.IsRunning && _model.IsSprintLock == false)
         {
+            // 러닝 상태에서는 스태미너 감소
+            _model.Animator.SetBool(_model.animNameOfRun, true);
+            _model.ConsumeStamina(_model.SprintStaminaDrainPerSec * Time.fixedDeltaTime);
+
             _model.Animator.SetBool(_model.animNameOfRun, true);
             _model.Animator.SetFloat(_model.animNameOfMove, 1f);
             _player.transform.Translate(Time.fixedDeltaTime * _model.runSpeed * dir);
@@ -232,7 +236,7 @@ public class AttackState : IPlayerState
             if (targetView != null)
             {
                 if (_isAttack)
-                    targetView.RPC("RpcGetHitAttack", targetView.Owner, 20f);
+                    targetView.RPC("RpcGetHitAttack", targetView.Owner, _model.attackPower);
                 else
                     targetView.RPC("RpcGetHitKnockBack", targetView.Owner, direction, _model.knockBackForce);
             }

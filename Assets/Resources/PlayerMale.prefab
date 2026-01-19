@@ -5207,8 +5207,10 @@ MonoBehaviour:
   knockBackForce: 5
   baseSpeed: 5
   jumpPower: 5
+  attackPower: 20
   runSpeed: 0
   crouchSpeed: 0
+  _staminaRecoverPerSec: 20
 --- !u!1 &7531048272763147095
 GameObject:
   m_ObjectHideFlags: 0

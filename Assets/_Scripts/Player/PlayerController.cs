@@ -132,6 +132,9 @@ public class PlayerController : MonoBehaviourPun
     void FixedUpdate()
     {
         StateMachine.CurrentState.PhysicsUpdate();
+
+        if (_model != null && !_model.IsRunning)
+            _model.RecoverStamina(_model.StaminaRecoverPerSec * Time.fixedDeltaTime);
     }
 
     private void LateUpdate()
@@ -216,6 +219,7 @@ public class PlayerController : MonoBehaviourPun
     {
         Debug.Log("당신은 마피아입니다.");
         isMafia = true;
+        _model.attackPower *= 2.5f;
     }
 
     [PunRPC]
