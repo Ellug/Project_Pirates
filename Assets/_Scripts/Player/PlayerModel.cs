@@ -53,7 +53,7 @@ public class PlayerModel : MonoBehaviour
         _maxStamina = 100f;
         _curStamina = _maxStamina;
         IsGrounded = true;
-        runSpeed = baseSpeed * 2f;
+        runSpeed = baseSpeed * 1.6f;
         crouchSpeed = baseSpeed * 0.4f;
         Animator = GetComponent<Animator>();
     }

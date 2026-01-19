@@ -176,9 +176,6 @@ public class PlayerController : MonoBehaviourPun
             _model.IsRunning = true;
         else
             _model.IsRunning = false;
-        // 여기에 스테미너 회복 로직
-        // FixedUpdate 에 넣어줄것
-        // 여기서 PlayerModel.RecoverStamina 호출
     }
 
     private void OnCrouch(InputAction.CallbackContext ctx)
