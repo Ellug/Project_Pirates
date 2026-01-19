@@ -63,9 +63,6 @@ public class GlobalProgress : MonoBehaviourPunCallbacks
         if (_missionStates.TryGetValue(key, out bool done) && done)
             return;
 
-        if (!PhotonNetwork.IsMasterClient)
-            return;
-
         _roomProps.Set(key, true);
         _roomProps.Set(CompletedCountKey, _completedMissionCount + 1);
     }
