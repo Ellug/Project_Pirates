@@ -7,6 +7,7 @@ public class PlayerModel : MonoBehaviour
     public float knockBackForce = 5f;
     public float baseSpeed;
     public float jumpPower;
+    public float attackPower;
     [HideInInspector] public float runSpeed;
     [HideInInspector] public float crouchSpeed;
 
@@ -14,6 +15,24 @@ public class PlayerModel : MonoBehaviour
     private float _curHealthPoint;
     private float _maxStamina;
     private float _curStamina;
+
+    [Header("Stamina")]
+    [SerializeField] private const float _sprintStaminaDrainPerSec = 20f; // 소모
+    public float SprintStaminaDrainPerSec => _sprintStaminaDrainPerSec;
+
+    [SerializeField] private float _staminaRecoverPerSec = 20f; // 회복
+    public float StaminaRecoverPerSec => _staminaRecoverPerSec;
+
+    private float _staminaReenableToRun = 25f;
+    private bool _isSprintLock;
+    private bool _isRunning;
+    public bool IsSprintLock => _isSprintLock;
+
+    public bool IsRunning
+    {
+        get => _isRunning;
+        set => _isRunning = value && !_isSprintLock;
+    }
 
     public readonly string animNameOfMove = "MoveValue";
     public readonly string animNameOfRun = "Running";
@@ -24,7 +43,6 @@ public class PlayerModel : MonoBehaviour
     public readonly string animNameOfDeath = "Death";
 
     public Animator Animator { get; private set; }
-    public bool IsRunning { get; set; }
     public bool IsCrouching { get; set; }
     public bool IsGrounded { get; set; }
     public BaseJob MyJob { get; private set; }
@@ -78,18 +96,48 @@ public class PlayerModel : MonoBehaviour
     // 스태미나의 회복과 감소 메서드
     public void ConsumeStamina(float amount)
     {
-        _curStamina -= amount;
-        // TODO : 스태미나가 0이 되면 달리기가 불가능해지고
-        // 일정이상 채워야 다시 달릴 수 있다. (한 20 ~ 30 정도?)
-        if (_curStamina <= 0f)
-        {
+        if (amount <= 0f) return;
 
+        // 탈진 상태
+        if (_isSprintLock)
+        {
+            _curStamina = Mathf.Max(0f, _curStamina); // 음수 처리
+            IsRunning = false;
+            return;
+        }
+
+        float prev = _curStamina;
+        _curStamina = Mathf.Max(0f, _curStamina - amount);
+
+        Debug.Log($"스테미너 소모 : {prev:F1} -> {_curStamina:F1}");
+
+        if(_curStamina <= 0f)
+        {
+            _curStamina = 0f;
+            _isSprintLock = true;
+            IsRunning = false;
+
+            Debug.Log("스테미너 탈진 (스프린트 잠금)");
         }
     }
 
     public void RecoverStamina(float amount)
     {
+        if (amount <= 0f) return;
+
+        float prev = _curStamina;
         _curStamina = Mathf.Min(_maxStamina, _curStamina + amount);
+
+        // 실수값 비교후 동일하지 않으면 Debug.Log
+        if (!Mathf.Approximately(prev, _curStamina))
+            Debug.Log($"스테미너 회복 : {prev:F1} -> {_curStamina:F1}");
+
+        // 일정 이상 회복시 스프린트 잠금 해제
+        if (_isSprintLock && _curStamina >= _staminaReenableToRun)
+        {
+            _isSprintLock = false;
+            Debug.Log("스프린트 가능한 스테미너 회복");
+        }
     }
 
 
@@ -98,15 +146,9 @@ public class PlayerModel : MonoBehaviour
     {
         switch (job)
         {
-            case JobId.None:
-                MyJob = null;
-                break;
-            case JobId.Doctor:
-                MyJob = new DoctorJob();
-                break;
-            case JobId.Sprinter:
-                MyJob = new SprinterJob();
-                break;
+            case JobId.None: MyJob = null; break;
+            case JobId.Doctor: MyJob = new DoctorJob(); break;
+            case JobId.Sprinter: MyJob = new SprinterJob(); break;
         }
         MyJob?.Initialize(this);
     }
