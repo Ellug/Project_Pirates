@@ -114,7 +114,7 @@ public class GlobalProgress : MonoBehaviourPunCallbacks
         OnProgressChanged?.Invoke(percent);
 
         if(_completedMissionCount == _totalMissionCount)
-            GameManager.Instance.GameOverAndResult(true);
+            PlayerManager.Instance.NoticeGameOverToAllPlayers(true);
     }
 
     public bool IsMissionCompleted(string missionId)
