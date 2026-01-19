@@ -9,7 +9,6 @@ public class MainMenuUI : MonoBehaviour
 
     [Header("Panel")]
     [SerializeField] private GameObject _connectPanel;
-    // [SerializeField] private GameObject _mainMenuListPanel;
     [SerializeField] private GameObject _howToPlayPanel;
     [SerializeField] private GameObject _optionPanel;
     [SerializeField] private GameObject _creditPanel;
@@ -21,7 +20,6 @@ public class MainMenuUI : MonoBehaviour
     {
         CloseAllPanel();
         _mainMenuCanvas.SetActive(true);
-        // _mainMenuListPanel.SetActive(true);
         _gameName.gameObject.SetActive(true);
     }
 
@@ -60,19 +58,15 @@ public class MainMenuUI : MonoBehaviour
     {
         CloseAllPanel();
         if(_mainMenuCanvas.activeSelf == false)
-        {
             _mainMenuCanvas.SetActive(true);
-        }
-        // _mainMenuListPanel.SetActive(true);
+
         _gameName.gameObject.SetActive(true);
     }
     private void CloseAllPanel()
     {
         _connectPanel.SetActive(false);
-        // _mainMenuListPanel.SetActive(false);
         _howToPlayPanel.SetActive(false);
         _optionPanel.SetActive(false);
         _creditPanel.SetActive(false);
-        // _gameName.gameObject.SetActive(false);
     }
 }
