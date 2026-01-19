@@ -83,7 +83,13 @@ public class InGameManager : MonoBehaviourPunCallbacks
 
     IEnumerator PopUpJob(TextMeshProUGUI roleText, float duration)
     {
-        roleText.text = "당신의 직업은 \"시민\" 입니다.";
+        BaseJob jobType = _player.GetPlayerJob();
+        string jobName = "평범한 시민";
+
+        if (jobType != null) // null 이 아니면 직업이 있고 그 이름을 가져옴
+            jobName = jobType.name;
+
+        roleText.text = $"당신의 직업은 \"{jobName}\" 입니다.";
         roleText.color = new Color(1f, 1f, 1f, 0f);
         _playerRoleUi.DOFade(1f, duration);
         roleText.DOFade(1f, duration);
