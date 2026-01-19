@@ -3161,6 +3161,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoomSettingsPanelView
   _root: {fileID: 1863828645}
   _closeButton: {fileID: 764477369}
+  _titleInput: {fileID: 0}
+  _pwInput: {fileID: 0}
+  _maxPlayerDropdown: {fileID: 0}
+  _applyButton: {fileID: 0}
 --- !u!1 &1923288585
 GameObject:
   m_ObjectHideFlags: 0

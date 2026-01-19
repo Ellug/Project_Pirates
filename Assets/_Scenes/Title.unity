@@ -1891,10 +1891,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 355709305}
+  - component: {fileID: 355709307}
+  - component: {fileID: 355709306}
   - component: {fileID: 355709304}
   - component: {fileID: 355709303}
   m_Layer: 0
-  m_Name: Voice
+  m_Name: VoiceManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1999,6 +2001,34 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &355709306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 355709302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cb388b2e450dab4e9ec2c69b562dc3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VoiceManager
+  _dontDestroyOnLoad: 1
+  _recorder: {fileID: 355709304}
+--- !u!114 &355709307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 355709302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7067e0564589264ab3283d3b1a74562, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VoiceUIController
+  _dontDestroyOnLoad: 1
+  _voiceOptionsPrefab: {fileID: 4762379749029996255, guid: b2513012f35f49f459862a9b9bd1097f, type: 3}
 --- !u!1 &378183765
 GameObject:
   m_ObjectHideFlags: 0
