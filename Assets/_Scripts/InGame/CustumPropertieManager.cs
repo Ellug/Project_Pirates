@@ -31,7 +31,6 @@ public class CustumPropertieManager : MonoBehaviourPunCallbacks
         };
 
         // Room Custom Properties 네트워크 동기화
-        // → 모든 클라이언트의 OnRoomPropertiesUpdate 호출됨
         PhotonNetwork.CurrentRoom.SetCustomProperties(props);
     }
 

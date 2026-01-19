@@ -1,6 +1,7 @@
 ﻿using ExitGames.Client.Photon;
 using Photon.Pun;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GlobalProgress : MonoBehaviourPunCallbacks
@@ -9,21 +10,19 @@ public class GlobalProgress : MonoBehaviourPunCallbacks
     [SerializeField] private CustumPropertieManager _roomProps;
 
     [Header("Mission Setting")]
-    [Tooltip("전체 미션 갯수"), SerializeField] private int _totalMissionCount = 5;
+    [Tooltip("전체 미션 갯수")]
+    [SerializeField] private int _totalMissionCount = 5;
 
-    // 커스텀 프로퍼티 키
-    private const string Mission1Key = "world.mission1";
+    // 공통 키
+    private const string MissionPrefix = "world.mission.";
     private const string CompletedCountKey = "world.mission.completedCount";
 
     // 캐시
-    private bool _isMission1Completed;
+    private readonly Dictionary<string, bool> _missionStates = new();
     private int _completedMissionCount;
 
-    // 상태 변경
-    public event Action<bool> OnMission1StateChanged;
-
-
-    // 전채 진행도 변경
+    // 이벤트
+    public event Action<string, bool> OnMissionStateChanged;
     public event Action<int> OnProgressChanged;
 
     private void Awake()
@@ -39,18 +38,7 @@ public class GlobalProgress : MonoBehaviourPunCallbacks
 
         _roomProps.OnRoomPropertyChanged += OnRoomPropertyChanged;
 
-        // ===== 미션1 상태 초기화 =====
-        if (_roomProps.TryGet(Mission1Key, out bool completed))
-            ApplyMission1(completed, true);
-        else
-        {
-            if (PhotonNetwork.IsMasterClient)
-                _roomProps.Set(Mission1Key, false);
-
-            ApplyMission1(false, true);
-        }
-
-        // ===== 완료된 미션 수 초기화 =====
+        // 완료된 미션 수 초기화
         if (_roomProps.TryGet(CompletedCountKey, out int count))
             ApplyCompletedCount(count, true);
         else
@@ -68,50 +56,49 @@ public class GlobalProgress : MonoBehaviourPunCallbacks
             _roomProps.OnRoomPropertyChanged -= OnRoomPropertyChanged;
     }
 
-    // ========================================================================
-    // 외부(미션)에서 호출하는 영역
-    // ========================================================================
-
-    public void CompleteMission1()
+    public void CompleteMission(string missionId)
     {
-        if (_isMission1Completed)
+        string key = MissionPrefix + missionId;
+
+        if (_missionStates.TryGetValue(key, out bool done) && done)
             return;
 
         if (!PhotonNetwork.IsMasterClient)
             return;
 
-        _roomProps.Set(Mission1Key, true);
-
-        // 미션 하나 완료 → 전체 완료 수 증가
+        _roomProps.Set(key, true);
         _roomProps.Set(CompletedCountKey, _completedMissionCount + 1);
     }
-
-    // ========================================================================
-    // RoomProperty 콜백
-    // ========================================================================
-
     private void OnRoomPropertyChanged(Hashtable changedProps)
     {
-        if (changedProps.TryGetValue(Mission1Key, out var m1))
-            ApplyMission1((bool)m1, false);
+        foreach (var item in changedProps)
+        {
+            string key = item.Key as string;
 
-        if (changedProps.TryGetValue(CompletedCountKey, out var count))
-            ApplyCompletedCount((int)count, false);
+            if (key == null)
+                continue;
+
+            if (key == CompletedCountKey)
+            {
+                ApplyCompletedCount((int)item.Value, false);
+            }
+            else if (key.StartsWith(MissionPrefix))
+            {
+                string missionId = key.Replace(MissionPrefix, "");
+                ApplyMission(missionId, (bool)item.Value, false);
+            }
+        }
     }
 
-    // ========================================================================
-    // Apply (로컬 반영)
-    // ========================================================================
-
-    private void ApplyMission1(bool completed, bool isInit)
+    private void ApplyMission(string missionId, bool completed, bool isInit)
     {
-        _isMission1Completed = completed;
+        _missionStates[missionId] = completed;
 
         Debug.Log(isInit
-            ? $"[GlobalProgress] Mission1 Init : {_isMission1Completed}"
-            : $"[GlobalProgress] Mission1 Changed : {_isMission1Completed}");
+            ? $"[GlobalProgress] {missionId} Init : {completed}"
+            : $"[GlobalProgress] {missionId} Changed : {completed}");
 
-        OnMission1StateChanged?.Invoke(_isMission1Completed);
+        OnMissionStateChanged?.Invoke(missionId, completed);
     }
 
     private void ApplyCompletedCount(int count, bool isInit)
@@ -125,21 +112,17 @@ public class GlobalProgress : MonoBehaviourPunCallbacks
             : $"[GlobalProgress] Progress Changed : {_completedMissionCount}/{_totalMissionCount} ({percent}%)");
 
         OnProgressChanged?.Invoke(percent);
+
+        if(_completedMissionCount == _totalMissionCount)
+            GameManager.Instance.GameOverAndResult(true);
     }
 
-    // ========================================================================
-    // 외부 조회용
-    // ========================================================================
-
-    public bool IsMission1Completed()
+    public bool IsMissionCompleted(string missionId)
     {
-        return _isMission1Completed;
+        return _missionStates.TryGetValue(missionId, out bool done) && done;
     }
 
-    public int GetCompletedCount()
-    {
-        return _completedMissionCount;
-    }
+    public int GetCompletedCount() => _completedMissionCount;
 
     public int GetProgressPercent()
     {
