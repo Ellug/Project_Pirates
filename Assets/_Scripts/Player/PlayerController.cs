@@ -8,6 +8,8 @@ public class PlayerController : MonoBehaviourPun
 
     [HideInInspector] public bool isMafia;
 
+    [SerializeField] private float _staminaRecoverPerSec = 20f; //
+
     private Vector2 _mouseDelta;
     private float _xRotation;
     private Camera _camera;
@@ -132,6 +134,9 @@ public class PlayerController : MonoBehaviourPun
     void FixedUpdate()
     {
         StateMachine.CurrentState.PhysicsUpdate();
+
+        if (_model != null && !_model.IsRunning)
+            _model.RecoverStamina(_staminaRecoverPerSec * Time.fixedDeltaTime);
     }
 
     private void LateUpdate()
@@ -173,6 +178,9 @@ public class PlayerController : MonoBehaviourPun
             _model.IsRunning = true;
         else
             _model.IsRunning = false;
+        // 여기에 스테미너 회복 로직
+        // FixedUpdate 에 넣어줄것
+        // 여기서 PlayerModel.RecoverStamina 호출
     }
 
     private void OnCrouch(InputAction.CallbackContext ctx)

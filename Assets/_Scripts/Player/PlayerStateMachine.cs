@@ -66,6 +66,7 @@ public class MoveState : IPlayerState
 {
     PlayerController _player;
     PlayerModel _model;
+    private const float _sprintStaminaDrainPerSec = 20f;
 
     public MoveState(PlayerController player)
     {
@@ -101,6 +102,22 @@ public class MoveState : IPlayerState
 
         if (_model.IsRunning)
         {
+            // 여기에 스테미나 감소 로직
+            // 러닝 상태에서는 감소
+            _model.Animator.SetBool(_model.animNameOfRun, true);
+            _model.ConsumeStamina(_sprintStaminaDrainPerSec * Time.fixedDeltaTime);
+            //_model.Animator.SetFloat(_model.animNameOfMove, 1f);
+            //_player.transform.Translate(Time.fixedDeltaTime * _model.runSpeed * dir);
+            
+            // 스테미너 0 으로 강제 걷기 전환시 걷기 속도 적용
+            if(!_model.IsRunning)
+            {
+                _model.Animator.SetBool(_model.animNameOfRun, false);
+                _model.Animator.SetFloat(_model.animNameOfMove, 0.5f);
+                _player.transform.Translate(Time.fixedDeltaTime * _model.baseSpeed * dir);
+                return;
+            }
+
             _model.Animator.SetBool(_model.animNameOfRun, true);
             _model.Animator.SetFloat(_model.animNameOfMove, 1f);
             _player.transform.Translate(Time.fixedDeltaTime * _model.runSpeed * dir);
