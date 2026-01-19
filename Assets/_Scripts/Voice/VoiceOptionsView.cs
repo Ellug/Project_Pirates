@@ -1,0 +1,146 @@
+﻿using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class VoiceOptionsView : MonoBehaviour
+{
+    [Header("Mic Output (Mine)")]
+    [SerializeField] private Slider _myMicSlider;
+    [SerializeField] private TMP_Dropdown _micTypeDropdown;
+    [SerializeField] private Toggle _myMicMuteToggle;
+
+    [Header("Mic Input (Others Master)")]
+    [SerializeField] private Slider _masterInputSlider;
+    [SerializeField] private Toggle _masterInputMuteToggle;
+
+    [Header("Remote Players")]
+    [SerializeField] private RectTransform _verticalPanel;
+    [SerializeField] private GameObject _playerMicRowPrefab;
+
+    private bool _suppress;
+    private List<RemotePlayerRow> _activeRows = new();
+
+    void OnEnable()
+    {
+        SyncSettingsFromSaved();
+        Bind();
+        RefreshPlayerList();
+    }
+
+    void OnDisable()
+    {
+        Unbind();
+    }
+
+    private void SyncSettingsFromSaved()
+    {
+        _suppress = true;
+
+        _myMicSlider.value = PlayerPrefs.GetFloat(VoiceParam.MyMicVolumeKey, 1f);
+        _micTypeDropdown.value = PlayerPrefs.GetInt(VoiceParam.MyMicTypeKey, 0);
+        _myMicMuteToggle.isOn = PlayerPrefs.GetInt(VoiceParam.MyMicMuteKey, 0) == 1;
+
+        _masterInputSlider.value = PlayerPrefs.GetFloat(VoiceParam.MasterInputKey, 1f);
+        _masterInputMuteToggle.isOn = PlayerPrefs.GetInt(VoiceParam.MasterInputMuteKey, 0) == 1;
+
+        VoiceManager.Instance?.LoadAndApplySettings();
+
+        _suppress = false;
+    }
+
+    private void Bind()
+    {
+        _myMicSlider.onValueChanged.AddListener(OnMyMicSliderChanged);
+        _micTypeDropdown.onValueChanged.AddListener(OnMyMicTypeChanged);
+        _myMicMuteToggle.onValueChanged.AddListener(OnMyMicMuteChanged);
+
+        _masterInputSlider.onValueChanged.AddListener(OnMasterSliderChanged);
+        _masterInputMuteToggle.onValueChanged.AddListener(OnMasterMuteChanged);
+    }
+
+    private void Unbind()
+    {
+        _myMicSlider.onValueChanged.RemoveListener(OnMyMicSliderChanged);
+        _micTypeDropdown.onValueChanged.RemoveListener(OnMyMicTypeChanged);
+        _myMicMuteToggle.onValueChanged.RemoveListener(OnMyMicMuteChanged);
+
+        _masterInputSlider.onValueChanged.RemoveListener(OnMasterSliderChanged);
+        _masterInputMuteToggle.onValueChanged.RemoveListener(OnMasterMuteChanged);
+    }
+
+    private void RefreshPlayerList()
+    {
+        StartCoroutine(VoiceManager.Instance.Co_GetVoiceUserSettings(users =>
+        {
+            foreach (var row in _activeRows) if (row != null) Destroy(row.gameObject);
+            _activeRows.Clear();
+
+            foreach (var user in users)
+            {
+                var go = Instantiate(_playerMicRowPrefab, _verticalPanel);
+                var row = go.GetComponent<RemotePlayerRow>();
+                if (row != null)
+                {
+                    row.Setup(user);
+                    _activeRows.Add(row);
+                }
+            }
+        }));
+    }
+
+    //내 인풋 설정 처리
+    private void OnMyMicSliderChanged(float value)
+    {
+        if (_suppress) return;
+        PlayerPrefs.SetFloat(VoiceParam.MyMicVolumeKey, value);
+        ApplyMyMicTotal();
+    }
+
+    private void OnMyMicTypeChanged(int index)
+    {
+        if (_suppress) return;
+        PlayerPrefs.SetInt(VoiceParam.MyMicTypeKey, index);
+        ApplyMyMicTotal();
+    }
+
+    private void OnMyMicMuteChanged(bool isOn)
+    {
+        if (_suppress) return;
+        PlayerPrefs.SetInt(VoiceParam.MyMicMuteKey, isOn ? 1 : 0);
+        ApplyMyMicTotal();
+    }
+
+    private void ApplyMyMicTotal()
+    {
+        VoiceManager.Instance.ApplyMyMicSettings(_myMicSlider.value, _micTypeDropdown.value, _myMicMuteToggle.isOn);
+    }
+
+    //마스터 인풋 설정 처리
+    private void OnMasterSliderChanged(float value)
+    {
+        if (_suppress) return;
+        PlayerPrefs.SetFloat(VoiceParam.MasterInputKey, value);
+        VoiceManager.Instance.ApplyMasterInputSettings();
+    }
+
+    // 마스터 뮤트 토글 이벤트
+    private void OnMasterMuteChanged(bool isOn)
+    {
+        if (_suppress) return;
+
+        VoiceManager.Instance.SetAllRemoteMute(isOn);
+
+        RefreshPlayerList();
+    }
+
+    // 개별 유저 뮤트를 해제했을 때 마스터 토글도 풀리게 처리
+    public void NotifyIndividualMuteChanged()
+    {
+        _suppress = true;
+        _masterInputMuteToggle.isOn = PlayerPrefs.GetInt(VoiceParam.MasterInputMuteKey, 0) == 1;
+        _suppress = false;
+
+        RefreshPlayerList();
+    }
+}
