@@ -7,6 +7,9 @@ using UnityEngine.SceneManagement;
 
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
+    private const string ROOM_PW_KEY = "pw";
+    private const string ROOM_TITLE_KEY = "title";
+
     [SerializeField] private LobbyUI _ui;
 
     [Header("Refresh")]
@@ -145,6 +148,11 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
         foreach (var info in _cachedRoomList.Values)
         {
+            string title = info.Name;
+
+            if (info.CustomProperties != null && info.CustomProperties.TryGetValue(ROOM_TITLE_KEY, out object titleObj))
+                title = titleObj as string ?? title;
+
             bool hasPw =
                 info.CustomProperties != null &&
                 info.CustomProperties.TryGetValue("pw", out object pwObj) &&
@@ -152,6 +160,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
             snaps.Add(new RoomSnapshot(
                 info.Name,
+                title,
                 info.PlayerCount,
                 (int)info.MaxPlayers,
                 hasPw,
@@ -169,13 +178,21 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("[Lobby] HandleCreateRoomRequested");
 
-        string roomName = string.IsNullOrWhiteSpace(req.Name) ? "room_00" : req.Name;
+        // 내부 식별자(방 이름). 중복 방지 위해 Guid/랜덤 추천
+        string roomName = string.IsNullOrWhiteSpace(req.Name)
+            ? $"room_{System.Guid.NewGuid():N}".Substring(0, 12)
+            : req.Name;
+
+        // 표시용 제목(= title 커스텀 프로퍼티)
+        string title = string.IsNullOrWhiteSpace(req.Name) ? "No Title" : req.Name;
+
         string roomPW = req.Password ?? string.Empty;
         int maxPlayer = Mathf.Clamp(req.MaxPlayers, 1, 16);
 
         var props = new ExitGames.Client.Photon.Hashtable
         {
-            { "pw", roomPW }
+            { ROOM_TITLE_KEY, title },
+            { ROOM_PW_KEY, roomPW }
         };
 
         var options = new RoomOptions
@@ -184,7 +201,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             IsVisible = true,
             IsOpen = true,
             CustomRoomProperties = props,
-            CustomRoomPropertiesForLobby = new[] { "pw" }
+            CustomRoomPropertiesForLobby = new[] { ROOM_TITLE_KEY, ROOM_PW_KEY }
         };
 
         PhotonNetwork.CreateRoom(roomName, options);

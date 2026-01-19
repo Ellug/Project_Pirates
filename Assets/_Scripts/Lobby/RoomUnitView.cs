@@ -30,7 +30,7 @@ public class RoomUnitView : MonoBehaviour
         _snapshot = snapshot;
         _onJoinRequested = onJoinRequested;
 
-        _roomName.text = snapshot.Name;
+        _roomName.text = snapshot.Title;
         _playerCount.text = $"{snapshot.PlayerCount} / {snapshot.MaxPlayers}";
         _lockIcon.gameObject.SetActive(snapshot.HasPassword);
 
