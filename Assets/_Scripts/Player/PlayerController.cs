@@ -132,6 +132,9 @@ public class PlayerController : MonoBehaviourPun
     void FixedUpdate()
     {
         StateMachine.CurrentState.PhysicsUpdate();
+
+        if (_model != null && !_model.IsRunning)
+            _model.RecoverStamina(_model.StaminaRecoverPerSec * Time.fixedDeltaTime);
     }
 
     private void LateUpdate()
