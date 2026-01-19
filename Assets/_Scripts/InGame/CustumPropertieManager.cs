@@ -4,7 +4,7 @@ using Photon.Realtime;
 using System;                   
 using UnityEngine;               
 
-public class RoomPropertyStore : MonoBehaviourPunCallbacks
+public class CustumPropertieManager : MonoBehaviourPunCallbacks
 {
     [Header("Debug View (Read Only)")]
 
@@ -20,7 +20,7 @@ public class RoomPropertyStore : MonoBehaviourPunCallbacks
         // 방에 들어가 있지 않으면 실행하지 않음
         if (PhotonNetwork.CurrentRoom == null)
         {
-            Debug.LogWarning("RoomPropertyStore: Not in room");
+            Debug.LogWarning("CustumPropertieManager: Not in room");
             return;
         }
 
