@@ -16,7 +16,19 @@ public class PlayerController : MonoBehaviourPun
     private PlayerModel _model;
 
     private ExitGames.Client.Photon.Hashtable _table;
-    
+
+    // InputManager에서 ActionMap(Player/UI)을 전환할 때, 전역 InputSystem.actions는 영향을 받지 않으므로
+    // 로컬 플레이어의 입력을 차단/복구하기 위해 PlayerInput.actions로 교체
+    private PlayerInput _playerInput;
+    private InputAction _actMove;
+    private InputAction _actSprint;
+    private InputAction _actCrouch;
+    private InputAction _actAttack;
+    private InputAction _actKnockBack;
+    private InputAction _actLook;
+    private InputAction _actInteract;
+    // private InputAction _actJump;
+
     // Player State
     public PlayerStateMachine StateMachine { get; private set; }
     public IdleState StateIdle { get; private set; }
@@ -40,11 +52,22 @@ public class PlayerController : MonoBehaviourPun
         // 다른 사람의 Update, FixedUpdate 같은 것들이 호출 자체가 안됨
         if (!_view.IsMine)
         {
+            // 네트워크 섞임 방지 => 다른 플레이어 PI 비활성화
+            var remotePI = GetComponent<PlayerInput>();
+            if (remotePI != null) remotePI.enabled = false;
+
             _playerInteraction = GetComponent<PlayerInteraction>();
             _playerInteraction.enabled = false;
             this.enabled = false;
             return;
         }
+
+        _playerInput = GetComponent<PlayerInput>();
+
+        // 로컬 플레이어 PlayerInput을 InputManager에 등록
+        // 옵션/콘솔 열리면 InputManager가 ActionMap을 UI로 바꿔서 플레이어 입력 자동 차단
+        if (InputManager.Instance != null && _playerInput != null)
+            InputManager.Instance.RegisterLocalPlayer(_playerInput);
 
         _model = GetComponent<PlayerModel>();
 
@@ -53,12 +76,13 @@ public class PlayerController : MonoBehaviourPun
         SkinnedMeshRenderer[] myAvatar =
             transform.GetComponentsInChildren<SkinnedMeshRenderer>();
 
-        foreach (var avatar in myAvatar) 
+        foreach (var avatar in myAvatar)
         {
             avatar.enabled = false;
         }
 
-        Cursor.lockState = CursorLockMode.Locked;
+        // ===== [정리] 커서 Lock은 InputManager가 담당하므로 여기서 설정하지 않음 =====
+        // Cursor.lockState = CursorLockMode.Locked;
         isMafia = false;
 
         _camera = Camera.main;
@@ -91,37 +115,114 @@ public class PlayerController : MonoBehaviourPun
 
         StateMachine = new PlayerStateMachine(StateIdle);
 
-        InputSystem.actions["Move"].performed += OnMove;
-        InputSystem.actions["Move"].canceled += OnMove;
-        InputSystem.actions["Sprint"].performed += OnSprint;
-        InputSystem.actions["Sprint"].canceled += OnSprint;
-        InputSystem.actions["Crouch"].performed += OnCrouch;
-        InputSystem.actions["Crouch"].canceled += OnCrouch;
-        InputSystem.actions["Attack"].started += OnAttack;
-        InputSystem.actions["KnockBack"].started += OnKnockBack;
+        // PlayerInput.actions 기반으로 전환하여 InputManager의 ActionMap 전환이 동작하도록 함
 
-        InputSystem.actions["Look"].performed += OnLook;
-        InputSystem.actions["Look"].canceled += OnLook;
-        InputSystem.actions["Interact"].started += OnInteraction;
-        //InputSystem.actions["Jump"].started += OnJump;
+        // InputSystem.actions["Move"].performed += OnMove;
+        // InputSystem.actions["Move"].canceled += OnMove;
+        // InputSystem.actions["Sprint"].performed += OnSprint;
+        // InputSystem.actions["Sprint"].canceled += OnSprint;
+        // InputSystem.actions["Crouch"].performed += OnCrouch;
+        // InputSystem.actions["Crouch"].canceled += OnCrouch;
+        // InputSystem.actions["Attack"].started += OnAttack;
+        // InputSystem.actions["KnockBack"].started += OnKnockBack;
+        // InputSystem.actions["Look"].performed += OnLook;
+        // InputSystem.actions["Look"].canceled += OnLook;
+        // InputSystem.actions["Interact"].started += OnInteraction;
+        // InputSystem.actions["Jump"].started += OnJump;
+
+        // PlayerInput.actions 기반 구독
+        // InputManager가 SwitchCurrentActionMap("UI")로 바꾸면 Player 맵 입력 차단 (옵션/콘솔에서 플레이어 조작 불가)
+
+        if (_playerInput != null)
+        {
+            var a = _playerInput.actions;
+
+            _actMove = a["Move"];
+            _actSprint = a["Sprint"];
+            _actCrouch = a["Crouch"];
+            _actAttack = a["Attack"];
+            _actKnockBack = a["KnockBack"];
+            _actLook = a["Look"];
+            _actInteract = a["Interact"];
+            // _actJump = a["Jump"];
+
+            _actMove.performed += OnMove;
+            _actMove.canceled += OnMove;
+
+            _actSprint.performed += OnSprint;
+            _actSprint.canceled += OnSprint;
+
+            _actCrouch.performed += OnCrouch;
+            _actCrouch.canceled += OnCrouch;
+
+            _actAttack.started += OnAttack;
+            _actKnockBack.started += OnKnockBack;
+
+            _actLook.performed += OnLook;
+            _actLook.canceled += OnLook;
+
+            _actInteract.started += OnInteraction;
+            // _actJump.started += OnJump;
+        }
     }
 
     void OnDestroy()
     {
         Cursor.lockState = CursorLockMode.None;
-        InputSystem.actions["Move"].performed -= OnMove;
-        InputSystem.actions["Move"].canceled -= OnMove;
-        InputSystem.actions["Sprint"].performed -= OnSprint;
-        InputSystem.actions["Sprint"].canceled -= OnSprint;
-        InputSystem.actions["Crouch"].performed -= OnCrouch;
-        InputSystem.actions["Crouch"].canceled -= OnCrouch;
-        InputSystem.actions["Attack"].started -= OnAttack;
-        InputSystem.actions["KnockBack"].started -= OnKnockBack;
 
-        InputSystem.actions["Look"].performed -= OnLook;
-        InputSystem.actions["Look"].canceled -= OnLook;
-        InputSystem.actions["Interact"].started -= OnInteraction;
-        //InputSystem.actions["Jump"].started -= OnJump;
+        // 씬 전환 시 InputManager가 파괴된 PlayerInput 참조를 들고 있지 않도록 함
+        if (InputManager.Instance != null && _playerInput != null)
+            InputManager.Instance.UnregisterLocalPlayer(_playerInput);
+
+        // InputSystem.actions["Move"].performed -= OnMove;
+        // InputSystem.actions["Move"].canceled -= OnMove;
+        // InputSystem.actions["Sprint"].performed -= OnSprint;
+        // InputSystem.actions["Sprint"].canceled -= OnSprint;
+        // InputSystem.actions["Crouch"].performed -= OnCrouch;
+        // InputSystem.actions["Crouch"].canceled -= OnCrouch; 
+        // InputSystem.actions["Attack"].started -= OnAttack;
+        // InputSystem.actions["KnockBack"].started -= OnKnockBack;
+        // InputSystem.actions["Look"].performed -= OnLook;
+        // InputSystem.actions["Look"].canceled -= OnLook;
+        // InputSystem.actions["Interact"].started -= OnInteraction;
+        // InputSystem.actions["Jump"].started -= OnJump;
+
+        // PlayerInput.actions 해제
+        if (_actMove != null)
+        {
+            _actMove.performed -= OnMove;
+            _actMove.canceled -= OnMove;
+        }
+
+        if (_actSprint != null)
+        {
+            _actSprint.performed -= OnSprint;
+            _actSprint.canceled -= OnSprint;
+        }
+
+        if (_actCrouch != null)
+        {
+            _actCrouch.performed -= OnCrouch;
+            _actCrouch.canceled -= OnCrouch;
+        }
+
+        if (_actAttack != null)
+            _actAttack.started -= OnAttack;
+
+        if (_actKnockBack != null)
+            _actKnockBack.started -= OnKnockBack;
+
+        if (_actLook != null)
+        {
+            _actLook.performed -= OnLook;
+            _actLook.canceled -= OnLook;
+        }
+
+        if (_actInteract != null)
+            _actInteract.started -= OnInteraction;
+
+        // if (_actJump != null)
+        //     _actJump.started -= OnJump;
     }
 
     private void Update()
@@ -170,6 +271,7 @@ public class PlayerController : MonoBehaviourPun
     {
         _mouseDelta = ctx.ReadValue<Vector2>();
     }
+
     private void OnSprint(InputAction.CallbackContext ctx)
     {
         if (ctx.performed)
@@ -185,6 +287,7 @@ public class PlayerController : MonoBehaviourPun
         else
             _model.IsCrouching = false;
     }
+
     private void OnJump(InputAction.CallbackContext ctx)
     {
         InputJump = true;
