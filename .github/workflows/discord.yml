@@ -1,0 +1,83 @@
+name: Discord Notification
+on:
+  push:
+    branches: [ "main", "prototype", "alpha-0.1v", "beta-0.1v", "develop" ]
+  pull_request:
+    types: [opened, closed]
+
+jobs:
+  discord-notify:
+    runs-on: ubuntu-latest
+    env:
+      # 깃허브 시크릿에 등록한 웹훅 주소 (필수 확인!)
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ---------------------------------------------------
+      # 1. PUSH 발생 시 (파란색)
+      # ---------------------------------------------------
+      - name: Discord Notification - Push
+        if: github.event_name == 'push'
+        run: |
+          # JSON 데이터 조립 (이스케이프 문제 방지를 위해 jq 사용 권장하지만 간단히 변수로 처리)
+          COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | sed 's/"/\\"/g' | head -n 1)
+          
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d "{
+            \"username\": \"깃허브 상황실\",
+            \"avatar_url\": \"https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png\",
+            \"embeds\": [{
+              \"title\": \"🚀 새로운 코드가 푸시되었습니다!\",
+              \"description\": \"**브랜치:** \`${{ github.ref_name }}\`\\n**작성자:** ${{ github.actor }}\\n**메시지:** $COMMIT_MSG\",
+              \"color\": 3447003,
+              \"url\": \"${{ github.event.compare }}\"
+            }]
+          }" \
+          $DISCORD_WEBHOOK
+
+      # ---------------------------------------------------
+      # 2. PR 생성 시 (초록색)
+      # ---------------------------------------------------
+      - name: Discord Notification - PR Opened
+        if: github.event_name == 'pull_request' && github.event.action == 'opened'
+        run: |
+          PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | sed 's/"/\\"/g')
+          
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d "{
+            \"username\": \"PR 알리미\",
+            \"avatar_url\": \"https://git-scm.com/images/logos/downloads/Git-Icon-1788C.png\",
+            \"embeds\": [{
+              \"title\": \"🔀 풀 리퀘스트(PR)가 도착했습니다!\",
+              \"description\": \"**요청자:** ${{ github.actor }}\\n**내용:** $PR_TITLE\\n**경로:** \`${{ github.head_ref }}\` → \`${{ github.base_ref }}\`\\n\\n[PR 보러가기](${{ github.event.pull_request.html_url }})\",
+              \"color\": 5763719
+            }]
+          }" \
+          $DISCORD_WEBHOOK
+
+      # ---------------------------------------------------
+      # 3. 병합(Merge) 완료 시 (보라색)
+      # ---------------------------------------------------
+      - name: Discord Notification - Merged
+        if: github.event.pull_request.merged == true
+        run: |
+          PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | sed 's/"/\\"/g')
+          
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d "{
+            \"username\": \"병합 완료봇\",
+            \"avatar_url\": \"https://cdn-icons-png.flaticon.com/512/8832/8832108.png\",
+            \"embeds\": [{
+              \"title\": \"✅ 병합(Merge)이 완료되었습니다!\",
+              \"description\": \"**병합한 사람:** ${{ github.actor }}\\n**병합된 PR:** $PR_TITLE\\n**결과:** \`${{ github.head_ref }}\` 내용이 \`${{ github.base_ref }}\`에 반영됨.\",
+              \"color\": 10181046,
+              \"url\": \"${{ github.event.pull_request.html_url }}\"
+            }]
+          }" \
+          $DISCORD_WEBHOOK
