@@ -14,13 +14,18 @@ public class PlayerModel : MonoBehaviour
     private float _curHealthPoint;
     private float _maxStamina;
     private float _curStamina;
-    
-    // 스태미너가 이 값 이상 회복될 때까지 스프린트 잠금
+
+    [Header("Stamina")]
+    [SerializeField] private const float _sprintStaminaDrainPerSec = 20f; // 소모
+    public float SprintStaminaDrainPerSec => _sprintStaminaDrainPerSec;
+
+    [SerializeField] private float _staminaRecoverPerSec = 20f; // 회복
+    public float StaminaRecoverPerSec => _staminaRecoverPerSec;
+
     private float _staminaReenableToRun = 25f;
     private bool _isSprintLock;
     private bool _isRunning;
     public bool IsSprintLock => _isSprintLock;
-    public bool CanSprint => !_isSprintLock && _curStamina > 0f;
 
     public bool IsRunning
     {
@@ -37,7 +42,6 @@ public class PlayerModel : MonoBehaviour
     public readonly string animNameOfDeath = "Death";
 
     public Animator Animator { get; private set; }
-    //public bool IsRunning { get; set; }
     public bool IsCrouching { get; set; }
     public bool IsGrounded { get; set; }
     public BaseJob MyJob { get; private set; }
@@ -49,7 +53,7 @@ public class PlayerModel : MonoBehaviour
         _maxStamina = 100f;
         _curStamina = _maxStamina;
         IsGrounded = true;
-        runSpeed = baseSpeed * 1.6f;
+        runSpeed = baseSpeed * 2f;
         crouchSpeed = baseSpeed * 0.4f;
         Animator = GetComponent<Animator>();
     }
@@ -91,9 +95,6 @@ public class PlayerModel : MonoBehaviour
     // 스태미나의 회복과 감소 메서드
     public void ConsumeStamina(float amount)
     {
-        // TODO : 스태미나가 0이 되면 달리기가 불가능해지고
-        // 일정이상 채워야 다시 달릴 수 있다. (한 20 ~ 30 정도?)
-        // 스테미너가 0이 되면 강제로 걷기
         if (amount <= 0f) return;
 
         // 탈진 상태

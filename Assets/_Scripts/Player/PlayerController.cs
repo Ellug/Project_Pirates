@@ -8,8 +8,6 @@ public class PlayerController : MonoBehaviourPun
 
     [HideInInspector] public bool isMafia;
 
-    [SerializeField] private float _staminaRecoverPerSec = 20f; //
-
     private Vector2 _mouseDelta;
     private float _xRotation;
     private Camera _camera;
@@ -136,7 +134,7 @@ public class PlayerController : MonoBehaviourPun
         StateMachine.CurrentState.PhysicsUpdate();
 
         if (_model != null && !_model.IsRunning)
-            _model.RecoverStamina(_staminaRecoverPerSec * Time.fixedDeltaTime);
+            _model.RecoverStamina(_model.StaminaRecoverPerSec * Time.fixedDeltaTime);
     }
 
     private void LateUpdate()
