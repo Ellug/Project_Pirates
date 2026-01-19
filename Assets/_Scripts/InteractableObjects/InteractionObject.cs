@@ -12,7 +12,7 @@ public abstract class InteractionObject : MonoBehaviour
 
     // 상호작용을 한 사람에게 일어날 로직
     // (오버라이드 안하면 로그만 출력)
-    public virtual void OnInteract()
+    public virtual void OnInteract(PlayerInteraction player)
     {
         Debug.Log("상호작용 됨.");
     }
