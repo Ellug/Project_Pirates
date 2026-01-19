@@ -236,7 +236,7 @@ public class AttackState : IPlayerState
             if (targetView != null)
             {
                 if (_isAttack)
-                    targetView.RPC("RpcGetHitAttack", targetView.Owner, 20f);
+                    targetView.RPC("RpcGetHitAttack", targetView.Owner, _model.attackPower);
                 else
                     targetView.RPC("RpcGetHitKnockBack", targetView.Owner, direction, _model.knockBackForce);
             }

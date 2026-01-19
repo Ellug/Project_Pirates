@@ -7,6 +7,7 @@ public class PlayerModel : MonoBehaviour
     public float knockBackForce = 5f;
     public float baseSpeed;
     public float jumpPower;
+    public float attackPower;
     [HideInInspector] public float runSpeed;
     [HideInInspector] public float crouchSpeed;
 
@@ -145,15 +146,9 @@ public class PlayerModel : MonoBehaviour
     {
         switch (job)
         {
-            case JobId.None:
-                MyJob = null;
-                break;
-            case JobId.Doctor:
-                MyJob = new DoctorJob();
-                break;
-            case JobId.Sprinter:
-                MyJob = new SprinterJob();
-                break;
+            case JobId.None: MyJob = null; break;
+            case JobId.Doctor: MyJob = new DoctorJob(); break;
+            case JobId.Sprinter: MyJob = new SprinterJob(); break;
         }
         MyJob?.Initialize(this);
     }
