@@ -14,7 +14,6 @@ public class PlayerModel : MonoBehaviour
     private float _curHealthPoint;
     private float _maxStamina;
     private float _curStamina;
-    private BaseJob _myJob;
 
     public readonly string animNameOfMove = "MoveValue";
     public readonly string animNameOfRun = "Running";
@@ -28,6 +27,7 @@ public class PlayerModel : MonoBehaviour
     public bool IsRunning { get; set; }
     public bool IsCrouching { get; set; }
     public bool IsGrounded { get; set; }
+    public BaseJob MyJob { get; private set; }
 
     private void Awake()
     {
@@ -99,15 +99,15 @@ public class PlayerModel : MonoBehaviour
         switch (job)
         {
             case JobId.None:
-                _myJob = null;
+                MyJob = null;
                 break;
             case JobId.Doctor:
-                _myJob = new DoctorJob();
+                MyJob = new DoctorJob();
                 break;
             case JobId.Sprinter:
-                _myJob = new SprinterJob();
+                MyJob = new SprinterJob();
                 break;
         }
-        _myJob?.Initialize(this);
+        MyJob?.Initialize(this);
     }
 }
