@@ -91,13 +91,6 @@ public class PlayerController : MonoBehaviourPun
 
         InputJump = false;
         InputMove = Vector2.zero;
-
-        // 생성된 사람 출석 체크
-        _table = new ExitGames.Client.Photon.Hashtable {
-                { "IsMafia", true }
-            };
-        PhotonNetwork.LocalPlayer.SetCustomProperties(_table);
-        PlayerManager.Instance.photonView.RPC("PlayerEnterCheck", RpcTarget.MasterClient);
     }
 
     void Start()
@@ -106,6 +99,14 @@ public class PlayerController : MonoBehaviourPun
         _playerInteraction = GetComponent<PlayerInteraction>();
         FindFirstObjectByType<InGameManager>().RegistPlayer(this);
 
+        // 생성된 사람 출석 체크
+        _table = new ExitGames.Client.Photon.Hashtable {
+                { "IsMafia", true }
+            };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(_table);
+        PlayerManager.Instance.photonView.RPC("PlayerEnterCheck", RpcTarget.MasterClient);
+
+        // 상태 클래스 할당
         StateIdle = new IdleState(this);
         StateMove = new MoveState(this);
         StateJump = new JumpState(this);

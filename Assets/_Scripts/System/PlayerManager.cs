@@ -44,13 +44,23 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         onLoadedPlayer = 0;
         // 모든 플레이어가 로딩이 되면 인게임 씬으로 전환한다.
         _view.RPC(nameof(ChangeInGameScene), RpcTarget.All);
+        //PhotonNetwork.LoadLevel("InGame");
 
         // 인게임 씬에서 모두 왔는지 다시 확인한다.
         // 플레이어 프리팹이 모두 존재하는 것을 보장받기 위해
         yield return new WaitUntil(() => onLoadedPlayer >= playerNumber);
 
         // 씬의 모든 플레이어 찾아서 가져온 후 리스트에 담음
-        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        // (지연으로 인한 누락 방지를 위해 플레이어 수와 같을 때까지 보장 받음)
+        PlayerController[] players = null;
+        yield return new WaitUntil(() =>
+        {
+            players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+            return players.Length == playerNumber;
+        });
+        Debug.Log($"총 플레이어 수 : {players.Length}");
+
+        _playersId.Clear();
         foreach (var p in players)
         {
             _playersId[p.GetComponent<PhotonView>().ViewID] = p;
@@ -62,7 +72,6 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             Debug.LogError("Can't found all players");
             yield break;
         }
-        Debug.Log($"총 플레이어 수 : {players.Length}");
 
         // ============ 마피아 무작위로 부여 ============
         int firstEnemy = -1;

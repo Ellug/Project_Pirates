@@ -1531,7 +1531,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde62e02bb29fb9499100195d251053f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableButton
-  uniqueID: 8
+  uniqueID: 7
   _interactionDistance: 4
   testMission: {fileID: 1669150964}
 --- !u!135 &109003388
@@ -1745,7 +1745,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde62e02bb29fb9499100195d251053f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableButton
-  uniqueID: 10
+  uniqueID: 14
   _interactionDistance: 4
   testMission: {fileID: 862244539}
 --- !u!135 &122325984
@@ -1941,7 +1941,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3664172183578800988, guid: 4e298cdd26d47fd468f6a09dbe94dcc7, type: 3}
       propertyPath: uniqueID
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3664172183578800988, guid: 4e298cdd26d47fd468f6a09dbe94dcc7, type: 3}
       propertyPath: _roomProps
@@ -6357,7 +6357,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3664172183578800988, guid: 4e298cdd26d47fd468f6a09dbe94dcc7, type: 3}
       propertyPath: uniqueID
-      value: 5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3664172183578800988, guid: 4e298cdd26d47fd468f6a09dbe94dcc7, type: 3}
       propertyPath: _roomProps
@@ -8047,7 +8047,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde62e02bb29fb9499100195d251053f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableButton
-  uniqueID: 9
+  uniqueID: 10
   _interactionDistance: 4
   testMission: {fileID: 1030232372}
 --- !u!135 &485998851
@@ -9492,7 +9492,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde62e02bb29fb9499100195d251053f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableButton
-  uniqueID: 11
+  uniqueID: 12
   _interactionDistance: 4
   testMission: {fileID: 299451006}
 --- !u!135 &558890155
@@ -11927,7 +11927,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3664172183578800988, guid: 4e298cdd26d47fd468f6a09dbe94dcc7, type: 3}
       propertyPath: uniqueID
-      value: 3
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3664172183578800988, guid: 4e298cdd26d47fd468f6a09dbe94dcc7, type: 3}
       propertyPath: _roomProps
@@ -14191,7 +14191,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3664172183578800988, guid: 4e298cdd26d47fd468f6a09dbe94dcc7, type: 3}
       propertyPath: uniqueID
-      value: 6
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3664172183578800988, guid: 4e298cdd26d47fd468f6a09dbe94dcc7, type: 3}
       propertyPath: _roomProps
@@ -18479,7 +18479,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde62e02bb29fb9499100195d251053f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableButton
-  uniqueID: 14
+  uniqueID: 11
   _interactionDistance: 4
   testMission: {fileID: 22796580}
 --- !u!135 &1047875301
@@ -29347,7 +29347,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde62e02bb29fb9499100195d251053f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableButton
-  uniqueID: 12
+  uniqueID: 13
   _interactionDistance: 4
   testMission: {fileID: 549938763}
 --- !u!135 &1635280813
@@ -30780,7 +30780,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3664172183578800988, guid: 4e298cdd26d47fd468f6a09dbe94dcc7, type: 3}
       propertyPath: uniqueID
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6267168797624005790, guid: 4e298cdd26d47fd468f6a09dbe94dcc7, type: 3}
       propertyPath: m_Name
@@ -32029,7 +32029,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde62e02bb29fb9499100195d251053f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableButton
-  uniqueID: 13
+  uniqueID: 9
   _interactionDistance: 4
   testMission: {fileID: 168092289}
 --- !u!135 &1805477902
@@ -35096,7 +35096,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde62e02bb29fb9499100195d251053f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableButton
-  uniqueID: 7
+  uniqueID: 8
   _interactionDistance: 4
   testMission: {fileID: 168143161}
 --- !u!114 &1942293986
@@ -38348,7 +38348,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3664172183578800988, guid: 4e298cdd26d47fd468f6a09dbe94dcc7, type: 3}
       propertyPath: uniqueID
-      value: 2
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 3664172183578800988, guid: 4e298cdd26d47fd468f6a09dbe94dcc7, type: 3}
       propertyPath: _roomProps

@@ -39,6 +39,8 @@ public class InGameManager : MonoBehaviourPunCallbacks
     {
         yield return new WaitUntil(() => PhotonNetwork.InRoom);
 
+        yield return new WaitForSeconds(3f);
+
         if (PlayerController.LocalInstancePlayer == null)
             PlayerController.LocalInstancePlayer = 
                 PhotonNetwork.Instantiate("PlayerMale", new Vector3(0f, 3f, 0f), Quaternion.identity);
