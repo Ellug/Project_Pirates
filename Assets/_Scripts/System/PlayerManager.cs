@@ -43,8 +43,8 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
         onLoadedPlayer = 0;
         // 모든 플레이어가 로딩이 되면 인게임 씬으로 전환한다.
-        //_view.RPC(nameof(ChangeInGameScene), RpcTarget.All);
-        PhotonNetwork.LoadLevel("InGame");
+        _view.RPC(nameof(ChangeInGameScene), RpcTarget.All);
+        //PhotonNetwork.LoadLevel("InGame");
 
         // 인게임 씬에서 모두 왔는지 다시 확인한다.
         // 플레이어 프리팹이 모두 존재하는 것을 보장받기 위해
