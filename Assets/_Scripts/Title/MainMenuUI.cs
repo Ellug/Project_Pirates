@@ -9,14 +9,16 @@ public class MainMenuUI : MonoBehaviour
     [Header("Panel")]
     [SerializeField] private GameObject _connectPanel;
     [SerializeField] private GameObject _howToPlayPanel;
-    [SerializeField] private GameObject _optionPanel;
     [SerializeField] private GameObject _creditPanel;
 
     [Header("Text")]
     [SerializeField] private TextMeshProUGUI _gameName;
 
+    private InputManager _inputManager;
+
     void Start()
     {
+        _inputManager = InputManager.Instance;
         CloseAllPanel();
         _mainMenuCanvas.SetActive(true);
         _gameName.gameObject.SetActive(true);
@@ -48,7 +50,7 @@ public class MainMenuUI : MonoBehaviour
     {
         return (_connectPanel != null && _connectPanel.activeSelf) ||
                (_howToPlayPanel != null && _howToPlayPanel.activeSelf) ||
-               (_optionPanel != null && _optionPanel.activeSelf) ||
+               _inputManager.IsOptionsOpen ||
                (_creditPanel != null && _creditPanel.activeSelf);
     }
 
@@ -68,7 +70,7 @@ public class MainMenuUI : MonoBehaviour
     public void OnClickOptions()
     {
         CloseAllPanel();
-        _optionPanel.SetActive(true);
+        _inputManager.OpenOptions();
     }
 
     public void OnClickCredit()
@@ -96,7 +98,7 @@ public class MainMenuUI : MonoBehaviour
         _mainMenuCanvas.SetActive(true);
         _connectPanel.SetActive(false);
         _howToPlayPanel.SetActive(false);
-        _optionPanel.SetActive(false);
         _creditPanel.SetActive(false);
+        _inputManager.CloseOptions();
     }
 }
