@@ -76,7 +76,10 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
         LogRoom($"[Room] {roomName} 방에 참여 했습니다. [MasterClient] : {PhotonNetwork.MasterClient?.NickName}");
         
         //보이스 프리팹 안전 생성
-        _createVoice.CreateVoicePV();
+        yield return new WaitForSeconds(0.2f);
+
+        yield return StartCoroutine(_createVoice.CreateVoicePV());
+
         RefreshRoomUI("CoWaitRoomThenRefresh");
     }
 

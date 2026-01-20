@@ -42,9 +42,15 @@ public class InGameManager : MonoBehaviourPunCallbacks
         if (PlayerController.LocalInstancePlayer == null)
             PlayerController.LocalInstancePlayer = 
                 PhotonNetwork.Instantiate("PlayerMale", new Vector3(0f, 3f, 0f), Quaternion.identity);
-        
+
         PhotonView myPV = PlayerController.LocalInstancePlayer.GetComponent<PhotonView>();
-        _createVoice.CreateVoicePV(myPV, PlayerController.LocalInstancePlayer.transform);
+        
+        yield return new WaitUntil(() => myPV.ViewID > 0);
+
+        //ViewID 할당 동기화 기다리기
+        yield return new WaitForSeconds(0.2f);
+
+        yield return StartCoroutine(_createVoice.CreateVoicePV(myPV, PlayerController.LocalInstancePlayer.transform));
     }
 
     public void PopUpPlayersRole()
@@ -134,7 +140,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
         _ended = true;
 
         if (PlayerController.LocalInstancePlayer != null)
-            PhotonNetwork.Destroy(PlayerController.LocalInstancePlayer);
+            PhotonNetwork.DestroyPlayerObjects(PhotonNetwork.LocalPlayer);
 
         Debug.Log("[InGame] EndGameForAll -> LoadLevel(Room)");
         PhotonNetwork.LoadLevel("Room");
@@ -150,7 +156,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
         // Photon 룸은 유지한 채, 로컬 씬만 이동
         // PN 뭔가 해줘야한다 -> 플레이어를 명시적으로 파괴해야함.
         if (PlayerController.LocalInstancePlayer != null)
-            PhotonNetwork.Destroy(PlayerController.LocalInstancePlayer);
+            PhotonNetwork.DestroyPlayerObjects(PhotonNetwork.LocalPlayer);
 
         UnityEngine.SceneManagement.SceneManager.LoadScene("Room");
     }
