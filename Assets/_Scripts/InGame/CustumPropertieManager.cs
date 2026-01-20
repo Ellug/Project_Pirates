@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class CustumPropertieManager : MonoBehaviourPunCallbacks
 {
+
     [Header("Debug View (Read Only)")]
 
     // 현재 룸 커스텀 프로퍼티에 등록된 것들을 인스펙터 상에서 확인
