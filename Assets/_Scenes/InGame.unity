@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 1065b432639a84123a07ea43fe5ba4c9, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -1643,7 +1643,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde62e02bb29fb9499100195d251053f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableButton
-  uniqueID: 3
+  uniqueID: 0
   _interactionDistance: 4
   testMission: {fileID: 1669150964}
 --- !u!135 &109003388
@@ -1969,7 +1969,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde62e02bb29fb9499100195d251053f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableButton
-  uniqueID: 4
+  uniqueID: 3
   _interactionDistance: 4
   testMission: {fileID: 862244539}
 --- !u!135 &122325984
@@ -9690,7 +9690,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde62e02bb29fb9499100195d251053f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableButton
-  uniqueID: 4
+  uniqueID: 7
   _interactionDistance: 4
   testMission: {fileID: 299451006}
 --- !u!135 &558890155
@@ -30192,7 +30192,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde62e02bb29fb9499100195d251053f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableButton
-  uniqueID: 1
+  uniqueID: 6
   _interactionDistance: 4
   testMission: {fileID: 549938763}
 --- !u!135 &1635280813
@@ -36021,7 +36021,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fde62e02bb29fb9499100195d251053f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableButton
-  uniqueID: 0
+  uniqueID: 1
   _interactionDistance: 4
   testMission: {fileID: 168143161}
 --- !u!114 &1942293986
