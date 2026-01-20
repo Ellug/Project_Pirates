@@ -151,7 +151,7 @@ public sealed class VoiceManager : Singleton<VoiceManager>
         else
         {
             source.mute = false;
-            source.volume = personalVol * masterVol * remoteSettedVol;
+            source.volume = Mathf.Clamp01(personalVol * masterVol * remoteSettedVol);
         }
     }
 
