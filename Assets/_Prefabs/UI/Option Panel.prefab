@@ -182,6 +182,8 @@ MonoBehaviour:
   _masterSlider: {fileID: 8571031663304236905}
   _bgmSlider: {fileID: 7604228603646582460}
   _uiSlider: {fileID: 5851255471791438565}
+  _micInputSlider: {fileID: 4762812482812030276}
+  _micOutputSlider: {fileID: 3861928544229655608}
 --- !u!114 &2882219114999005059
 MonoBehaviour:
   m_ObjectHideFlags: 0
