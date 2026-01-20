@@ -9,6 +9,7 @@ public sealed class VoiceManager : Singleton<VoiceManager>
 {
     [SerializeField] private Recorder _recorder;
     private List<VoiceUserSetting> _remoteUserSettings = new();
+    private Dictionary<int, Speaker> _speakerCache = new();
 
     void Start()
     {
@@ -31,14 +32,28 @@ public sealed class VoiceManager : Singleton<VoiceManager>
         }
     }
 
+    public void ConnectVoice()
+    {
+        var voiceClient = Photon.Voice.PUN.PunVoiceClient.Instance;
+
+        if (voiceClient == null || voiceClient.Client == null) return;
+        if (voiceClient.Client.IsConnected || voiceClient.Client.InRoom) return;
+
+        Debug.Log("[Voice] Connecting to voice room...");
+        voiceClient.ConnectAndJoinRoom();
+    }
+
     public void OnSpeakerCreated(Speaker speaker)
     {
         PhotonView pv = speaker.GetComponentInParent<PhotonView>();
         if (pv != null)
         {
-            UpdateSpeakerOutput(pv.OwnerActorNr);
+            int actorNr = pv.OwnerActorNr;
+            _speakerCache[actorNr] = speaker; // 등록 또는 갱신
+            UpdateSpeakerOutput(actorNr);
         }
     }
+
 
     public void LoadAndApplySettings()
     {
@@ -140,19 +155,22 @@ public sealed class VoiceManager : Singleton<VoiceManager>
         }
     }
 
-    // ActorNumber 통해 씬 내의 모든 VoicePrefab 검색
+    // 딕셔너리를 통해 씬 내의 VoicePrefab 검색
     private Speaker FindSpeakerByActorNumber(int actorNumber)
     {
-        var allSpeakers = FindObjectsByType<Speaker>(FindObjectsSortMode.None);
-        foreach (var s in allSpeakers)
+        if (_speakerCache.TryGetValue(actorNumber, out Speaker speaker))
         {
-            PhotonView pv = s.GetComponentInParent<PhotonView>();
-            if (pv != null && pv.OwnerActorNr == actorNumber)
-            {
-                return s;
-            }
+            if (speaker != null) return speaker;
+            _speakerCache.Remove(actorNumber); // 파괴된 객체면 제거
         }
         return null;
+    }
+
+    //플레이어 나갈때 캐시 삭제
+    public void RemoveSpeakerCache(int actorNumber)
+    {
+        if (_speakerCache.ContainsKey(actorNumber))
+            _speakerCache.Remove(actorNumber);
     }
 
     // UI표시를 위해 다른 플레이어들의 현재 설정값 목록을 가져옴

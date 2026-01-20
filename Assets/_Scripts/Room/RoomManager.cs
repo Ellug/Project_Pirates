@@ -80,6 +80,8 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
         yield return new WaitForSeconds(0.2f);
 
         yield return StartCoroutine(_createVoice.CreateVoicePV());
+        
+        VoiceManager.Instance.ConnectVoice();
 
         RefreshRoomUI("CoWaitRoomThenRefresh");
     }
