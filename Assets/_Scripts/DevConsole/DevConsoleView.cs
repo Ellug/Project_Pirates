@@ -40,7 +40,7 @@ public class DevConsoleView : MonoBehaviour
         _bound = false;
     }
 
-    private void ForceFocus()
+    public void ForceFocus()
     {
         if (_input == null) return;
 
