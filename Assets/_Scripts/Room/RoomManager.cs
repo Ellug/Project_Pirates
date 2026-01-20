@@ -35,13 +35,11 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
     public override void OnEnable()
     {
         base.OnEnable();
-        PhotonNetwork.AddCallbackTarget(this);
     }
 
     public override void OnDisable()
     {
         base.OnDisable();
-        PhotonNetwork.RemoveCallbackTarget(this);
     }   
 
     void Start()
