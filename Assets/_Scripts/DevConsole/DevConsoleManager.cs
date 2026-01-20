@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class DevConsoleManager : Singleton<DevConsoleManager>
 {
     [Header("UI")]
-    [SerializeField] private DevConsoleView _viewPrefab;
+    [SerializeField] private DevConsoleView _view;
 
     private const string TimestampFormat = "HH:mm:ss:fff";
 
@@ -56,7 +55,6 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
     private List<LogItem> _pending = new(256); // 로그 임시 저장 큐 (lock으로 보호)
     private readonly List<LogItem> _lines = new(512); // 실제 화면에 출력될 로그
 
-    private DevConsoleView _view;
     private DevConsoleCommand _cmd;
     
     private readonly float _refreshInterval = 0.1f;
@@ -66,12 +64,12 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
 
     // 디버그 모드. 전역에서 참조해서 특정 기능 부여 가능.
     public bool DebugMode { get; private set; }
+    public bool IsOpen => _isOpen;
 
     protected override void OnSingletonAwake()
     {
         _cmd = new DevConsoleCommand(this); // 명령 처리기 실행
 
-        EnsureViewInstance(); // UI 확보
         _view?.Bind(this);
         _view?.SetVisible(false);
 
@@ -86,10 +84,6 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
 
     private void Update()
     {
-        // TODO : Input System 변경 , Toggle 시 Input 맵 변경 등을 통해 다른 인풋 방지
-        if (Keyboard.current.f5Key.wasPressedThisFrame)
-            Toggle();
-
         // 콘솔이 닫혀있으면 UI 작업은 안 하고 로그가 큐에 쌓임
         if (!_isOpen) return;
 
@@ -106,9 +100,14 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
         _view.Render(BuildText());
     }
 
-    public void Toggle()
+    public void SetOpen(bool open)
     {
-        EnsureViewInstance();
+        if (_isOpen == open) return;
+        Toggle();
+    }
+
+    private void Toggle()
+    {
         _view?.Bind(this);
 
         _isOpen = !_isOpen;
@@ -278,29 +277,6 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
         }
 
         return sb.ToString();
-    }
-
-    private void EnsureViewInstance()
-    {
-        if (_view != null) return;
-
-        // 1) 씬에 이미 존재하면 사용
-        var existing = Object.FindAnyObjectByType<DevConsoleView>(FindObjectsInactive.Include);
-        if (existing != null && existing.gameObject.scene.IsValid())
-        {
-            _view = existing;
-            _view.transform.SetParent(transform, false); // 매니저 아래로 붙여서 함께 유지
-            return;
-        }
-
-        // 2) 없으면 프리팹으로 생성
-        if (_viewPrefab == null)
-        {
-            Debug.LogWarning("[DevConsole] DevConsoleView prefab not assigned.");
-            return;
-        }
-
-        _view = Instantiate(_viewPrefab, transform, false);
     }
 
     // txt로 저장

@@ -19,6 +19,14 @@ public class VoiceLinker : MonoBehaviourPun, IPunInstantiateMagicCallback
             {
                 transform.SetParent(parentPV.transform, false);
                 transform.localPosition = Vector3.zero;
+                
+                if (!info.photonView.IsMine)
+                {
+                    if (VoiceManager.Instance != null)
+                    {
+                        VoiceManager.Instance.ApplyMasterInputSettings();
+                    }
+                }
             }
         }
     }
