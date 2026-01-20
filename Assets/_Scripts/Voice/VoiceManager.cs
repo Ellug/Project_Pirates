@@ -15,7 +15,7 @@ public sealed class VoiceManager : Singleton<VoiceManager>
         LoadAndApplySettings();
     }
 
-    // PTT 입력 감지를 위한 Update (선택 사항)
+    // PTT 입력 감지를 위한 Update
     void Update()
     {
         int myType = PlayerPrefs.GetInt(VoiceParam.MyMicTypeKey, 0);
@@ -112,6 +112,17 @@ public sealed class VoiceManager : Singleton<VoiceManager>
         Speaker speaker = FindSpeakerByActorNumber(actorNumber);
         if (speaker == null || !speaker.TryGetComponent<AudioSource>(out var source)) return;
 
+        var targetPlayer = PhotonNetwork.CurrentRoom.GetPlayer(actorNumber);
+
+        float remoteSettedVol = 1f;
+        bool remoteIsMuted = false;
+        if (targetPlayer != null && targetPlayer.CustomProperties.ContainsKey("v_vol"))
+        {
+            remoteSettedVol = (float)targetPlayer.CustomProperties["v_vol"];
+            //뮤트는 플레이어 위에 아이콘 띄울때나 쓸 듯 싶음.
+            remoteIsMuted = (bool)targetPlayer.CustomProperties["v_mute"];
+        }
+
         float masterVol = PlayerPrefs.GetFloat(VoiceParam.MasterInputKey, 1f);
         bool masterMuted = PlayerPrefs.GetInt(VoiceParam.MasterInputMuteKey, 0) == 1;
 
@@ -125,7 +136,7 @@ public sealed class VoiceManager : Singleton<VoiceManager>
         else
         {
             source.mute = false;
-            source.volume = personalVol * masterVol;
+            source.volume = personalVol * masterVol * remoteSettedVol;
         }
     }
 
