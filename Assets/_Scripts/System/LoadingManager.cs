@@ -70,9 +70,10 @@ public class LoadingManager : MonoBehaviourPunCallbacks
     {
         if (!PhotonNetwork.IsMasterClient) return;
 
-        if ((bool)changedProps["OnLoaded"])
+        if (changedProps.TryGetValue("OnLoaded", out object value))
         {
-            PlayerManager.Instance.onLoadedPlayer++;
+            if ((bool)value == true) 
+                PlayerManager.Instance.onLoadedPlayer++;
         }
     }
 
