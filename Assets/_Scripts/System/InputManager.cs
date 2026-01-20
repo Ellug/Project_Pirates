@@ -155,6 +155,26 @@ public class InputManager : Singleton<InputManager>
 
         _isOptionsOpen = !_isOptionsOpen;
         ApplyState();
+    }
+
+    /// 게임 결과창 등에서 플레이어 입력 차단 + 커서 해제가 필요할 때 호출
+    /// InGame 씬에서 게임 종료 시 사용
+    public void SetUIMode(bool uiMode)
+    {
+        if (_localPlayer != null)
+        {
+            try
+            {
+                string map = uiMode ? MAP_UI : MAP_PLAYER;
+                _localPlayer.SwitchCurrentActionMap(map);
+            }
+            catch (MissingReferenceException)
+            {
+                _localPlayer = null;
+            }
+        }
+
+        ApplyCursor(uiMode);
     }    
 
     private void ApplyState()
