@@ -109,7 +109,7 @@ public class PlayerModel : MonoBehaviour
         float prev = _curStamina;
         _curStamina = Mathf.Max(0f, _curStamina - amount);
 
-        Debug.Log($"스테미너 소모 : {prev:F1} -> {_curStamina:F1}");
+        // Debug.Log($"스테미너 소모 : {prev:F1} -> {_curStamina:F1}");
 
         if(_curStamina <= 0f)
         {
@@ -130,13 +130,13 @@ public class PlayerModel : MonoBehaviour
 
         // 실수값 비교후 동일하지 않으면 Debug.Log
         if (!Mathf.Approximately(prev, _curStamina))
-            Debug.Log($"스테미너 회복 : {prev:F1} -> {_curStamina:F1}");
+            // Debug.Log($"스테미너 회복 : {prev:F1} -> {_curStamina:F1}");
 
         // 일정 이상 회복시 스프린트 잠금 해제
         if (_isSprintLock && _curStamina >= _staminaReenableToRun)
         {
             _isSprintLock = false;
-            Debug.Log("스프린트 가능한 스테미너 회복");
+            // Debug.Log("스프린트 가능한 스테미너 회복");
         }
     }
 
