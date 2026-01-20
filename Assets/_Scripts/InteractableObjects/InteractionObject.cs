@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using Photon.Pun;
+using UnityEngine;
 
 // 상호작용 가능한 모든 오브젝트는 이 클래스를 상속 받는다.
-public abstract class InteractionObject : MonoBehaviour
+public abstract class InteractionObject : MonoBehaviourPunCallbacks
 {
     // 모든 상호작용 오브젝트는 고유 ID를 가짐.
     [Header("Network Unique ID")]
