@@ -17,7 +17,6 @@ public class PlayerController : MonoBehaviourPun
 
     private ExitGames.Client.Photon.Hashtable _table;
 
-    // InputManager에서 ActionMap(Player/UI)을 전환할 때, 전역 InputSystem.actions는 영향을 받지 않으므로
     // 로컬 플레이어의 입력을 차단/복구하기 위해 PlayerInput.actions로 교체
     private PlayerInput _playerInput;
     private InputAction _actMove;
@@ -28,6 +27,7 @@ public class PlayerController : MonoBehaviourPun
     private InputAction _actLook;
     private InputAction _actInteract;
     // private InputAction _actJump;
+    private InputAction _actJobSkill;
 
     // Player State
     public PlayerStateMachine StateMachine { get; private set; }
@@ -93,16 +93,18 @@ public class PlayerController : MonoBehaviourPun
         InputMove = Vector2.zero;
     }
 
-    void Start()
+    private void Start()
     {
         PlayerManager.Instance.RegistLocalPlayer(this);
         _playerInteraction = GetComponent<PlayerInteraction>();
         FindFirstObjectByType<InGameManager>().RegistPlayer(this);
 
         // 생성된 사람 출석 체크
-        _table = new ExitGames.Client.Photon.Hashtable {
-                { "IsMafia", true }
-            };
+        _table = new ExitGames.Client.Photon.Hashtable
+        {
+            { "IsMafia", true }
+        };
+
         PhotonNetwork.LocalPlayer.SetCustomProperties(_table);
         PlayerManager.Instance.photonView.RPC("PlayerEnterCheck", RpcTarget.MasterClient);
 
@@ -116,20 +118,10 @@ public class PlayerController : MonoBehaviourPun
 
         StateMachine = new PlayerStateMachine(StateIdle);
 
-        // PlayerInput.actions 기반으로 전환하여 InputManager의 ActionMap 전환이 동작하도록 함
+        if (!_view.IsMine) return;
 
-        // InputSystem.actions["Move"].performed += OnMove;
-        // InputSystem.actions["Move"].canceled += OnMove;
-        // InputSystem.actions["Sprint"].performed += OnSprint;
-        // InputSystem.actions["Sprint"].canceled += OnSprint;
-        // InputSystem.actions["Crouch"].performed += OnCrouch;
-        // InputSystem.actions["Crouch"].canceled += OnCrouch;
-        // InputSystem.actions["Attack"].started += OnAttack;
-        // InputSystem.actions["KnockBack"].started += OnKnockBack;
-        // InputSystem.actions["Look"].performed += OnLook;
-        // InputSystem.actions["Look"].canceled += OnLook;
-        // InputSystem.actions["Interact"].started += OnInteraction;
-        // InputSystem.actions["Jump"].started += OnJump;
+        var hud = FindFirstObjectByType<PlayerHUD>();
+        hud.Bind(_model);
 
         // PlayerInput.actions 기반 구독
         // InputManager가 SwitchCurrentActionMap("UI")로 바꾸면 Player 맵 입력 차단 (옵션/콘솔에서 플레이어 조작 불가)
@@ -146,7 +138,9 @@ public class PlayerController : MonoBehaviourPun
             _actLook = a["Look"];
             _actInteract = a["Interact"];
             // _actJump = a["Jump"];
+            _actJobSkill = a["JobSkill"];
 
+            // Add
             _actMove.performed += OnMove;
             _actMove.canceled += OnMove;
 
@@ -164,6 +158,7 @@ public class PlayerController : MonoBehaviourPun
 
             _actInteract.started += OnInteraction;
             // _actJump.started += OnJump;
+            _actJobSkill.started += OnJobSkill;
         }
     }
 
@@ -174,19 +169,6 @@ public class PlayerController : MonoBehaviourPun
         // 씬 전환 시 InputManager가 파괴된 PlayerInput 참조를 들고 있지 않도록 함
         if (InputManager.Instance != null && _playerInput != null)
             InputManager.Instance.UnregisterLocalPlayer(_playerInput);
-
-        // InputSystem.actions["Move"].performed -= OnMove;
-        // InputSystem.actions["Move"].canceled -= OnMove;
-        // InputSystem.actions["Sprint"].performed -= OnSprint;
-        // InputSystem.actions["Sprint"].canceled -= OnSprint;
-        // InputSystem.actions["Crouch"].performed -= OnCrouch;
-        // InputSystem.actions["Crouch"].canceled -= OnCrouch; 
-        // InputSystem.actions["Attack"].started -= OnAttack;
-        // InputSystem.actions["KnockBack"].started -= OnKnockBack;
-        // InputSystem.actions["Look"].performed -= OnLook;
-        // InputSystem.actions["Look"].canceled -= OnLook;
-        // InputSystem.actions["Interact"].started -= OnInteraction;
-        // InputSystem.actions["Jump"].started -= OnJump;
 
         // PlayerInput.actions 해제
         if (_actMove != null)
@@ -224,6 +206,14 @@ public class PlayerController : MonoBehaviourPun
 
         // if (_actJump != null)
         //     _actJump.started -= OnJump;
+
+        if (_actJobSkill != null)
+            _actJobSkill.started -= OnJobSkill;
+    }
+
+    private void OnJobSkill(InputAction.CallbackContext _)
+    {
+        _model.MyJob.UniqueSkill();
     }
 
     private void Update()

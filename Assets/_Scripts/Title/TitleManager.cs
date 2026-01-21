@@ -4,7 +4,6 @@ using Firebase.Extensions;
 using Photon.Pun;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class TitleManager : MonoBehaviourPunCallbacks
@@ -27,7 +26,8 @@ public class TitleManager : MonoBehaviourPunCallbacks
     {
         GameManager.Instance.SetSceneState(SceneState.Title);
 
-        InputSystem.actions["Submit"].started += OnClickEnter;
+        if (InputManager.Instance != null)
+            InputManager.Instance.OnSubmitUI += HandleLogin;
 
         Init();
     }
@@ -50,17 +50,13 @@ public class TitleManager : MonoBehaviourPunCallbacks
 
     void OnDestroy()
     {
-        InputSystem.actions["Submit"].started -= OnClickEnter;
+        if (InputManager.Instance != null)
+            InputManager.Instance.OnSubmitUI -= HandleLogin;
     }
 
 #region 로그인
 
     public void OnClickConnect()
-    {
-        HandleLogin();
-    }
-
-    private void OnClickEnter(InputAction.CallbackContext ctx)
     {
         HandleLogin();
     }

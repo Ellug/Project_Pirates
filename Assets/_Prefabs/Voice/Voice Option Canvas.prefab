@@ -55,8 +55,8 @@ MonoBehaviour:
   _myMicSlider: {fileID: 4095259149713183429}
   _micTypeDropdown: {fileID: 6009335926037305291}
   _myMicMuteToggle: {fileID: 4943664436335960574}
-  _masterInputSlider: {fileID: 5776905285548595073}
-  _masterInputMuteToggle: {fileID: 5677136622180535944}
+  _masterOutputSlider: {fileID: 5776905285548595073}
+  _masterOutputMuteToggle: {fileID: 5677136622180535944}
   _verticalPanel: {fileID: 5484603374587150053}
   _playerMicRowPrefab: {fileID: 369060588099607842, guid: 5236ea2bf59e6f54a9f1bae6e1c73198, type: 3}
 --- !u!222 &9135161317343467262
@@ -433,9 +433,9 @@ RectTransform:
   m_Father: {fileID: 7198874212562095669}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
-  m_AnchorMax: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 17, y: 0}
-  m_SizeDelta: {x: 20, y: 0}
+  m_SizeDelta: {x: 20, y: -17}
   m_Pivot: {x: 1, y: 1}
 --- !u!222 &7009888879874513471
 CanvasRenderer:
@@ -1421,7 +1421,7 @@ RectTransform:
   m_Father: {fileID: 2516483199725728351}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2248,7 +2248,7 @@ GameObject:
   - component: {fileID: 5996663819645817806}
   - component: {fileID: 8251974069392961806}
   m_Layer: 5
-  m_Name: Input Text (TMP)
+  m_Name: Output Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2301,7 +2301,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Mic Input
+  m_text: Mic Output
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 4e86bdcf4d842a948868f99c1d0e47e3, type: 2}
   m_sharedMaterial: {fileID: -8170916087460183402, guid: 4e86bdcf4d842a948868f99c1d0e47e3, type: 2}
@@ -3956,7 +3956,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4453006331394540132
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4605,7 +4605,7 @@ GameObject:
   - component: {fileID: 5041154757061787437}
   - component: {fileID: 4883720902420141426}
   m_Layer: 5
-  m_Name: Output Text (TMP)
+  m_Name: Input Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4658,7 +4658,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Mic Output
+  m_text: Mic Input
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 4e86bdcf4d842a948868f99c1d0e47e3, type: 2}
   m_sharedMaterial: {fileID: -8170916087460183402, guid: 4e86bdcf4d842a948868f99c1d0e47e3, type: 2}
@@ -4968,7 +4968,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ScrollRect
   m_Content: {fileID: 5484603374587150053}
-  m_Horizontal: 1
+  m_Horizontal: 0
   m_Vertical: 1
   m_MovementType: 1
   m_Elasticity: 0.1
@@ -4978,7 +4978,7 @@ MonoBehaviour:
   m_Viewport: {fileID: 6099902330340260695}
   m_HorizontalScrollbar: {fileID: 4639049693643645312}
   m_VerticalScrollbar: {fileID: 7891966336030390908}
-  m_HorizontalScrollbarVisibility: 2
+  m_HorizontalScrollbarVisibility: 0
   m_VerticalScrollbarVisibility: 2
   m_HorizontalScrollbarSpacing: -3
   m_VerticalScrollbarSpacing: -17
