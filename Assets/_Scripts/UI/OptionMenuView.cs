@@ -1,18 +1,29 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class OptionMenuView : MonoBehaviour
 {
     [SerializeField] private GameObject _root;
-
-    // 이거 글로벌 매니져 같은거로 나중에 옮겨서 모든 씬에서 사용할 수 있도록 해
-    // void Update()
-    // {
-    //     if (Keyboard.current.escapeKey.wasPressedThisFrame)
-    //         CloseOptionPanel();
-    // }
+    [SerializeField] private GameObject _graphicPanel;
+    [SerializeField] private GameObject _audioPanel;
+    [SerializeField] private GameObject _voicePanel;
+    [SerializeField] private GameObject _controllPanel;
 
     public void CloseOptionPanel()
     {
         _root.SetActive(false);
+    }
+
+    public void OnClickTab(GameObject Panel)
+    {
+        CloseAllTabs();
+        Panel.SetActive(true);
+    }
+    
+    private void CloseAllTabs()
+    {
+        _graphicPanel.SetActive(false);
+        _audioPanel.SetActive(false);
+        _voicePanel.SetActive(false);
+        _controllPanel.SetActive(false);
     }
 }

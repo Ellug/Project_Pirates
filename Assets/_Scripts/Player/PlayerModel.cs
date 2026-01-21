@@ -68,6 +68,7 @@ public class PlayerModel : MonoBehaviour
         runSpeed = baseSpeed * 1.6f;
         crouchSpeed = baseSpeed * 0.4f;
         Animator = GetComponent<Animator>();
+        mouseSensitivity = PlayerPrefs.GetFloat("MouseSensitivity", 15.0f);
     }
 
     // 체력의 회복과 감소 메서드
