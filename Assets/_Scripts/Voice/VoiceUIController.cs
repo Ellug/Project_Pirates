@@ -8,13 +8,12 @@ public class VoiceUIController : Singleton<VoiceUIController>
     private GameObject _instance;
     private bool _cursorState;
 
-    private void OnEnable()
+    void Start()
     {
-        if (InputManager.Instance != null)
-            InputManager.Instance.OnVoiceOverlay += HandleVoiceOverlay;
+        InputManager.Instance.OnVoiceOverlay += HandleVoiceOverlay;
     }
 
-    private void OnDisable()
+    void OnDisable()
     {
         if (InputManager.Instance != null)
             InputManager.Instance.OnVoiceOverlay -= HandleVoiceOverlay;
@@ -23,7 +22,6 @@ public class VoiceUIController : Singleton<VoiceUIController>
     private void HandleVoiceOverlay(bool pressed)
     {
         Debug.Log("왜안돼");
-        // Room / InGame 에서만 동작 유지(기존 로직 유지)
         if (GameManager.Instance != null)
         {
             SceneState currentState = GameManager.Instance.FlowState;

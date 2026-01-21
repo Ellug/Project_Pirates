@@ -2,6 +2,7 @@
 using Photon.Voice.Unity;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public sealed class VoiceManager : MonoBehaviourPunCallbacks
@@ -29,20 +30,13 @@ public sealed class VoiceManager : MonoBehaviourPunCallbacks
     void Start()
     {
         LoadAndApplySettings();
-    }
-
-    public override void OnEnable()
-    {
-        base.OnEnable();
-
-        if (InputManager.Instance != null)
-            InputManager.Instance.OnPtt += OnPttChanged;
+        InputManager.Instance.OnPtt += OnPttChanged;
     }
 
     public override void OnDisable()
     {
         base.OnDisable();
-        
+
         if (InputManager.Instance != null)
             InputManager.Instance.OnPtt -= OnPttChanged;
     }
