@@ -5,11 +5,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public sealed class VoiceManager : Singleton<VoiceManager>
+public sealed class VoiceManager : MonoBehaviourPunCallbacks
 {
     [SerializeField] private Recorder _recorder;
     private List<VoiceUserSetting> _remoteUserSettings = new();
     private Dictionary<int, Speaker> _speakerCache = new();
+
+    public static VoiceManager Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     void Start()
     {
@@ -62,7 +77,7 @@ public sealed class VoiceManager : Singleton<VoiceManager>
         bool myMute = PlayerPrefs.GetInt(VoiceParam.MyMicMuteKey, 0) == 1;
 
         ApplyMyMicSettings(myVol, myType, myMute);
-        ApplyMasterInputSettings();
+        ApplyMasterOutputSettings();
     }
 
     // 내 마이크 설정
@@ -93,13 +108,13 @@ public sealed class VoiceManager : Singleton<VoiceManager>
         
         if (isOn == false)
         {
-            PlayerPrefs.SetInt(VoiceParam.MasterInputMuteKey, 0);
+            PlayerPrefs.SetInt(VoiceParam.MasterOutputMuteKey, 0);
         }
         UpdateSpeakerOutput(actorNumber);
     }
 
     //마스터 인풋 볼륨 변경 시 모든 스피커 즉시 갱신
-    public void ApplyMasterInputSettings()
+    public void ApplyMasterOutputSettings()
     {
         foreach (var player in PhotonNetwork.PlayerList)
         {
@@ -111,7 +126,7 @@ public sealed class VoiceManager : Singleton<VoiceManager>
     // 마스터 뮤트 설정 시 모든 개별 세팅도 함께 변경
     public void SetAllRemoteMute(bool isMute)
     {
-        PlayerPrefs.SetInt(VoiceParam.MasterInputMuteKey, isMute ? 1 : 0);
+        PlayerPrefs.SetInt(VoiceParam.MasterOutputMuteKey, isMute ? 1 : 0);
 
         foreach (var player in PhotonNetwork.PlayerList)
         {
@@ -138,8 +153,8 @@ public sealed class VoiceManager : Singleton<VoiceManager>
             remoteIsMuted = (bool)targetPlayer.CustomProperties["v_mute"];
         }
 
-        float masterVol = PlayerPrefs.GetFloat(VoiceParam.MasterInputKey, 1f);
-        bool masterMuted = PlayerPrefs.GetInt(VoiceParam.MasterInputMuteKey, 0) == 1;
+        float masterVol = PlayerPrefs.GetFloat(VoiceParam.MasterOutputKey, 1f);
+        bool masterMuted = PlayerPrefs.GetInt(VoiceParam.MasterOutputMuteKey, 0) == 1;
 
         float personalVol = PlayerPrefs.GetFloat(VoiceParam.GetRemotePlayerKey(actorNumber), 1f);
         bool personalMuted = PlayerPrefs.GetInt(VoiceParam.GetRemoteMuteKey(actorNumber), 0) == 1;
@@ -190,5 +205,14 @@ public sealed class VoiceManager : Singleton<VoiceManager>
             _remoteUserSettings.Add(new VoiceUserSetting(id, player.NickName, vol, mute));
         }
         callback?.Invoke(_remoteUserSettings);
+    }
+
+    //실시간 변화 감지 콜백함수
+    public override void OnPlayerPropertiesUpdate(Photon.Realtime.Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        if (changedProps.ContainsKey("v_vol") || changedProps.ContainsKey("v_mute"))
+        {
+            UpdateSpeakerOutput(targetPlayer.ActorNumber);
+        }
     }
 }
