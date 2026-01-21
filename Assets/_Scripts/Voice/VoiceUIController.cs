@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class VoiceUIController : Singleton<VoiceUIController>
 {
@@ -9,30 +8,41 @@ public class VoiceUIController : Singleton<VoiceUIController>
     private GameObject _instance;
     private bool _cursorState;
 
-    void Update()
+    private void OnEnable()
     {
-        if (Keyboard.current == null) return;
-        
+        if (InputManager.Instance != null)
+            InputManager.Instance.OnVoiceOverlay += HandleVoiceOverlay;
+    }
+
+    private void OnDisable()
+    {
+        if (InputManager.Instance != null)
+            InputManager.Instance.OnVoiceOverlay -= HandleVoiceOverlay;
+    }
+
+    private void HandleVoiceOverlay(bool pressed)
+    {
+        Debug.Log("왜안돼");
+        // Room / InGame 에서만 동작 유지(기존 로직 유지)
         if (GameManager.Instance != null)
         {
             SceneState currentState = GameManager.Instance.FlowState;
-            if (currentState != SceneState.Room && currentState != SceneState.InGame)
+            bool allowed = (currentState == SceneState.Room || currentState == SceneState.InGame);
+
+            if (!allowed)
             {
                 if (_instance != null && _instance.activeSelf)
-                {
                     SetVisible(false);
-                }
                 return;
             }
         }
 
-        if (Keyboard.current[Key.Tab].wasPressedThisFrame)
+        if (pressed)
         {
             _cursorState = (Cursor.lockState != CursorLockMode.Locked);
             SetVisible(true);
         }
-
-        if (Keyboard.current[Key.Tab].wasReleasedThisFrame)
+        else
         {
             SetVisible(false);
         }

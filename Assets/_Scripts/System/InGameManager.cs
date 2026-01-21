@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using Photon.Pun;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
@@ -110,21 +109,6 @@ public class InGameManager : MonoBehaviourPunCallbacks
     public void RegistPlayer(PlayerController player)
     {
         _player = player;
-    }
-
-    // 이건 인게임에서 esc키로 패널 띄우고 게임 나가는거 구현되면 지우기
-    void Update()
-    {
-        var kb = Keyboard.current;
-        if (kb == null) return;
-
-        // 0 키 → 전원 나가기 (마스터만)
-        if (kb.digit0Key.wasPressedThisFrame)
-            EndGameForAll();
-
-        // 9 키 → 나만 나가기
-        if (kb.digit9Key.wasPressedThisFrame)
-            ExitForLocal();
     }
 
     // Todo : 종료 후에 방으로 가는데, 이거 일반적인 게임 플로우처럼 처리해야함.
