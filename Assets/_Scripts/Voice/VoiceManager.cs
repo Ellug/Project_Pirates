@@ -207,13 +207,6 @@ public sealed class VoiceManager : MonoBehaviourPunCallbacks
         return null;
     }
 
-    //플레이어 나갈때 캐시 삭제
-    public void RemoveSpeakerCache(int actorNumber)
-    {
-        if (_speakerCache.ContainsKey(actorNumber))
-            _speakerCache.Remove(actorNumber);
-    }
-
     // UI표시를 위해 다른 플레이어들의 현재 설정값 목록을 가져옴
     public IEnumerator Co_GetVoiceUserSettings(System.Action<List<VoiceUserSetting>> callback)
     {
