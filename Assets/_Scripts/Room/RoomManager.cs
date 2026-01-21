@@ -1,5 +1,6 @@
 ﻿using Photon.Pun;
 using Photon.Realtime;
+using Photon.Voice.PUN;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -35,13 +36,11 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
     public override void OnEnable()
     {
         base.OnEnable();
-        PhotonNetwork.AddCallbackTarget(this);
     }
 
     public override void OnDisable()
     {
         base.OnDisable();
-        PhotonNetwork.RemoveCallbackTarget(this);
     }   
 
     void Start()
@@ -78,7 +77,10 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
         LogRoom($"[Room] {roomName} 방에 참여 했습니다. [MasterClient] : {PhotonNetwork.MasterClient?.NickName}");
         
         //보이스 프리팹 안전 생성
-        _createVoice.CreateVoicePV();
+        yield return new WaitForSeconds(0.2f);
+
+        yield return StartCoroutine(_createVoice.CreateVoicePV());
+
         RefreshRoomUI("CoWaitRoomThenRefresh");
     }
 
@@ -255,16 +257,25 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
             _startButtonText.text = value;
     }
 
-    private void ReadyCallBack(Action callback) 
-    {
-        _ready.SetLocalReady(false);
-        callback?.Invoke();
-    }
-
     public void LeaveRoom()
     {
         Debug.Log("[Room] Triggered LeaveRoom.");
-        ReadyCallBack(() => PhotonNetwork.LeaveRoom());
+        StartCoroutine(Co_DisconnectVoiceAndLeaveRoom());
+    }
+
+    // Voice 클라이언트를 먼저 disconnect 후 Room 퇴장
+    private IEnumerator Co_DisconnectVoiceAndLeaveRoom()
+    {
+        var voiceClient = PunVoiceClient.Instance;
+        if (voiceClient != null && voiceClient.Client != null && voiceClient.Client.IsConnected)
+        {
+            voiceClient.Disconnect();
+            yield return new WaitUntil(() => !voiceClient.Client.IsConnected);
+            Debug.Log("[Room] Voice client disconnected.");
+        }
+
+        _ready.SetLocalReady(false);
+        PhotonNetwork.LeaveRoom();
     }
 
     // CB
@@ -288,13 +299,14 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         Debug.Log("[Room] OnEvent " + photonEvent.Code);
         if (photonEvent == null) return;
-        
+
         if (photonEvent.Code == KickEventCode)
         {
             if (!PhotonNetwork.InRoom) return;
 
+            // Voice disconnect 후 Room 퇴장
             if (photonEvent.CustomData is int targetActor && PhotonNetwork.LocalPlayer.ActorNumber == targetActor)
-                PhotonNetwork.LeaveRoom();
+                StartCoroutine(Co_DisconnectVoiceAndLeaveRoom());
         }
     }
 

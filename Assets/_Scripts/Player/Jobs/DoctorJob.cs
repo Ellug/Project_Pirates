@@ -8,10 +8,11 @@ public class DoctorJob : BaseJob
         _isActive = true;
         base.Initialize(model);
         name = "의사";
+        Debug.Log("의사 직업 배정 완료!");
     }
 
     public override void UniqueSkill()
     {
-        
+        Debug.Log("의사 직업 스킬 발동!");
     }
 }
