@@ -93,7 +93,7 @@ public class PlayerController : MonoBehaviourPun
         InputMove = Vector2.zero;
     }
 
-    void Start()
+    private void Start()
     {
         PlayerManager.Instance.RegistLocalPlayer(this);
         _playerInteraction = GetComponent<PlayerInteraction>();
@@ -115,6 +115,11 @@ public class PlayerController : MonoBehaviourPun
         StateDeath = new DeathState(this);
 
         StateMachine = new PlayerStateMachine(StateIdle);
+
+        if (!_view.IsMine) return;
+
+        var hud = FindFirstObjectByType<PlayerHUD>();
+        hud.Bind(_model);
 
         // PlayerInput.actions 기반으로 전환하여 InputManager의 ActionMap 전환이 동작하도록 함
 
