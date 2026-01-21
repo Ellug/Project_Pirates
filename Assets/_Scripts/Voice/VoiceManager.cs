@@ -2,8 +2,8 @@
 using Photon.Voice.Unity;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public sealed class VoiceManager : MonoBehaviourPunCallbacks
 {
@@ -12,6 +12,7 @@ public sealed class VoiceManager : MonoBehaviourPunCallbacks
     private Dictionary<int, Speaker> _speakerCache = new();
 
     public static VoiceManager Instance { get; private set; }
+    private bool _pttPressed;
 
     private void Awake()
     {
@@ -29,22 +30,45 @@ public sealed class VoiceManager : MonoBehaviourPunCallbacks
     void Start()
     {
         LoadAndApplySettings();
+        InputManager.Instance.OnPtt += OnPttChanged;
     }
 
-    // PTT 입력 감지를 위한 Update
-    void Update()
+    public override void OnDisable()
     {
-        int myType = PlayerPrefs.GetInt(VoiceParam.MyMicTypeKey, 0);
+        base.OnDisable();
+
+        if (InputManager.Instance != null)
+            InputManager.Instance.OnPtt -= OnPttChanged;
+    }
+
+    private void OnPttChanged(bool pressed)
+    {
+        _pttPressed = pressed;
+        ApplyTransmitByCurrentMode();
+    }
+
+    private void ApplyTransmitByCurrentMode()
+    {
+        if (_recorder == null) return;
+
+        int myType = PlayerPrefs.GetInt(VoiceParam.MyMicTypeKey, 0);          // 0: 상시, 1: PTT
         bool myMute = PlayerPrefs.GetInt(VoiceParam.MyMicMuteKey, 0) == 1;
 
-        if (myType == 1 && !myMute)
+        if (myMute)
         {
-            if (_recorder != null)
-            {
-                bool isPressingV = Keyboard.current != null && Keyboard.current[Key.V].isPressed;
-                _recorder.TransmitEnabled = isPressingV;
-            }
+            _recorder.TransmitEnabled = false;
+            return;
         }
+
+        // 상시 송출
+        if (myType == 0)
+        {
+            _recorder.TransmitEnabled = true;
+            return;
+        }
+
+        // PTT
+        _recorder.TransmitEnabled = _pttPressed;
     }
 
     public void ConnectVoice()
@@ -92,6 +116,8 @@ public sealed class VoiceManager : MonoBehaviourPunCallbacks
 
         ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable { { "v_vol", vol }, { "v_mute", isMuted } };
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
+
+        ApplyTransmitByCurrentMode();
     }
 
     // 타인 개별 볼륨 적용
