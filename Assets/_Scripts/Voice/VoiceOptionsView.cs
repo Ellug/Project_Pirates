@@ -5,14 +5,14 @@ using UnityEngine.UI;
 
 public class VoiceOptionsView : MonoBehaviour
 {
-    [Header("Mic Output (Mine)")]
+    [Header("Mic Input (Mine)")]
     [SerializeField] private Slider _myMicSlider;
     [SerializeField] private TMP_Dropdown _micTypeDropdown;
     [SerializeField] private Toggle _myMicMuteToggle;
 
-    [Header("Mic Input (Others Master)")]
-    [SerializeField] private Slider _masterInputSlider;
-    [SerializeField] private Toggle _masterInputMuteToggle;
+    [Header("Mic Output (Others Master)")]
+    [SerializeField] private Slider _masterOutputSlider;
+    [SerializeField] private Toggle _masterOutputMuteToggle;
 
     [Header("Remote Players")]
     [SerializeField] private RectTransform _verticalPanel;
@@ -41,8 +41,8 @@ public class VoiceOptionsView : MonoBehaviour
         _micTypeDropdown.value = PlayerPrefs.GetInt(VoiceParam.MyMicTypeKey, 0);
         _myMicMuteToggle.isOn = PlayerPrefs.GetInt(VoiceParam.MyMicMuteKey, 0) == 1;
 
-        _masterInputSlider.value = PlayerPrefs.GetFloat(VoiceParam.MasterInputKey, 1f);
-        _masterInputMuteToggle.isOn = PlayerPrefs.GetInt(VoiceParam.MasterInputMuteKey, 0) == 1;
+        _masterOutputSlider.value = PlayerPrefs.GetFloat(VoiceParam.MasterOutputKey, 1f);
+        _masterOutputMuteToggle.isOn = PlayerPrefs.GetInt(VoiceParam.MasterOutputMuteKey, 0) == 1;
 
         VoiceManager.Instance?.LoadAndApplySettings();
 
@@ -55,8 +55,8 @@ public class VoiceOptionsView : MonoBehaviour
         _micTypeDropdown.onValueChanged.AddListener(OnMyMicTypeChanged);
         _myMicMuteToggle.onValueChanged.AddListener(OnMyMicMuteChanged);
 
-        _masterInputSlider.onValueChanged.AddListener(OnMasterSliderChanged);
-        _masterInputMuteToggle.onValueChanged.AddListener(OnMasterMuteChanged);
+        _masterOutputSlider.onValueChanged.AddListener(OnMasterSliderChanged);
+        _masterOutputMuteToggle.onValueChanged.AddListener(OnMasterMuteChanged);
     }
 
     private void Unbind()
@@ -65,8 +65,8 @@ public class VoiceOptionsView : MonoBehaviour
         _micTypeDropdown.onValueChanged.RemoveListener(OnMyMicTypeChanged);
         _myMicMuteToggle.onValueChanged.RemoveListener(OnMyMicMuteChanged);
 
-        _masterInputSlider.onValueChanged.RemoveListener(OnMasterSliderChanged);
-        _masterInputMuteToggle.onValueChanged.RemoveListener(OnMasterMuteChanged);
+        _masterOutputSlider.onValueChanged.RemoveListener(OnMasterSliderChanged);
+        _masterOutputMuteToggle.onValueChanged.RemoveListener(OnMasterMuteChanged);
     }
 
     private void RefreshPlayerList()
@@ -116,12 +116,12 @@ public class VoiceOptionsView : MonoBehaviour
         VoiceManager.Instance.ApplyMyMicSettings(_myMicSlider.value, _micTypeDropdown.value, _myMicMuteToggle.isOn);
     }
 
-    //마스터 인풋 설정 처리
+    //마스터 아웃풋 설정 처리
     private void OnMasterSliderChanged(float value)
     {
         if (_suppress) return;
-        PlayerPrefs.SetFloat(VoiceParam.MasterInputKey, value);
-        VoiceManager.Instance.ApplyMasterInputSettings();
+        PlayerPrefs.SetFloat(VoiceParam.MasterOutputKey, value);
+        VoiceManager.Instance.ApplyMasterOutputSettings();
     }
 
     // 마스터 뮤트 토글 이벤트
@@ -138,7 +138,7 @@ public class VoiceOptionsView : MonoBehaviour
     public void NotifyIndividualMuteChanged()
     {
         _suppress = true;
-        _masterInputMuteToggle.isOn = PlayerPrefs.GetInt(VoiceParam.MasterInputMuteKey, 0) == 1;
+        _masterOutputMuteToggle.isOn = PlayerPrefs.GetInt(VoiceParam.MasterOutputMuteKey, 0) == 1;
         _suppress = false;
 
         RefreshPlayerList();

@@ -23,8 +23,8 @@ public static class VoiceParam
     public const string MyMicTypeKey = "voice.myMicType";
     public const string MyMicMuteKey = "voice.myMicMute";
 
-    public const string MasterInputKey = "voice.masterInput";
-    public const string MasterInputMuteKey = "voice.masterInputMute";
+    public const string MasterOutputKey = "voice.masterOutput";
+    public const string MasterOutputMuteKey = "voice.masterOutputMute";
 
     public static string GetRemotePlayerKey(int actorNumber) => $"voice.remote.{actorNumber}";
     public static string GetRemoteMuteKey(int actorNumber) => $"voice.mute.{actorNumber}";

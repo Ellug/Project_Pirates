@@ -1,4 +1,5 @@
 ﻿using Photon.Pun;
+using Photon.Voice.Unity;
 using UnityEngine;
 
 public class VoiceLinker : MonoBehaviourPun, IPunInstantiateMagicCallback
@@ -19,15 +20,23 @@ public class VoiceLinker : MonoBehaviourPun, IPunInstantiateMagicCallback
             {
                 transform.SetParent(parentPV.transform, false);
                 transform.localPosition = Vector3.zero;
-                
+
                 if (!info.photonView.IsMine)
                 {
+
                     if (VoiceManager.Instance != null)
                     {
-                        VoiceManager.Instance.ApplyMasterInputSettings();
+                        VoiceManager.Instance.ApplyMasterOutputSettings();
                     }
                 }
             }
+        }
+
+        Speaker speaker = GetComponent<Speaker>();
+        if (speaker != null && VoiceManager.Instance != null)
+        {
+            VoiceManager.Instance.OnSpeakerCreated(speaker);
+            Debug.Log($"[Linker] {parentViewID} Speaker 탐색완료");
         }
     }
 }

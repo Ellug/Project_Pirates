@@ -349,6 +349,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "TabInputNext",
+                    "type": "Button",
+                    "id": "f6ab60b6-d1ec-42bc-8814-dc09931b2d8a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -378,17 +387,6 @@
                     "name": "down",
                     "id": "85d264ad-e0a0-4565-b7ff-1a37edde51ac",
                     "path": "<Keyboard>/downArrow",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Navigate",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "down",
-                    "id": "e2e1106d-879a-4c21-b533-ef2d9b092dd5",
-                    "path": "<Keyboard>/tab",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -527,6 +525,17 @@
                     "action": "Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fefa903f-2c70-4e9e-a436-856c30ba57d1",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "TabInputNext",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -547,6 +556,24 @@
                     "name": "ToggleOptions",
                     "type": "Button",
                     "id": "28369be8-1bc1-4efa-bed7-0494c6b44add",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PTT",
+                    "type": "Button",
+                    "id": "ed63041b-6113-4142-8be3-ee76e7f1508b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "VoiceOverlay",
+                    "type": "Button",
+                    "id": "83be4363-8ea1-4377-a5b4-73bd6c974895",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -573,6 +600,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "ToggleOptions",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ed85a7e9-ed1d-46a4-bdd9-d575c766a40d",
+                    "path": "<Keyboard>/v",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PTT",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "368e1fd5-bb49-4f94-93ca-c28f9fc9d920",
+                    "path": "<Keyboard>/backquote",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "VoiceOverlay",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

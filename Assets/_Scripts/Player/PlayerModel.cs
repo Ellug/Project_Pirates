@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System;
 using UnityEngine;
 
 public class PlayerModel : MonoBehaviour
@@ -12,9 +13,16 @@ public class PlayerModel : MonoBehaviour
     [HideInInspector] public float crouchSpeed;
 
     private float _maxHealthPoint;
+    public float MaxHP => _maxHealthPoint;
+
     private float _curHealthPoint;
+    public float CurHP => _curHealthPoint;
+
     private float _maxStamina;
+    public float MaxStamina => _maxStamina;
+
     private float _curStamina;
+    public float CurStamina => _curStamina;
 
     [Header("Stamina")]
     [SerializeField] private const float _sprintStaminaDrainPerSec = 20f; // 소모
@@ -47,6 +55,9 @@ public class PlayerModel : MonoBehaviour
     public bool IsGrounded { get; set; }
     public BaseJob MyJob { get; private set; }
 
+    public event Action<float, float> OnHealthChanged;
+    public event Action<float, float> OnStaminaChanged;
+
     private void Awake()
     {
         _maxHealthPoint = 100f;
@@ -64,6 +75,7 @@ public class PlayerModel : MonoBehaviour
     {
         _curHealthPoint -= damage;
         Debug.Log($"{damage}의 피해를 받았고 남은 체력은 {_curHealthPoint} 입니다.");
+        OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
 
         if (_curHealthPoint <= 0f)
         {
@@ -108,6 +120,7 @@ public class PlayerModel : MonoBehaviour
 
         float prev = _curStamina;
         _curStamina = Mathf.Max(0f, _curStamina - amount);
+        OnStaminaChanged?.Invoke(_curStamina, _maxStamina);
 
         // Debug.Log($"스테미너 소모 : {prev:F1} -> {_curStamina:F1}");
 
@@ -131,6 +144,7 @@ public class PlayerModel : MonoBehaviour
         // 실수값 비교후 동일하지 않으면 Debug.Log
         if (!Mathf.Approximately(prev, _curStamina))
             // Debug.Log($"스테미너 회복 : {prev:F1} -> {_curStamina:F1}");
+            OnStaminaChanged?.Invoke(_curStamina + amount, _maxStamina);
 
         // 일정 이상 회복시 스프린트 잠금 해제
         if (_isSprintLock && _curStamina >= _staminaReenableToRun)
