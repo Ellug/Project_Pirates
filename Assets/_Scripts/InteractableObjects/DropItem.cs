@@ -5,7 +5,7 @@ public class DropItem : InteractionObject
     [SerializeField] private ItemData _itemData;
 
     // 내가 아이템을 습득하면 내 인벤토리로 들어오고 사라진다.
-    public override void OnInteract(PlayerInteraction player)
+    public override void OnInteract(PlayerInteraction player, InteractionObjectRpcManager rpcManager)
     {
         // 플레이어 인벤토리로 아이템 습득 로직
         // 아이템의 종류는 다양한데 이것을 어떻게 구별할까?
@@ -13,6 +13,7 @@ public class DropItem : InteractionObject
         if (player.GetComponent<PlayerModel>().TryGetItem(_itemData))
         {
             gameObject.SetActive(false);
+            rpcManager.RequestNetworkInteraction(uniqueID);
         }
         else
         {

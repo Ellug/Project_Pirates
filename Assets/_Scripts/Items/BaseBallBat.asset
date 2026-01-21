@@ -10,9 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 917e9a9e33337194382e847ac528d661, type: 3}
-  m_Name: Coin
+  m_Name: BaseBallBat
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemId: 1
-  itemName: "\uCF54\uC778"
+  itemId: 3
+  itemName: "\uC57C\uAD6C\uBC29\uB9DD\uC774"
   icon: {fileID: 0}
-  type: 0
