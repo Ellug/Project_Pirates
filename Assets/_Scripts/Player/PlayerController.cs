@@ -93,7 +93,7 @@ public class PlayerController : MonoBehaviourPun
         InputMove = Vector2.zero;
     }
 
-    void Start()
+    private void Start()
     {
         PlayerManager.Instance.RegistLocalPlayer(this);
         _playerInteraction = GetComponent<PlayerInteraction>();
@@ -117,6 +117,26 @@ public class PlayerController : MonoBehaviourPun
         StateDeath = new DeathState(this);
 
         StateMachine = new PlayerStateMachine(StateIdle);
+
+        if (!_view.IsMine) return;
+
+        var hud = FindFirstObjectByType<PlayerHUD>();
+        hud.Bind(_model);
+
+        // PlayerInput.actions 기반으로 전환하여 InputManager의 ActionMap 전환이 동작하도록 함
+
+        // InputSystem.actions["Move"].performed += OnMove;
+        // InputSystem.actions["Move"].canceled += OnMove;
+        // InputSystem.actions["Sprint"].performed += OnSprint;
+        // InputSystem.actions["Sprint"].canceled += OnSprint;
+        // InputSystem.actions["Crouch"].performed += OnCrouch;
+        // InputSystem.actions["Crouch"].canceled += OnCrouch;
+        // InputSystem.actions["Attack"].started += OnAttack;
+        // InputSystem.actions["KnockBack"].started += OnKnockBack;
+        // InputSystem.actions["Look"].performed += OnLook;
+        // InputSystem.actions["Look"].canceled += OnLook;
+        // InputSystem.actions["Interact"].started += OnInteraction;
+        // InputSystem.actions["Jump"].started += OnJump;
 
         // PlayerInput.actions 기반 구독
         // InputManager가 SwitchCurrentActionMap("UI")로 바꾸면 Player 맵 입력 차단 (옵션/콘솔에서 플레이어 조작 불가)
