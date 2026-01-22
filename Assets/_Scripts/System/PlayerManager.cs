@@ -138,6 +138,34 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             player.GetComponent<PhotonView>().ViewID);
     }
 
+    // 시체 생성 요청 -> 모든 클라이언트에서 로컬 생성
+    private int _deadBodyIdCounter = 10000; // 시체 고유 ID 카운터
+
+    public void RequestSpawnDeadBody(Vector3 position, Quaternion rotation)
+    {
+        int deadBodyId = _deadBodyIdCounter++;
+        _view.RPC(nameof(RpcSpawnDeadBody), RpcTarget.All, position, rotation, deadBodyId);
+    }
+
+    [PunRPC]
+    private void RpcSpawnDeadBody(Vector3 position, Quaternion rotation, int deadBodyId)
+    {
+        GameObject deadBodyPrefab = Resources.Load<GameObject>("Deadbody");
+        if (deadBodyPrefab != null)
+        {
+            GameObject deadBody = Instantiate(deadBodyPrefab, position, rotation);
+            DeadBody db = deadBody.GetComponent<DeadBody>();
+            if (db != null)
+                db.InitializeWithId(deadBodyId);
+
+            Debug.Log($"[DeadBody] 시체 생성 완료 - ID: {deadBodyId}, 위치: {position}");
+        }
+        else
+        {
+            Debug.LogError("[DeadBody] Deadbody 프리팹을 Resources 폴더에서 찾을 수 없습니다.");
+        }
+    }
+
     public void NoticeGameOverToAllPlayers(bool isCitizenVictory)
     {
         _view.RPC(nameof(GameOverAndJudge), RpcTarget.All, isCitizenVictory);
