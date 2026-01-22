@@ -24,7 +24,7 @@ public class OptionMenuView : MonoBehaviourPunCallbacks
         CloseAllTabs();
         Panel.SetActive(true);
     }
-    
+
     private void CloseAllTabs()
     {
         _graphicPanel.SetActive(false);
@@ -52,7 +52,7 @@ public class OptionMenuView : MonoBehaviourPunCallbacks
                 GoToTitle();
                 break;
 
-            case SceneState.Room :
+            case SceneState.Room:
             case SceneState.InGame:
                 StartCoroutine(LeaveRoom());
                 break;
@@ -84,13 +84,10 @@ public class OptionMenuView : MonoBehaviourPunCallbacks
         Debug.Log("LeaveRoom 요청...");
 
         //RoomManager의 콜백이 없는 상황(InGame)
-        if (GameManager.Instance.FlowState != SceneState.Room)
-        {
-            yield return new WaitForSeconds(0.2f);
-            Debug.Log("[InGame] InGameScene -> Go to Lobby");
-            if (PlayerManager.Instance != null)
-                PlayerManager.Instance.GameOver();
-            SceneManager.LoadScene("Lobby");
-        }
+        yield return new WaitForSeconds(0.2f);
+        Debug.Log("[InGame] InGameScene -> Go to Lobby");
+        if (PlayerManager.Instance != null)
+            PlayerManager.Instance.GameOver();
+        SceneManager.LoadScene("Lobby");
     }
 }
