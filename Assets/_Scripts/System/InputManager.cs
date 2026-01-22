@@ -19,9 +19,11 @@ public class InputManager : Singleton<InputManager>
 
     private InputActionMap _globalMap;
     private InputActionMap _uiMap;
+    private InputActionMap _playerMap;
 
     private InputAction _toggleConsole; // F5
     private InputAction _toggleOptions; // ESC
+    private InputAction _toggleSlidePanel; // F1
     private InputAction _submit;
     private InputAction _ptt;
     private InputAction _voiceOverlay;
@@ -39,6 +41,7 @@ public class InputManager : Singleton<InputManager>
     // Title/Lobby/Room 등 UI 씬에서 구독하여 자체 ESC 처리 수행
     public event Action OnEscapeUI;
     public event Action OnSubmitUI;
+    public event Action OnToggleSlidePanelUI;
     public event Action<bool> OnPtt;
     public event Action<bool> OnVoiceOverlay;
 
@@ -48,9 +51,11 @@ public class InputManager : Singleton<InputManager>
     {
         _globalMap = _actions.FindActionMap(MAP_GLOBAL, true);
         _uiMap = _actions.FindActionMap(MAP_UI, true);
+        _playerMap = _actions.FindActionMap(MAP_PLAYER, true);
 
         _toggleConsole = _globalMap.FindAction("ToggleConsole", true);
         _toggleOptions = _globalMap.FindAction("ToggleOptions", true);
+        _toggleSlidePanel = _playerMap.FindAction("ToggleSlidePanel", true);
 
         _submit = _uiMap.FindAction("Submit", true);
 
@@ -62,6 +67,7 @@ public class InputManager : Singleton<InputManager>
         // 등록
         _toggleConsole.performed += OnToggleConsole;
         _toggleOptions.performed += OnToggleOptions;
+        _toggleSlidePanel.performed += OnToggleSlidePanel;
 
         _submit.started += OnSubmit;
 
@@ -82,6 +88,7 @@ public class InputManager : Singleton<InputManager>
     {
         if (_toggleConsole != null) _toggleConsole.performed -= OnToggleConsole;
         if (_toggleOptions != null) _toggleOptions.performed -= OnToggleOptions;
+        if (_toggleSlidePanel != null) _toggleSlidePanel.performed -= OnToggleSlidePanel;
         if (_submit != null) _submit.started -= OnSubmit;
         if (_ptt != null)
         {
@@ -198,6 +205,12 @@ public class InputManager : Singleton<InputManager>
     private void OnSubmit(InputAction.CallbackContext _)
     {
         OnSubmitUI?.Invoke();
+    }
+
+    private void OnToggleSlidePanel(InputAction.CallbackContext _)
+    {
+        if (_mode == InputMode.DevConsole) return;
+        OnToggleSlidePanelUI?.Invoke();
     }
 
     private void OnPttDown(InputAction.CallbackContext _)
