@@ -5335,6 +5335,22 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 83be4363-8ea1-4377-a5b4-73bd6c974895
     m_ActionName: 'Global/VoiceOverlay[/Keyboard/backquote]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e00d0f10-3bb4-4a46-8437-db011ab73229
+    m_ActionName: 'Player/ToggleSlidePanel[/Keyboard/f1]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+    m_ActionName: 'Player/MapPageUp[/Keyboard/pageUp]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: b2c3d4e5-f6a7-8901-bcde-f12345678901
+    m_ActionName: 'Player/MapPageDown[/Keyboard/pageDown]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e5f6a7b8-c9d0-1234-ef01-345678901234
+    m_ActionName: 'Player/ToggleMap[/Keyboard/tab]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: 
@@ -5376,7 +5392,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.33
   m_Pitch: 1
   Loop: 0
   Mute: 0
