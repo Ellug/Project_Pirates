@@ -105,6 +105,17 @@ public class PlayerModel : MonoBehaviour
             info = Animator.GetCurrentAnimatorStateInfo(0);
         }
         PlayerManager.Instance.NoticeDeathPlayer(controller);
+
+        // 시체 생성 (네트워크 동기화)
+        SpawnDeadBody();
+    }
+
+    private void SpawnDeadBody()
+    {
+        transform.GetPositionAndRotation(out Vector3 spawnPos, out Quaternion spawnRot);
+
+        // RPC로 모든 클라이언트에서 로컬 생성
+        PlayerManager.Instance.RequestSpawnDeadBody(spawnPos, spawnRot);
     }
 
     public void HealingHealthPoint(float amount)

@@ -9,6 +9,8 @@ using UnityEditor;
 // 인게임에서 오브젝트들이 플레이어와 상호작용할 때 RPC를 쏴주는 클래스
 public class InteractionObjectRpcManager : MonoBehaviourPun
 {
+    public static InteractionObjectRpcManager Instance { get; private set; }
+
     private Dictionary<int, InteractionObject> _objectCache = 
         new Dictionary<int, InteractionObject>();
 
@@ -17,10 +19,12 @@ public class InteractionObjectRpcManager : MonoBehaviourPun
     // Awake가 맞는지 Start가 맞는지 테스트 필요
     void Awake()
     {
+        Instance = this;
+
         // 인게임에 들어오면 모든 상호작용 오브젝트를 찾는다.
         InteractionObject[] allObjects = 
             FindObjectsByType<InteractionObject>(FindObjectsSortMode.None);
-        
+
         // 상호작용 오브젝트를 딕셔너리에 모두 담는다.
         foreach (InteractionObject item in allObjects)
         {
@@ -33,6 +37,13 @@ public class InteractionObjectRpcManager : MonoBehaviourPun
         _view = GetComponent<PhotonView>();
     }
 
+    // 동적 생성된 오브젝트 등록 - 지정된 ID로 (네트워크 동기화용)
+    public void RegisterWithId(InteractionObject obj, int id)
+    {
+        obj.uniqueID = id;
+        _objectCache[id] = obj;
+    }
+
     public void RequestNetworkInteraction(int id)
     {
         _view.RPC(nameof(RpcInteractionObject), RpcTarget.Others, id);
@@ -41,7 +52,10 @@ public class InteractionObjectRpcManager : MonoBehaviourPun
     [PunRPC]
     private void RpcInteractionObject(int id)
     {
-        _objectCache[id].OnOthersInteract();
+        if (_objectCache.TryGetValue(id, out var obj))
+            obj.OnOthersInteract();
+        else
+            Debug.LogWarning($"[RPC] ID {id}에 해당하는 오브젝트를 찾을 수 없음");
     }
 
 #if UNITY_EDITOR
