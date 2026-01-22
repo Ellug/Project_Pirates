@@ -7,10 +7,10 @@ public class InteractableCCTV : InteractionObject
     [SerializeField] private GameObject _cctvCanvas;
 
     [Header("Player HUD")]
-    [SerializeField] private GameObject _mainStatusCanvas; 
+    [SerializeField] private GameObject _mainStatusCanvas;
 
     private PlayerInteraction _player;
-    private bool _isUsing = false;  
+    private bool _isUsing = false;
 
     public override void OnInteract(PlayerInteraction player, InteractionObjectRpcManager rpcManager)
     {
@@ -25,7 +25,7 @@ public class InteractableCCTV : InteractionObject
 
     public override void OnOthersInteract()
     {
-        _isUsing = true;
+        _isUsing = !_isUsing;
         Debug.Log("누군가 CCTV를 보고 있습니다.");
     }
 
@@ -57,7 +57,7 @@ public class InteractableCCTV : InteractionObject
 
     private void ExitCCTV(InteractionObjectRpcManager rpcManager)
     {
-        _isUsing = false;
+        ResetUsingState();
         rpcManager.RequestNetworkInteraction(uniqueID);
         ToggleUI(false);
     }
