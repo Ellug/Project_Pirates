@@ -2253,14 +2253,13 @@ GameObject:
   - component: {fileID: 138097733}
   - component: {fileID: 138097736}
   - component: {fileID: 138097735}
-  - component: {fileID: 138097734}
   m_Layer: 5
   m_Name: Result Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &138097733
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2282,19 +2281,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &138097734
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 138097732}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8835db923e30b914798c1f55cd44149d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameResultController
-  _resultText: {fileID: 2102694510}
 --- !u!114 &138097735
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37358,6 +37344,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2037784278}
   - component: {fileID: 2037784277}
+  - component: {fileID: 2037784279}
   m_Layer: 0
   m_Name: InGameManager
   m_TagString: Untagged
@@ -37394,6 +37381,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2037784279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2037784276}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8835db923e30b914798c1f55cd44149d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameResultController
+  _resultText: {fileID: 2102694510}
 --- !u!1001 &2039834790
 PrefabInstance:
   m_ObjectHideFlags: 0
