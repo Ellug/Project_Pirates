@@ -37394,6 +37394,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameResultController
   _resultText: {fileID: 2102694510}
+  _resultPanel: {fileID: 138097732}
 --- !u!1001 &2039834790
 PrefabInstance:
   m_ObjectHideFlags: 0
