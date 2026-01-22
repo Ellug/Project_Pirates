@@ -104,6 +104,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleSlidePanel",
+                    "type": "Button",
+                    "id": "e00d0f10-3bb4-4a46-8437-db011ab73229",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -269,6 +278,17 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "KnockBack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "39352bcc-a7be-4bf9-8291-144eb27eed48",
+                    "path": "<Keyboard>/f1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleSlidePanel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

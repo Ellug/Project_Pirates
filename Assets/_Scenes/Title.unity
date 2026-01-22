@@ -9062,6 +9062,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1143306613 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8244898129234325724, guid: 5e470c512ed01504a8f3f18055c410f5, type: 3}
+  m_PrefabInstance: {fileID: 1502687346}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
 --- !u!1 &1156647272 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2948181976441541042, guid: 6a45d2e34ec62e44c9c32934d51600f6, type: 3}
@@ -11909,6 +11920,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6337794580992362861, guid: 5e470c512ed01504a8f3f18055c410f5, type: 3}
+      propertyPath: _sfxSlider
+      value: 
+      objectReference: {fileID: 1143306613}
     - target: {fileID: 6437577138284546163, guid: 5e470c512ed01504a8f3f18055c410f5, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
