@@ -1,13 +1,14 @@
 ﻿using UnityEngine;
 using DG.Tweening;
-using Unity.VisualScripting;
+using UnityEngine.InputSystem;
 
 public class SlidePanel : MonoBehaviour
 {
     [SerializeField] private RectTransform _panel;
     [SerializeField] private float _duration = 0.25f;
-    [SerializeField] private float _hiddenX = 600f;
-    [SerializeField] private float _shownX = 0f;
+
+    private float _shownX;
+    private float _hiddenX;
 
     private bool _isOpen;
     private Tween _tween;
@@ -21,18 +22,28 @@ public class SlidePanel : MonoBehaviour
     {
         if (_panel == null) _panel = GetComponent<RectTransform>();
 
-        _panel.anchoredPosition = new Vector2(_hiddenX, _panel.anchoredPosition.y);
+        // 보이는 위치를 기준으로 저장
+        _shownX = _panel.anchoredPosition.x;
+
+        // 패널 폭만큼 빼기
+        _hiddenX = _shownX - _panel.rect.width;
+
+        var p = _panel.anchoredPosition;
+        p.x = _hiddenX;
+        _panel.anchoredPosition = p;
+
         _isOpen = false;
+    }
+
+    private void Update()
+    {
+        if (Keyboard.current.f1Key.wasPressedThisFrame)
+            Toggle();
     }
 
     public void Toggle()
     {
-        SetOpen(!_isOpen);
-    }
-
-    public void SetOpen(bool open)
-    {
-        _isOpen = open;
+        _isOpen = !_isOpen;
 
         _tween?.Kill();
 
