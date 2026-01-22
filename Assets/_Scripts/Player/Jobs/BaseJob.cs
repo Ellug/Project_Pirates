@@ -12,6 +12,9 @@ public abstract class BaseJob
 
     public string name;
 
+    // 시체 신고에 필요한 시간 (기본 2초, 특정 직업에서 오버라이드 하는 식으로 특성 구현)
+    public virtual float ReportTime => 2f;
+
     // 직업 부여 후 초기화
     public virtual void Initialize(PlayerModel model)
     {
