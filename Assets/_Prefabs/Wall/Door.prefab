@@ -110,7 +110,7 @@ GameObject:
   - component: {fileID: 1920149215915327473}
   - component: {fileID: 6220681623333820129}
   - component: {fileID: 2801274651984702004}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: object_door_lowpoly_Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
