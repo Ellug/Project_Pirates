@@ -59,6 +59,7 @@ public class PlayerModel : MonoBehaviour
     public event Action<float, float> OnStaminaChanged;
 
     private ItemData[] _inventory;
+    private ItemEffects _effects;
     private int _myItemNum;
 
     private void Awake()
@@ -183,6 +184,27 @@ public class PlayerModel : MonoBehaviour
             _myItemNum++;
             Debug.Log($"{item.itemName}을 획득함.");
             return true;
+        }
+        return false;
+    }
+
+    // 아이템 사용
+
+    public void RegistItemEffects(ItemEffects effects)
+    {
+        _effects = effects;
+    }
+
+    public bool TryUseItem(int index)
+    {
+        if (_inventory[index] != null)
+        {
+            if (_effects != null)
+            {
+                _effects.UseItem(_inventory[index].itemId, this);
+                _inventory[index] = null;
+                return true;
+            }
         }
         return false;
     }

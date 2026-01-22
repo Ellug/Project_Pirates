@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 917e9a9e33337194382e847ac528d661, type: 3}
   m_Name: Coin
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemId: 1
+  itemId: 1001
   itemName: "\uCF54\uC778"
   icon: {fileID: 0}
-  type: 0

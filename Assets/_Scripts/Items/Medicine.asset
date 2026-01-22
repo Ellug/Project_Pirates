@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 917e9a9e33337194382e847ac528d661, type: 3}
   m_Name: Medicine
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemId: 2
+  itemId: 1
   itemName: "\uD68C\uBCF5\uC57D"
   icon: {fileID: 0}

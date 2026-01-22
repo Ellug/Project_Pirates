@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 917e9a9e33337194382e847ac528d661, type: 3}
   m_Name: BaseBallBat
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemId: 3
+  itemId: 1001
   itemName: "\uC57C\uAD6C\uBC29\uB9DD\uC774"
   icon: {fileID: 0}
