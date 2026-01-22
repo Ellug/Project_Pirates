@@ -7,17 +7,17 @@ public class GameResultController : MonoBehaviour
     void Start()
     {
         GameManager.Instance.RegistResultPanel(this);
-        gameObject.SetActive(false);
+        _resultText.gameObject.SetActive(false);
     }
 
     public void Victory()
     {
         _resultText.text = "승리";
-        gameObject.SetActive(true);
+        _resultText.gameObject.SetActive(true);
     }
     public void Defeat()
     {
         _resultText.text = "패배";
-        gameObject.SetActive(true);
+        _resultText.gameObject.SetActive(true);
     }
 }
