@@ -28,6 +28,8 @@ public class PlayerController : MonoBehaviourPun
     private InputAction _actInteract;
     // private InputAction _actJump;
     private InputAction _actJobSkill;
+    private InputAction _actUseFirstItem;
+    private InputAction _actUseSecondItem;
 
     // Player State
     public PlayerStateMachine StateMachine { get; private set; }
@@ -123,6 +125,10 @@ public class PlayerController : MonoBehaviourPun
         var hud = FindFirstObjectByType<PlayerHUD>();
         hud.Bind(_model);
 
+        ItemEffects effects = new ItemEffects();
+        effects.Initialize();
+        _model.RegistItemEffects(effects);
+
         // PlayerInput.actions 기반 구독
         // InputManager가 SwitchCurrentActionMap("UI")로 바꾸면 Player 맵 입력 차단 (옵션/콘솔에서 플레이어 조작 불가)
 
@@ -139,6 +145,8 @@ public class PlayerController : MonoBehaviourPun
             _actInteract = a["Interact"];
             // _actJump = a["Jump"];
             _actJobSkill = a["JobSkill"];
+            _actUseFirstItem = a["UseFirstItem"];
+            _actUseSecondItem = a["UseSecondItem"];
 
             // Add
             _actMove.performed += OnMove;
@@ -159,6 +167,9 @@ public class PlayerController : MonoBehaviourPun
             _actInteract.started += OnInteraction;
             // _actJump.started += OnJump;
             _actJobSkill.started += OnJobSkill;
+
+            _actUseFirstItem.started += OnUseFirstItem;
+            _actUseSecondItem.started += OnUseSecondItem;
         }
     }
 
@@ -303,6 +314,19 @@ public class PlayerController : MonoBehaviourPun
         InputKnockBack = true;
     }
 
+    // 아이템 사용 키
+
+    private void OnUseFirstItem(InputAction.CallbackContext ctx)
+    {
+        _model.TryUseItem(0);
+    }
+
+    private void OnUseSecondItem(InputAction.CallbackContext ctx)
+    {
+        _model.TryUseItem(1);
+    }
+
+    // 인풋 초기화 (버그 방지)
     public void SetInitInput()
     {
         InputAttack = false;

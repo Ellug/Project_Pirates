@@ -62,7 +62,7 @@ public class DoorInteraction : InteractionObject
             Time.deltaTime * _openSpeed);
     }
 
-    public override void OnInteract(PlayerInteraction player)
+    public override void OnInteract(PlayerInteraction player, InteractionObjectRpcManager rpcManager)
     {
         bool newOpen = !_isOpen;
         float angle = newOpen ? _openAngle : 0f;

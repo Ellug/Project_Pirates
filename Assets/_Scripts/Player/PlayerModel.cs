@@ -58,6 +58,10 @@ public class PlayerModel : MonoBehaviour
     public event Action<float, float> OnHealthChanged;
     public event Action<float, float> OnStaminaChanged;
 
+    private ItemData[] _inventory;
+    private ItemEffects _effects;
+    private int _myItemNum;
+
     private void Awake()
     {
         _maxHealthPoint = 100f;
@@ -67,6 +71,8 @@ public class PlayerModel : MonoBehaviour
         IsGrounded = true;
         runSpeed = baseSpeed * 1.6f;
         crouchSpeed = baseSpeed * 0.4f;
+        _inventory = new ItemData[2];
+        _myItemNum = 0;
         Animator = GetComponent<Animator>();
         mouseSensitivity = PlayerPrefs.GetFloat("MouseSensitivity", 15.0f);
     }
@@ -166,5 +172,40 @@ public class PlayerModel : MonoBehaviour
             case JobId.Sprinter: MyJob = new SprinterJob(); break;
         }
         MyJob?.Initialize(this);
+    }
+
+    // 아이템 획득
+
+    public bool TryGetItem(ItemData item)
+    {
+        if (_myItemNum < _inventory.Length)
+        {
+            _inventory[_myItemNum] = item;
+            _myItemNum++;
+            Debug.Log($"{item.itemName}을 획득함.");
+            return true;
+        }
+        return false;
+    }
+
+    // 아이템 사용
+
+    public void RegistItemEffects(ItemEffects effects)
+    {
+        _effects = effects;
+    }
+
+    public bool TryUseItem(int index)
+    {
+        if (_inventory[index] != null)
+        {
+            if (_effects != null)
+            {
+                _effects.UseItem(_inventory[index].itemId, this);
+                _inventory[index] = null;
+                return true;
+            }
+        }
+        return false;
     }
 }
