@@ -8,15 +8,9 @@ public sealed class AudioOptionsView : MonoBehaviour
     [SerializeField] private Slider _bgmSlider;
     [SerializeField] private Slider _uiSlider;
 
-    [SerializeField] private Slider _micOutputSlider;
-    [SerializeField] private Slider _micInputSlider;
-
     private const float DEFAULT_MASTER = 1f;
     private const float DEFAULT_BGM    = 1f;
     private const float DEFAULT_UI     = 1f;
-
-    private const float DEFAULT_MICINPUT = 1f;
-    private const float DEFAULT_MICOUTPUT = 1f;
 
     private bool _suppress;
 
@@ -39,22 +33,13 @@ public sealed class AudioOptionsView : MonoBehaviour
         float master    = PlayerPrefs.GetFloat(AudioParam.MASTER_KEY, DEFAULT_MASTER);
         float bgm       = PlayerPrefs.GetFloat(AudioParam.BGM_KEY, DEFAULT_BGM);
         float ui        = PlayerPrefs.GetFloat(AudioParam.UI_KEY, DEFAULT_UI);
-        
-        float micOutput  = PlayerPrefs.GetFloat(VoiceParam.MasterOutputKey, DEFAULT_MICINPUT);
-        float micInput = PlayerPrefs.GetFloat(VoiceParam.MyMicVolumeKey, DEFAULT_MICOUTPUT);
 
         if (_masterSlider != null)    _masterSlider.SetValueWithoutNotify(master);
         if (_bgmSlider != null)       _bgmSlider.SetValueWithoutNotify(bgm);
         if (_uiSlider != null)        _uiSlider.SetValueWithoutNotify(ui);
 
-        if (_micInputSlider != null)  _micOutputSlider.SetValueWithoutNotify(micOutput);
-        if (_micOutputSlider != null) _micInputSlider.SetValueWithoutNotify(micInput);
-
         if (AudioManager.Instance != null)
             AudioManager.Instance.LoadAndApplySavedVolumes();
-
-        if (VoiceManager.Instance != null)
-            VoiceManager.Instance.LoadAndApplySettings();
 
         _suppress = false;
     }
@@ -64,9 +49,6 @@ public sealed class AudioOptionsView : MonoBehaviour
         if (_masterSlider != null)    _masterSlider.onValueChanged.AddListener(OnMasterChanged);
         if (_bgmSlider != null)       _bgmSlider.onValueChanged.AddListener(OnBgmChanged);
         if (_uiSlider != null)        _uiSlider.onValueChanged.AddListener(OnUiChanged);
-        
-        if (_micOutputSlider != null) _micOutputSlider.onValueChanged.AddListener(OnMicOutputChanged);
-        if (_micInputSlider != null)  _micInputSlider.onValueChanged.AddListener(OnMicInputChanged);
     }
 
     private void Unbind()
@@ -74,9 +56,6 @@ public sealed class AudioOptionsView : MonoBehaviour
         if (_masterSlider != null)    _masterSlider.onValueChanged.RemoveListener(OnMasterChanged);
         if (_bgmSlider != null)       _bgmSlider.onValueChanged.RemoveListener(OnBgmChanged);
         if (_uiSlider != null)        _uiSlider.onValueChanged.RemoveListener(OnUiChanged);
-
-        if (_micOutputSlider != null) _micOutputSlider.onValueChanged.RemoveListener(OnMicOutputChanged);
-        if (_micInputSlider != null)  _micInputSlider.onValueChanged.RemoveListener(OnMicInputChanged);
     }
 
     private void OnMasterChanged(float v)
@@ -105,27 +84,6 @@ public sealed class AudioOptionsView : MonoBehaviour
         AudioManager.Instance.SetVolume(AudioBus.UI, v);
         PlayerPrefs.SetFloat(AudioParam.UI_KEY, v);
     }
-    private void OnMicOutputChanged(float v)
-    {
-        if (_suppress) return;
-
-        v = Mathf.Clamp01(v);
-        PlayerPrefs.SetFloat(VoiceParam.MasterOutputKey, v);
-        VoiceManager.Instance.ApplyMasterOutputSettings();
-    }
-
-    private void OnMicInputChanged(float v)
-    {
-        if (_suppress) return;
-
-        v = Mathf.Clamp01(v);
-        PlayerPrefs.SetFloat(VoiceParam.MyMicVolumeKey, v);
-
-        int type = PlayerPrefs.GetInt(VoiceParam.MyMicTypeKey, 0);
-        bool isMuted = PlayerPrefs.GetInt(VoiceParam.MyMicMuteKey, 0) == 1;
-
-        VoiceManager.Instance.ApplyMyMicSettings(v, type, isMuted);
-    }
 
     // 초기화 버튼용
     public void ResetToDefault()
@@ -134,8 +92,6 @@ public sealed class AudioOptionsView : MonoBehaviour
         PlayerPrefs.SetFloat(AudioParam.BGM_KEY, DEFAULT_BGM);
         PlayerPrefs.SetFloat(AudioParam.UI_KEY, DEFAULT_UI);
 
-        PlayerPrefs.SetFloat(VoiceParam.MasterOutputKey, DEFAULT_MICOUTPUT);
-        PlayerPrefs.SetFloat(VoiceParam.MyMicVolumeKey, DEFAULT_MICINPUT);
         PlayerPrefs.Save();
 
         SyncSlidersFromSaved();

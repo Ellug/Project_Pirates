@@ -73,6 +73,7 @@ public class PlayerModel : MonoBehaviour
         _inventory = new ItemData[2];
         _myItemNum = 0;
         Animator = GetComponent<Animator>();
+        mouseSensitivity = PlayerPrefs.GetFloat("MouseSensitivity", 15.0f);
     }
 
     // 체력의 회복과 감소 메서드
