@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using DG.Tweening;
-using UnityEngine.InputSystem;
 
 public class SlidePanel : MonoBehaviour
 {
@@ -35,10 +34,16 @@ public class SlidePanel : MonoBehaviour
         _isOpen = false;
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        if (Keyboard.current.f1Key.wasPressedThisFrame)
-            Toggle();
+        if (InputManager.Instance != null)
+            InputManager.Instance.OnToggleSlidePanelUI += Toggle;
+    }
+
+    private void OnDisable()
+    {
+        if (InputManager.Instance != null)
+            InputManager.Instance.OnToggleSlidePanelUI -= Toggle;
     }
 
     public void Toggle()
