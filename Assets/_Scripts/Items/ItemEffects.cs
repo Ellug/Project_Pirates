@@ -31,6 +31,7 @@ public class ItemEffects
 
     private void RecoveryHealthPoint(PlayerModel player)
     {
+        Debug.Log("회복약 사용함");
         player.HealingHealthPoint(50f);
     }
     

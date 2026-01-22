@@ -110,6 +110,7 @@ public class PlayerModel : MonoBehaviour
     public void HealingHealthPoint(float amount)
     {
         _curHealthPoint = Mathf.Min(_maxHealthPoint, _curHealthPoint + amount);
+        OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
     }
 
     // 스태미나의 회복과 감소 메서드
