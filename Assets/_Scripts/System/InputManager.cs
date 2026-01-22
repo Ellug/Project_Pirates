@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -14,8 +14,10 @@ public class InputManager : Singleton<InputManager>
     [SerializeField] private GameObject _optionsRoot;
 
     private const string SCENE_INGAME = "InGame";
+    private const string SCENE_INGAMELOADING = "InGameLoading";
 
     private bool _isInGameScene;
+    private bool _isInGameLoadingScene;
 
     private InputActionMap _globalMap;
     private InputActionMap _uiMap;
@@ -143,6 +145,7 @@ public class InputManager : Singleton<InputManager>
     private void UpdateSceneFlag(Scene s)
     {
         _isInGameScene = (s.name == SCENE_INGAME);
+        _isInGameLoadingScene = (s.name == SCENE_INGAMELOADING);
     }
 
     private void OnToggleConsole(InputAction.CallbackContext _)
@@ -159,6 +162,9 @@ public class InputManager : Singleton<InputManager>
     {
         // DevConsole 열림 상태에서는 ESC 완전 무시
         if (_mode == InputMode.DevConsole) return;
+
+        // InGameLoading 에서는 ESC 옵션 차단
+        if (_isInGameLoadingScene) return;
 
         // UI ESC 이벤트
         // 구독자가 있으면(Title/Lobby/Room 등) 해당 씬에서 자체 처리
