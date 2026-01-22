@@ -67,6 +67,8 @@ AudioMixerController:
     name: BgmVol
   - guid: 99d395a97956c5448b5bf83689558c25
     name: MasterVol
+  - guid: 9e15741a8ac019e48926defca27bc91a
+    name: SFXVol
   - guid: ccef404664e043749938c29f3f8435ae
     name: UiVol
   m_AudioMixerGroupViews:

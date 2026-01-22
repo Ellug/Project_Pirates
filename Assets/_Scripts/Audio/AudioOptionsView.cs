@@ -7,10 +7,12 @@ public sealed class AudioOptionsView : MonoBehaviour
     [SerializeField] private Slider _masterSlider;
     [SerializeField] private Slider _bgmSlider;
     [SerializeField] private Slider _uiSlider;
+    [SerializeField] private Slider _sfxSlider;
 
     private const float DEFAULT_MASTER = 1f;
     private const float DEFAULT_BGM    = 1f;
     private const float DEFAULT_UI     = 1f;
+    private const float DEFAULT_SFX     = 1f;
 
     private bool _suppress;
 
@@ -33,10 +35,12 @@ public sealed class AudioOptionsView : MonoBehaviour
         float master    = PlayerPrefs.GetFloat(AudioParam.MASTER_KEY, DEFAULT_MASTER);
         float bgm       = PlayerPrefs.GetFloat(AudioParam.BGM_KEY, DEFAULT_BGM);
         float ui        = PlayerPrefs.GetFloat(AudioParam.UI_KEY, DEFAULT_UI);
+        float sfx        = PlayerPrefs.GetFloat(AudioParam.SFX_KEY, DEFAULT_SFX);
 
         if (_masterSlider != null)    _masterSlider.SetValueWithoutNotify(master);
         if (_bgmSlider != null)       _bgmSlider.SetValueWithoutNotify(bgm);
         if (_uiSlider != null)        _uiSlider.SetValueWithoutNotify(ui);
+        if (_sfxSlider != null)       _sfxSlider.SetValueWithoutNotify(sfx);
 
         if (AudioManager.Instance != null)
             AudioManager.Instance.LoadAndApplySavedVolumes();
@@ -49,6 +53,7 @@ public sealed class AudioOptionsView : MonoBehaviour
         if (_masterSlider != null)    _masterSlider.onValueChanged.AddListener(OnMasterChanged);
         if (_bgmSlider != null)       _bgmSlider.onValueChanged.AddListener(OnBgmChanged);
         if (_uiSlider != null)        _uiSlider.onValueChanged.AddListener(OnUiChanged);
+        if (_sfxSlider != null)       _sfxSlider.onValueChanged.AddListener(OnSfxChanged);
     }
 
     private void Unbind()
@@ -56,6 +61,7 @@ public sealed class AudioOptionsView : MonoBehaviour
         if (_masterSlider != null)    _masterSlider.onValueChanged.RemoveListener(OnMasterChanged);
         if (_bgmSlider != null)       _bgmSlider.onValueChanged.RemoveListener(OnBgmChanged);
         if (_uiSlider != null)        _uiSlider.onValueChanged.RemoveListener(OnUiChanged);
+        if (_sfxSlider != null)       _sfxSlider.onValueChanged.RemoveListener(OnSfxChanged);
     }
 
     private void OnMasterChanged(float v)
@@ -85,12 +91,21 @@ public sealed class AudioOptionsView : MonoBehaviour
         PlayerPrefs.SetFloat(AudioParam.UI_KEY, v);
     }
 
+    private void OnSfxChanged(float v)
+    {
+        if (_suppress) return;
+        v = Mathf.Clamp01(v);
+        AudioManager.Instance.SetVolume(AudioBus.SFX, v);
+        PlayerPrefs.SetFloat(AudioParam.SFX_KEY, v);
+    }
+
     // 초기화 버튼용
     public void ResetToDefault()
     {
         PlayerPrefs.SetFloat(AudioParam.MASTER_KEY, DEFAULT_MASTER);
         PlayerPrefs.SetFloat(AudioParam.BGM_KEY, DEFAULT_BGM);
         PlayerPrefs.SetFloat(AudioParam.UI_KEY, DEFAULT_UI);
+        PlayerPrefs.SetFloat(AudioParam.SFX_KEY, DEFAULT_SFX);
 
         PlayerPrefs.Save();
 
