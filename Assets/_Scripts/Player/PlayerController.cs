@@ -337,6 +337,12 @@ public class PlayerController : MonoBehaviourPun
     {
         return _model.MyJob;
     }
+    public void RequestSpawnPostion(Vector3 pos)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        photonView.RPC(nameof(RpcTeleportPlayer), RpcTarget.All, pos);
+    }
 
     [PunRPC]
     public void IsMafia()
@@ -352,5 +358,12 @@ public class PlayerController : MonoBehaviourPun
         JobId myJob = (JobId)jobId;
         _model.AssignJob(myJob);
         PlayerJob = myJob;
+    }
+
+    [PunRPC]
+    public void RpcTeleportPlayer(Vector3 pos)
+    {
+        pos.y += 1.5f;
+        transform.position = pos;
     }
 }
