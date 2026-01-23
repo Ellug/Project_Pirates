@@ -6,9 +6,6 @@ public class InteractableCCTV : InteractionObject
     [Header("CCTV UI")]
     [SerializeField] private GameObject _cctvCanvas;
 
-    [Header("Player HUD")]
-    [SerializeField] private GameObject _mainStatusCanvas;
-
     private PlayerInteraction _player;
     private bool _isUsing = false;
 
@@ -65,6 +62,5 @@ public class InteractableCCTV : InteractionObject
     private void ToggleUI(bool state)
     {
         if (_cctvCanvas != null) _cctvCanvas.SetActive(state);
-        if (_mainStatusCanvas != null) _mainStatusCanvas.SetActive(!state);
     }
 }
