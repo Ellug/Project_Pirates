@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
+using ExitGames.Client.Photon;
 
 public partial class InGameManager : MonoBehaviourPunCallbacks
 {
@@ -16,15 +17,17 @@ public partial class InGameManager : MonoBehaviourPunCallbacks
     private bool _ended;
     private PlayerController _player;
 
+    private const string UPPER_COLOR_KEY = "UpperColor"; // [ADD] 상의 색상 키
+
     public override void OnEnable()
     {
         base.OnEnable();
-        StartCoroutine(SpawnPlayer());        
+        StartCoroutine(SpawnPlayer());
     }
 
     private void Start()
     {
-        if (PlayerManager.Instance != null) 
+        if (PlayerManager.Instance != null)
             PlayerManager.Instance.allReadyComplete += PopUpPlayersRole;
 
         GameManager.Instance.SetSceneState(SceneState.InGame);
@@ -43,18 +46,29 @@ public partial class InGameManager : MonoBehaviourPunCallbacks
         yield return new WaitForSeconds(3f);
 
         if (PlayerController.LocalInstancePlayer == null)
-            PlayerController.LocalInstancePlayer = 
-                PhotonNetwork.Instantiate("PlayerMale", new Vector3(0f, 3f, 0f), Quaternion.identity);
+        {
+            PlayerController.LocalInstancePlayer =
+                PhotonNetwork.Instantiate("PlayerMale",
+                    new Vector3(0f, 3f, 0f),
+                    Quaternion.identity);
+        }
 
         PhotonView myPV = PlayerController.LocalInstancePlayer.GetComponent<PhotonView>();
-        
+
         yield return new WaitUntil(() => myPV.ViewID > 0);
 
-        //ViewID 할당 동기화 기다리기
         yield return new WaitForSeconds(0.2f);
 
-        yield return StartCoroutine(_createVoice.CreateVoicePV(myPV, PlayerController.LocalInstancePlayer.transform));
+        yield return StartCoroutine(
+            _createVoice.CreateVoicePV(myPV, PlayerController.LocalInstancePlayer.transform));
+
+        // ✅ 스폰이 끝난 뒤, 마스터가 색 배정
+        if (PhotonNetwork.IsMasterClient)
+        {
+            SetPlayerColor.AssignColorsToAll();
+        }
     }
+
 
     public void PopUpPlayersRole()
     {
