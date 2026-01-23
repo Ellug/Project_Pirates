@@ -8,6 +8,8 @@ using ExitGames.Client.Photon;
 
 public class InGameManager : MonoBehaviourPunCallbacks
 {
+    [SerializeField] private GameObject _spawnPointParent;
+    
     [Header("Create Voice Prefab")]
     [SerializeField] private CreateVoice _createVoice;
 
@@ -31,6 +33,9 @@ public class InGameManager : MonoBehaviourPunCallbacks
             PlayerManager.Instance.allReadyComplete += PopUpPlayersRole;
 
         GameManager.Instance.SetSceneState(SceneState.InGame);
+        PlayerManager.Instance.SetSpawnPointList(
+            _spawnPointParent.transform.GetComponentsInChildren<Transform>()
+            );
     }
 
     private void OnDestroy()
@@ -68,7 +73,6 @@ public class InGameManager : MonoBehaviourPunCallbacks
             SetPlayerColor.AssignColorsToAll();
         }
     }
-
 
     public void PopUpPlayersRole()
     {

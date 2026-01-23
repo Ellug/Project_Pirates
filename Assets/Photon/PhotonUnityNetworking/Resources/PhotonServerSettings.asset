@@ -61,6 +61,8 @@ MonoBehaviour:
   - GameOverAndJudge
   - AssignJob
   - RpcSpawnDeadBody
+  - RpcTeleportAllPlayers
+  - RpcTeleportPlayer
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

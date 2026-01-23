@@ -6,6 +6,7 @@ public class DeadBody : InteractionObject
     private const float DEFAULT_REPORT_TIME = 2f;
     private PlayerInteraction _player;
     private Coroutine _reportCoroutine;
+    private bool _reported = false;
 
     // PlayerManager에서 RPC로 생성 시 호출 (모든 클라이언트에서 동일 ID 사용)
     public void InitializeWithId(int id)
@@ -17,7 +18,8 @@ public class DeadBody : InteractionObject
 
     public override void OnInteract(PlayerInteraction player, InteractionObjectRpcManager rpcManager)
     {
-        // 이미 신고 진행 중이면 무시
+        // 이미 신고 진행 중, 신고된 시체면 무시
+        if (_reported) return;
         if (_reportCoroutine != null) return;
 
         _player = player;
@@ -26,15 +28,15 @@ public class DeadBody : InteractionObject
         float reportTime = GetReportTime(player);
         Debug.Log($"[DeadBody] 신고 시작 - 필요 시간: {reportTime}초");
 
-        _reportCoroutine = StartCoroutine(ReportCountDown(reportTime, rpcManager));
+        _reportCoroutine = StartCoroutine(ReportCountDown(reportTime));
     }
 
     public override void OnOthersInteract()
     {
-        Debug.Log("누군가 시체를 만지고 있다.");
+        Debug.Log("[DeadBody] 시체 신고 RPC 수신");
     }
 
-    IEnumerator ReportCountDown(float reportTime, InteractionObjectRpcManager rpcManager)
+    IEnumerator ReportCountDown(float reportTime)
     {
         Debug.Log("시체 신고 시작");
         float timer = 0f;
@@ -60,8 +62,13 @@ public class DeadBody : InteractionObject
             yield return null;
         }
 
-        Debug.Log("[DeadBody] 시체 신고 완료! 모든 플레이어에게 알림 전송");
-        rpcManager.RequestNetworkInteraction(uniqueID);
+        _reported = true;
+        Debug.Log("[DeadBody] 시체 신고 완료! 모든 플레이어 텔레포트 요청");
+
+        // PlayerManager를 통해 모든 플레이어에게 텔레포트 RPC 전송
+        if (PlayerManager.Instance != null)
+            PlayerManager.Instance.RequestTeleportAllPlayers();
+
         _reportCoroutine = null;
     }
 
