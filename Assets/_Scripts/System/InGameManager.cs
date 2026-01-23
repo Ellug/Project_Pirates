@@ -26,6 +26,8 @@ public partial class InGameManager : MonoBehaviourPunCallbacks
     {
         if (PlayerManager.Instance != null) 
             PlayerManager.Instance.allReadyComplete += PopUpPlayersRole;
+
+        GameManager.Instance.SetSceneState(SceneState.InGame);
     }
 
     private void OnDestroy()

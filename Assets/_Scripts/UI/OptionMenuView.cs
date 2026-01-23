@@ -69,25 +69,31 @@ public class OptionMenuView : MonoBehaviourPunCallbacks
 
     private IEnumerator LeaveRoom()
     {
-        Debug.Log("LeaveRoom 코루틴 진입...");
         var voiceClient = PunVoiceClient.Instance;
         if (voiceClient != null && voiceClient.Client != null && voiceClient.Client.IsConnected)
         {
             voiceClient.Disconnect();
             Debug.Log("VoiceClient Disconnect 요청...");
+
             yield return new WaitUntil(() => !voiceClient.Client.IsConnected);
-            Debug.Log("[Room] Voice client disconnected.");
         }
 
-        _isOnclickedOut = false;
         PhotonNetwork.LeaveRoom();
         Debug.Log("LeaveRoom 요청...");
+    }
 
-        //RoomManager의 콜백이 없는 상황(InGame)
-        yield return new WaitForSeconds(0.2f);
-        Debug.Log("[InGame] InGameScene -> Go to Lobby");
+    public override void OnLeftRoom()
+    {
+        Debug.Log("OptionMenuView의 OnLeftRoom 콜백 실행됨");
+        _isOnclickedOut = false;
+        Debug.Log("현재 씬" + GameManager.Instance.FlowState);
+        if (GameManager.Instance.FlowState == SceneState.Room) return;
+        Debug.Log($"룸씬이 아니니깐 여기 들어옴. ({GameManager.Instance.FlowState} 씬)");
+        
         if (PlayerManager.Instance != null)
-            PlayerManager.Instance.GameOver();
+            Destroy(PlayerManager.Instance.gameObject);
+        Debug.Log("PlayerManager 파괴됨");
+
         SceneManager.LoadScene("Lobby");
     }
 }
