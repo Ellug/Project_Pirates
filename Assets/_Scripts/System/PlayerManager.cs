@@ -13,6 +13,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
     // 아래 필드들은 마스터 클라이언트만 쓴다.
     private Dictionary<int, PlayerController> _playersId = new Dictionary<int, PlayerController>();
+    private Transform[] _spawnPointList;
     private int _mafiaNum = 0;
     private int _citizenNum = 0;
     public int onLoadedPlayer = 0;
@@ -73,7 +74,42 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             yield break;
         }
 
-        // ============ 스폰 포인트 부여 ============
+        yield return null; // 혹시 모르니 인게임 씬 유니티 라이프 싸이클 한번 돌릴 시간
+
+        // ============ 무작위 스폰 포인트 선정 & 플레이어 이동 ============
+
+        if (_spawnPointList != null)
+        {
+            int[] playerSpawnPosList = new int[players.Length];
+            for (int i = 0; i < playerSpawnPosList.Length; )
+            {
+                int randSpawn = UnityEngine.Random.Range(1, _spawnPointList.Length);
+                for (int j = 0; j < playerSpawnPosList.Length; j++)
+                {
+                    if (playerSpawnPosList[j] == 0)
+                    {
+                        playerSpawnPosList[j] = randSpawn;
+                        i++;
+                        break;
+                    }
+                    else if (playerSpawnPosList[j] == randSpawn)
+                    {
+                        break;
+                    }
+                }
+            }
+            // 검증: 딕셔너리의 플레이어 수와 스폰 포지션 리스트 길이는 같아야한다.
+            if (_playersId.Count == playerSpawnPosList.Length)
+            {
+                int count = 0;
+                foreach (var player in _playersId)
+                {
+                    player.Value.RequestSpawnPostion(_spawnPointList[playerSpawnPosList[count]].position);
+                    count++;
+                    if (count >= _spawnPointList.Length) break; // 이거 통과할 일 없겠지만 혹시 몰라 또 안전코드
+                }
+            }
+        }
 
         // ============ 마피아 무작위로 부여 ============
         int firstEnemy = -1;
@@ -131,6 +167,11 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
         // ============ 게임 시작을 모두에게 선언! ============
         _view.RPC(nameof(ChangeInGameScene), RpcTarget.All);
+    }
+
+    public void SetSpawnPointList(Transform[] spawnPointList)
+    {
+        _spawnPointList = spawnPointList;
     }
 
     public void NoticeDeathPlayer(PlayerController player)

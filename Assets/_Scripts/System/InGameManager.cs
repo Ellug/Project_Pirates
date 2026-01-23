@@ -18,7 +18,6 @@ public class InGameManager : MonoBehaviourPunCallbacks
 
     private bool _ended;
     private PlayerController _player;
-    private Transform[] _spawnPointList;
 
     private const string UPPER_COLOR_KEY = "UpperColor"; // [ADD] 상의 색상 키
 
@@ -34,6 +33,9 @@ public class InGameManager : MonoBehaviourPunCallbacks
             PlayerManager.Instance.allReadyComplete += PopUpPlayersRole;
 
         GameManager.Instance.SetSceneState(SceneState.InGame);
+        PlayerManager.Instance.SetSpawnPointList(
+            _spawnPointParent.transform.GetComponentsInChildren<Transform>()
+            );
     }
 
     private void OnDestroy()
@@ -70,12 +72,6 @@ public class InGameManager : MonoBehaviourPunCallbacks
         {
             SetPlayerColor.AssignColorsToAll();
         }
-    }
-
-    private void SpawnPointInit()
-    {
-        _spawnPointList =
-            _spawnPointParent.transform.GetComponentsInChildren<Transform>();
     }
 
     public void PopUpPlayersRole()
