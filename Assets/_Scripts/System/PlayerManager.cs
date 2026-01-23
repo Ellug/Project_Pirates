@@ -73,6 +73,8 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             yield break;
         }
 
+        // ============ 스폰 포인트 부여 ============
+
         // ============ 마피아 무작위로 부여 ============
         int firstEnemy = -1;
         int secondEnemy = -1;
