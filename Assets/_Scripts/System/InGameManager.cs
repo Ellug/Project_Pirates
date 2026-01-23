@@ -8,6 +8,8 @@ using ExitGames.Client.Photon;
 
 public class InGameManager : MonoBehaviourPunCallbacks
 {
+    [SerializeField] private GameObject _spawnPointParent;
+    
     [Header("Create Voice Prefab")]
     [SerializeField] private CreateVoice _createVoice;
 
@@ -16,6 +18,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
 
     private bool _ended;
     private PlayerController _player;
+    private Transform[] _spawnPointList;
 
     private const string UPPER_COLOR_KEY = "UpperColor"; // [ADD] 상의 색상 키
 
@@ -69,6 +72,11 @@ public class InGameManager : MonoBehaviourPunCallbacks
         }
     }
 
+    private void SpawnPointInit()
+    {
+        _spawnPointList =
+            _spawnPointParent.transform.GetComponentsInChildren<Transform>();
+    }
 
     public void PopUpPlayersRole()
     {
