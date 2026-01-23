@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
 
-public class InGameManager : MonoBehaviourPunCallbacks
+public partial class InGameManager : MonoBehaviourPunCallbacks
 {
     [Header("Create Voice Prefab")]
     [SerializeField] private CreateVoice _createVoice;

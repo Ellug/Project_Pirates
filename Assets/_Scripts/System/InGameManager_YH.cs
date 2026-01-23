@@ -1,16 +1,12 @@
+﻿using Photon.Pun;
 using UnityEngine;
 
-public class InGameManager_YH : MonoBehaviour
+public partial class InGameManager : MonoBehaviourPunCallbacks
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [SerializeField] private GameObject _spawnPointParent;
+    private Transform[] _spawnPointList;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+
+
+
 }
