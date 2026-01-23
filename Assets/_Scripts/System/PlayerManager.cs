@@ -104,8 +104,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
                 int count = 0;
                 foreach (var player in _playersId)
                 {
-                    player.Value.gameObject.transform.position =
-                        _spawnPointList[playerSpawnPosList[count]].position;
+                    player.Value.RequestSpawnPostion(_spawnPointList[playerSpawnPosList[count]].position);
                     count++;
                     if (count >= _spawnPointList.Length) break; // 이거 통과할 일 없겠지만 혹시 몰라 또 안전코드
                 }
