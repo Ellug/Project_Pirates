@@ -9,6 +9,18 @@ public class SabotageButton : MonoBehaviour
     {
         Debug.Log($"[UI] Sabotage Button Clicked : {_sabotageId}");
 
-        _sabotageManager.TriggerSabotage(_sabotageId);
+        if(_sabotageManager.IsActive)
+        {
+            Debug.Log("[UI] Sabotage already active");
+            return;
+        }
+
+        bool success = _sabotageManager.TriggerSabotage(_sabotageId);
+
+        if(!success)
+        {
+            Debug.Log("[UI] Sabotage trigger failed");
+            return;
+        }
     }
 }

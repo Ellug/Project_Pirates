@@ -43,8 +43,10 @@ public class SabotageManager : MonoBehaviour
 
     public bool TriggerSabotage(SabotageId id, float duration = -1f)
     {
-        if (_isActive) return false;
+        if (_isActive) return false; // 사보타지 중복 실행 방지
         if (id == SabotageId.None) return false;
+
+        StopCountdownCoroutine();
 
         _isActive = true;
         _activeId = id;
@@ -108,6 +110,17 @@ public class SabotageManager : MonoBehaviour
         int s = total & 60;
         _countdownText.text = $"{m:00} : {s:00}";
     }
+
+    private void OnDisable()
+    {
+        StopCountdownCoroutine();
+        SetCountdownUI(false);
+    }
+
+    private void OnDestroy()
+    {
+        StopCountdownCoroutine();
+    }
     #endregion
 
     public bool ResolveSabotage(SabotageId id)
@@ -139,9 +152,13 @@ public class SabotageManager : MonoBehaviour
 
     private void ResetState()
     {
+        StopCountdownCoroutine();
+
         _isActive = false;
         _activeId = SabotageId.None;
         _remainingTime = 0f;
+
+        SetCountdownUI(false);
     }
 
     private void OnSabotageStart(SabotageId id)
