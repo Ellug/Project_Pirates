@@ -171,6 +171,21 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         _view.RPC(nameof(GameOverAndJudge), RpcTarget.All, isCitizenVictory);
     }
 
+    // 시체 신고 완료 시 모든 플레이어 텔레포트 요청
+    public void RequestTeleportAllPlayers()
+    {
+        _view.RPC(nameof(RpcTeleportAllPlayers), RpcTarget.All);
+    }
+
+    [PunRPC]
+    private void RpcTeleportAllPlayers()
+    {
+        if (VoteManager.Instance != null)
+            VoteManager.Instance.OnDeadBodyReported();
+        else
+            Debug.LogWarning("[PlayerManager] VoteManager.Instance가 null 임");
+    }
+
     [PunRPC]
     public void ChangeInGameScene()
     {
