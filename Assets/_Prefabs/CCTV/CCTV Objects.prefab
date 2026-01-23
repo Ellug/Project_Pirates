@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 5386227751137256410}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -32.59, y: 1.83, z: 93.8}
+  m_LocalPosition: {x: -32.59, y: 1.31, z: 93.8}
   m_LocalScale: {x: 2.73, y: 3.65, z: 2.73}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -201,9 +201,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 191333789813816172, guid: 609d61c6c6cbcd246a787e70a8ce7ef5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3346630355216540922}
-    - targetCorrespondingSourceObject: {fileID: 191333789813816172, guid: 609d61c6c6cbcd246a787e70a8ce7ef5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1198403927222545284}
   m_SourcePrefab: {fileID: 100100000, guid: 609d61c6c6cbcd246a787e70a8ce7ef5, type: 3}
 --- !u!1 &352662389609422334 stripped
 GameObject:
@@ -222,31 +219,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55d1411062ca6d34e86bac14305f0683, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractableCCTV
-  uniqueID: 74
+  uniqueID: 12
   _interactionDistance: 4
   _cctvCanvas: {fileID: 0}
---- !u!114 &1198403927222545284
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 352662389609422334}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: PhotonUnityNetworking::Photon.Pun.PhotonView
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents: []
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
 --- !u!4 &2868107243692914462 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2418074378100314508, guid: 609d61c6c6cbcd246a787e70a8ce7ef5, type: 3}
@@ -526,7 +501,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4563459568915873646, guid: eed54a613be71b543a99e53a8e2914de, type: 3}
       propertyPath: m_Name
-      value: CCTV 3 (1)
+      value: CCTV 4
       objectReference: {fileID: 0}
     - target: {fileID: 8586995117751557809, guid: eed54a613be71b543a99e53a8e2914de, type: 3}
       propertyPath: m_TargetTexture
