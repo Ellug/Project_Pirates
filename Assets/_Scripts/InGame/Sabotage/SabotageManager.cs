@@ -78,12 +78,13 @@ public class SabotageManager : MonoBehaviour
         SetCountdownUI(true);
         UpdateCountdownUI(_remainingTime);
 
+        WaitForSeconds delay = new WaitForSeconds(1f);
         // waitforsec으로 카운트다운
         while (_isActive && _remainingTime > 0f)
         {
-            _remainingTime -= Time.deltaTime;
+            _remainingTime -= 1;
             UpdateCountdownUI(_remainingTime);
-            yield return null;
+            yield return delay;
         }
 
         // 코루틴을 빠져나오면 실패
@@ -165,7 +166,6 @@ public class SabotageManager : MonoBehaviour
     {
         Debug.Log($"[Sabotage] Start : {id}");
         // TODO :
-        // 카운트다운 UI 표시
         // 월드 효과 적용 ( 조명 끄기, 엔진 정지 등 )
     }
 
