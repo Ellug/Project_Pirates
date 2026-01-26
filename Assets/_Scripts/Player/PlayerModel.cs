@@ -87,6 +87,7 @@ public class PlayerModel : MonoBehaviour
         _curHealthPoint -= damage;
         Debug.Log($"{damage}의 피해를 받았고 남은 체력은 {_curHealthPoint} 입니다.");
         OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
+        PostProcessingController.Instance.HitEffect();
 
         if (_curHealthPoint <= 0f)
         {
