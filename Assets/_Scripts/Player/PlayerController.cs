@@ -98,9 +98,14 @@ public class PlayerController : MonoBehaviourPun
 
     private void Start()
     {
-        PlayerManager.Instance.RegistLocalPlayer(this);
+        if (PlayerManager.Instance != null)
+            PlayerManager.Instance.RegistLocalPlayer(this);
+
         _playerInteraction = GetComponent<PlayerInteraction>();
-        FindFirstObjectByType<InGameManager>().RegistPlayer(this);
+
+        var inGameManager = FindFirstObjectByType<InGameManager>();
+        if (inGameManager != null)
+            inGameManager.RegistPlayer(this);
 
         // 생성된 사람 출석 체크
         _table = new ExitGames.Client.Photon.Hashtable
@@ -109,7 +114,9 @@ public class PlayerController : MonoBehaviourPun
         };
 
         PhotonNetwork.LocalPlayer.SetCustomProperties(_table);
-        PlayerManager.Instance.photonView.RPC("PlayerEnterCheck", RpcTarget.MasterClient);
+
+        if (PlayerManager.Instance != null)
+            PlayerManager.Instance.photonView.RPC("PlayerEnterCheck", RpcTarget.MasterClient);
 
         // 상태 클래스 할당
         StateIdle = new IdleState(this);
@@ -230,12 +237,12 @@ public class PlayerController : MonoBehaviourPun
 
     private void Update()
     {
-        StateMachine.CurrentState.FrameUpdate();
+        StateMachine?.CurrentState?.FrameUpdate();
     }
 
     void FixedUpdate()
     {
-        StateMachine.CurrentState.PhysicsUpdate();
+        StateMachine?.CurrentState?.PhysicsUpdate();
 
         if (_model != null && !_model.IsRunning)
             _model.RecoverStamina(_model.StaminaRecoverPerSec * Time.fixedDeltaTime);
