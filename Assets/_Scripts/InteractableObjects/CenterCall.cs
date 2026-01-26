@@ -38,7 +38,7 @@ public class CenterCall : InteractionObject
 
     IEnumerator ReportCountDown(float reportTime)
     {
-        Debug.Log("시체 신고 시작");
+        Debug.Log("중앙 콜 신고 시작");
         float timer = 0f;
         float second = 1f;
 
@@ -63,11 +63,16 @@ public class CenterCall : InteractionObject
         }
 
         _reported = true;
-        Debug.Log("[DeadBody] 시체 신고 완료! 모든 플레이어 텔레포트 요청");
+        Debug.Log("[CenterCall] 중앙 소집 완료! 모든 플레이어 텔레포트 요청");
 
-        // PlayerManager를 통해 모든 플레이어에게 텔레포트 RPC 전송
+        // PlayerManager를 통해 모든 플레이어에게 텔레포트 RPC 전송 + 시체 제거
         if (PlayerManager.Instance != null)
-            PlayerManager.Instance.RequestTeleportAllPlayers();
+        {
+            PlayerManager.Instance.RequestCenterCall();
+
+            // 필드의 모든 시체 제거
+            PlayerManager.Instance.RequestRemoveAllDeadBodies();
+        }
 
         _reportCoroutine = null;
     }

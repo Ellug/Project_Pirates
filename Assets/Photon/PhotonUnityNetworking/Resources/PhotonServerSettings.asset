@@ -63,6 +63,9 @@ MonoBehaviour:
   - RpcSpawnDeadBody
   - RpcTeleportAllPlayers
   - RpcTeleportPlayer
+  - RpcRemoveDeadBody
+  - RpcCenterCall
+  - RpcRemoveAllDeadBodies
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0
