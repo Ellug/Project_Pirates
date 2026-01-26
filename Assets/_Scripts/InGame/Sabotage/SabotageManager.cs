@@ -107,7 +107,7 @@ public class SabotageManager : MonoBehaviour
 
         int total = Mathf.CeilToInt(time);
         int m = total / 60;
-        int s = total & 60;
+        int s = total % 60;
         _countdownText.text = $"{m:00} : {s:00}";
     }
 
@@ -181,6 +181,8 @@ public class SabotageManager : MonoBehaviour
     private void OnSabotageFailed(SabotageId id)
     {
         Debug.Log($"[Sabotage] Failed : {id}");
+
+        GameManager.Instance.Victory();
         // TODO :
         // 마피아 승리 처리
         // 게임 종료 트리거
