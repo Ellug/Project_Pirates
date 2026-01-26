@@ -68,7 +68,7 @@ public class SabotageManager : MonoBehaviour
     }
 
     [PunRPC]
-    private void RPC_RequestStart(int idRaw, float duration, PhotonMessageInfo info)
+    private void RPC_RequestStart(int idRaw, float duration)
     {
         if (!PhotonNetwork.IsMasterClient) return;
 
@@ -84,7 +84,7 @@ public class SabotageManager : MonoBehaviour
     }
 
     [PunRPC]
-    private void RPC_RequestResolve(int idRaw, PhotonMessageInfo info) // Master 가 해결 가능한 상태인지 검증
+    private void RPC_RequestResolve(int idRaw) // Master 가 해결 가능한 상태인지 검증
     {
         if (!PhotonNetwork.IsMasterClient) return;
 
