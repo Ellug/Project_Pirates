@@ -1,10 +1,11 @@
 ﻿using ExitGames.Client.Photon;
+using UnityEditor;
 using UnityEngine;
 
 public class DoorInteraction : InteractionObject
 {
     [Header("Door Settings")]
-    [SerializeField] private string _doorId = "A";
+    [SerializeField] private int _doorId;
     [SerializeField] private float _openSpeed = 5f;
     [SerializeField] private float _openAngle = 120f;
 
@@ -101,5 +102,29 @@ public class DoorInteraction : InteractionObject
         Debug.Log(isInit
             ? $"[Door] Init : {open} / {angle}"
             : $"[Door] Changed : {open} / {angle}");
+    }
+
+    [ContextMenu("Auto Assign Unique IDs")]
+    private void AutoAssignIDs()
+    {
+        DoorInteraction[] foundObjects =
+            FindObjectsByType<DoorInteraction>(FindObjectsSortMode.None);
+
+        // 로컬 환경 통일을 위해 이름 순으로 정렬
+        System.Array.Sort(foundObjects, (a, b) => string.Compare(a.name, b.name));
+
+        // 찾아낸 오브젝트들에게 순차적으로 ID를 부여함
+        for (int i = 0; i < foundObjects.Length; i++)
+        {
+            if (foundObjects[i]._doorId != i)
+            {
+                Undo.RecordObject(foundObjects[i], "Assign ID");
+                foundObjects[i]._doorId = i;
+
+                EditorUtility.SetDirty(foundObjects[i]);
+            }
+        }
+        // 결과 확인용
+        Debug.Log($"총 {foundObjects.Length}개의 오브젝트에 ID 할당이 완료되었습니다!");
     }
 }
