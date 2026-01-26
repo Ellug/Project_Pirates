@@ -25,7 +25,7 @@ public class SabotageManager : MonoBehaviour
     public float RemainingTime => _remainingTime;
 
     [Header("Config")]
-    [SerializeField] private float _defaultDuration = 60f;
+    [SerializeField] private float _defaultDuration = 60f; // 사보타지 제한시간
 
     [Header("Countdown UI")]
     [SerializeField] private GameObject _countdownPanel;
@@ -34,13 +34,13 @@ public class SabotageManager : MonoBehaviour
     [Header("Net")]
     [SerializeField] private PhotonView _pv;
 
-    private bool _isActive;
+    private bool _isActive; // 사보타지가 진행중인지 판단
     private SabotageId _activeId = SabotageId.None;
     
     private float _remainingTime;
-    private float _activeDuration;
+    private float _activeDuration; // UI 표시용
 
-    private double _startServerTime;
+    private double _startServerTime; // PhotonNetwork 기준 시작 시간
     private Coroutine _countdownCor;
 
     private void Awake()
@@ -84,7 +84,7 @@ public class SabotageManager : MonoBehaviour
     }
 
     [PunRPC]
-    private void RPC_RequestResolve(int idRaw, PhotonMessageInfo info)
+    private void RPC_RequestResolve(int idRaw, PhotonMessageInfo info) // Master 가 해결 가능한 상태인지 검증
     {
         if (!PhotonNetwork.IsMasterClient) return;
 
@@ -97,7 +97,7 @@ public class SabotageManager : MonoBehaviour
     }
 
     [PunRPC]
-    private void RPC_StartSabotage(int idRaw, float duration, double startSeverTime)
+    private void RPC_StartSabotage(int idRaw, float duration, double startSeverTime) // 모든 클라에서 동일하게 실행
     {
         var id = (SabotageId)idRaw;
 
@@ -252,7 +252,6 @@ public class SabotageManager : MonoBehaviour
     private void OnSabotageFailed(SabotageId id) // RPC_FailSabotage(All)로 실행
     {
         Debug.Log($"[Sabotage] Failed : {id}");
-
-        GameManager.Instance.Victory();
+        PlayerManager.Instance.NoticeGameOverToAllPlayers(false);
     }
 }
