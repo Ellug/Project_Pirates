@@ -4984,7 +4984,7 @@ LODGroup:
   m_AnimateCrossFading: 0
   m_LastLODIsBillboard: 0
   m_LODs:
-  - screenRelativeHeight: 0.35352486
+  - screenRelativeHeight: 0.35
     fadeTransitionWidth: 0
     renderers:
     - renderer: {fileID: 1358009813211568245}
@@ -4993,7 +4993,7 @@ LODGroup:
     - renderer: {fileID: 8000576963462227989}
     - renderer: {fileID: 5465836326070579913}
     - renderer: {fileID: 9181049744423960735}
-  - screenRelativeHeight: 0.06300842
+  - screenRelativeHeight: 0.063
     fadeTransitionWidth: 0
     renderers:
     - renderer: {fileID: 1321265011226339359}
@@ -5214,7 +5214,7 @@ MonoBehaviour:
   knockBackForce: 5
   baseSpeed: 5
   jumpPower: 5
-  attackPower: 20
+  attackPower: 10
   runSpeed: 0
   crouchSpeed: 0
   _staminaRecoverPerSec: 20
