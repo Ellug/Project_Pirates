@@ -9,11 +9,16 @@ using UnityEngine.UI;
 
 public class LoadingManager : MonoBehaviourPunCallbacks
 {
+    [Header("Loading")]
     [SerializeField] private TextMeshProUGUI _loadingStatusText;
     [SerializeField] private TextMeshProUGUI _progressText;
     [SerializeField] private Slider _loadingbar;
     [SerializeField] private TextMeshProUGUI _countdownText;
 
+    [SerializeField] private float _currentDisplayProgress;
+    [SerializeField] private float _fillSpeed = 0.5f;
+
+    [Header("Tips")]
     [SerializeField] private TextMeshProUGUI _tipText;
     [SerializeField] private float _tipChangeInterval = 5f;
     [SerializeField] private string[] _tips = { };
@@ -64,12 +69,26 @@ public class LoadingManager : MonoBehaviourPunCallbacks
         yield return new WaitForSeconds(1f);
 
         // 진행도를 보여준다.
-        while (operation.progress < 0.9f)
+        while (_currentDisplayProgress < 1f)
         {
-            float progress = Mathf.Clamp01(operation.progress / 0.9f);
+            // 실제 로딩 수치를 목표값으로 설정 (0.9가 끝이므로 0.9로 나눠서 1.0 기준으로 보정)
+            float targetProgress = Mathf.Clamp01(operation.progress / 0.9f);
 
-            _progressText.text = $"{(int)(progress * 100)} %";
-            _loadingbar.value = 1f - progress;
+            if (_currentDisplayProgress < targetProgress)
+            {
+                _currentDisplayProgress += Time.deltaTime * _fillSpeed;
+            }
+
+            if (operation.progress >= 0.9f)
+            {
+                _currentDisplayProgress += Time.deltaTime * _fillSpeed;
+            }
+
+            _currentDisplayProgress = Mathf.Clamp01(_currentDisplayProgress);
+
+            _progressText.text = $"{(int)(_currentDisplayProgress * 100)} %";
+            _loadingbar.value = 1f - _currentDisplayProgress;
+
             yield return null;
         }
 
