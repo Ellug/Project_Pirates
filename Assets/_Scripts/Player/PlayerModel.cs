@@ -60,10 +60,10 @@ public class PlayerModel : MonoBehaviour
 
     public event Action<float, float> OnHealthChanged;
     public event Action<float, float> OnStaminaChanged;
+    public event Action<ItemData[]> OnItemSlotChanged;
 
     private ItemData[] _inventory;
     private ItemEffects _effects;
-    private int _myItemNum;
 
     private void Awake()
     {
@@ -75,7 +75,6 @@ public class PlayerModel : MonoBehaviour
         runSpeed = baseSpeed * 1.6f;
         crouchSpeed = baseSpeed * 0.4f;
         _inventory = new ItemData[2];
-        _myItemNum = 0;
         Animator = GetComponent<Animator>();
         mouseSensitivity = PlayerPrefs.GetFloat("MouseSensitivity", 15.0f);
         _isDead = false;
@@ -200,12 +199,14 @@ public class PlayerModel : MonoBehaviour
 
     public bool TryGetItem(ItemData item)
     {
-        if (_myItemNum < _inventory.Length)
+        for (int i = 0; i < _inventory.Length; i++)
         {
-            _inventory[_myItemNum] = item;
-            _myItemNum++;
-            Debug.Log($"{item.itemName}을 획득함.");
-            return true;
+            if (_inventory[i] == null)
+            {
+                _inventory[i] = item;
+                OnItemSlotChanged?.Invoke(_inventory);
+                return true;
+            }
         }
         return false;
     }
@@ -225,6 +226,7 @@ public class PlayerModel : MonoBehaviour
             {
                 _effects.UseItem(_inventory[index].itemId, this);
                 _inventory[index] = null;
+                OnItemSlotChanged?.Invoke(_inventory);
                 return true;
             }
         }
