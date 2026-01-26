@@ -24,8 +24,13 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            _view = GetComponent<PhotonView>();
         }
-        _view = GetComponent<PhotonView>();
+        else if (Instance != this)
+        {
+            // 중복 인스턴스는 즉시 파괴
+            Destroy(gameObject);
+        }
     }
 
     // 게임 시작시 세팅은 마스터 클라이언트만 실행
@@ -209,6 +214,38 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         }
     }
 
+    // 시체 하나 제거 요청 -> 모든 클라이언트에서 제거
+    // public void RequestRemoveDeadBody(int deadBodyId)
+    // {
+    //     _view.RPC(nameof(RpcRemoveDeadBody), RpcTarget.All, deadBodyId);
+    // }
+
+    // [PunRPC]
+    // private void RpcRemoveDeadBody(int deadBodyId)
+    // {
+    //     if (InteractionObjectRpcManager.Instance != null)
+    //     {
+    //         InteractionObjectRpcManager.Instance.UnregisterAndDestroy(deadBodyId);
+    //         Debug.Log($"[DeadBody] 시체 제거 완료 - ID: {deadBodyId}");
+    //     }
+    // }
+
+    // 모든 시체 제거 요청 -> 모든 클라이언트에서 제거 (어몽어스 방식)
+    public void RequestRemoveAllDeadBodies()
+    {
+        _view.RPC(nameof(RpcRemoveAllDeadBodies), RpcTarget.All);
+    }
+
+    [PunRPC]
+    private void RpcRemoveAllDeadBodies()
+    {
+        if (InteractionObjectRpcManager.Instance != null)
+        {
+            int removedCount = InteractionObjectRpcManager.Instance.UnregisterAndDestroyAllDeadBodies();
+            Debug.Log($"[DeadBody] 모든 시체 제거 완료 - 총 {removedCount}개");
+        }
+    }
+
     public void NoticeGameOverToAllPlayers(bool isCitizenVictory)
     {
         _view.RPC(nameof(GameOverAndJudge), RpcTarget.All, isCitizenVictory);
@@ -225,6 +262,21 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     {
         if (VoteManager.Instance != null)
             VoteManager.Instance.OnDeadBodyReported();
+        else
+            Debug.LogWarning("[PlayerManager] VoteManager.Instance가 null 임");
+    }
+
+    // 중앙 소집 버튼 사용 시 모든 플레이어 텔레포트 요청
+    public void RequestCenterCall()
+    {
+        _view.RPC(nameof(RpcCenterCall), RpcTarget.All);
+    }
+
+    [PunRPC]
+    private void RpcCenterCall()
+    {
+        if (VoteManager.Instance != null)
+            VoteManager.Instance.OnCenterReported();
         else
             Debug.LogWarning("[PlayerManager] VoteManager.Instance가 null 임");
     }

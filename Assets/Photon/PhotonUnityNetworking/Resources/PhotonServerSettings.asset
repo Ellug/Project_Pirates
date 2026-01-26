@@ -63,11 +63,9 @@ MonoBehaviour:
   - RpcSpawnDeadBody
   - RpcTeleportAllPlayers
   - RpcTeleportPlayer
-  - RPC_FailSabotage
-  - RPC_RequestResolve
-  - RPC_RequestStart
-  - RPC_ResolveSabotage
-  - RPC_StartSabotage
+  - RpcRemoveDeadBody
+  - RpcCenterCall
+  - RpcRemoveAllDeadBodies
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

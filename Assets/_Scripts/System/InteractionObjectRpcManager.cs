@@ -44,6 +44,41 @@ public class InteractionObjectRpcManager : MonoBehaviourPun
         _objectCache[id] = obj;
     }
 
+    // 오브젝트 등록 해제 및 제거
+    public void UnregisterAndDestroy(int id)
+    {
+        if (_objectCache.TryGetValue(id, out var obj))
+        {
+            _objectCache.Remove(id);
+            if (obj != null)
+                Destroy(obj.gameObject);
+        }
+    }
+
+    // 모든 시체(DeadBody) 등록 해제 및 제거
+    public int UnregisterAndDestroyAllDeadBodies()
+    {
+        List<int> deadBodyIds = new();
+
+        foreach (var kvp in _objectCache)
+        {
+            if (kvp.Value is DeadBody)
+                deadBodyIds.Add(kvp.Key);
+        }
+
+        foreach (int id in deadBodyIds)
+        {
+            if (_objectCache.TryGetValue(id, out var obj))
+            {
+                _objectCache.Remove(id);
+                if (obj != null)
+                    Destroy(obj.gameObject);
+            }
+        }
+
+        return deadBodyIds.Count;
+    }
+
     public void RequestNetworkInteraction(int id)
     {
         _view.RPC(nameof(RpcInteractionObject), RpcTarget.Others, id);

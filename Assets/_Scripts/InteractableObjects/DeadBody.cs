@@ -24,7 +24,7 @@ public class DeadBody : InteractionObject
 
         _player = player;
 
-        // 신고 시간 결정 (직업에 따라)
+        // player에서 가져와서 신고 시간 결정 (직업에 따라)
         float reportTime = GetReportTime(player);
         Debug.Log($"[DeadBody] 신고 시작 - 필요 시간: {reportTime}초");
 
@@ -62,12 +62,21 @@ public class DeadBody : InteractionObject
             yield return null;
         }
 
-        _reported = true;
         Debug.Log("[DeadBody] 시체 신고 완료! 모든 플레이어 텔레포트 요청");
 
-        // PlayerManager를 통해 모든 플레이어에게 텔레포트 RPC 전송
+        _reported = true;
+
+        // PlayerManager를 통해 모든 플레이어에게 텔레포트 RPC 전송 + 시체 제거
         if (PlayerManager.Instance != null)
+        {
             PlayerManager.Instance.RequestTeleportAllPlayers();
+
+            // 신고된 시체 하나만 제거
+            // PlayerManager.Instance.RequestRemoveDeadBody(uniqueID);
+
+            // 필드의 모든 시체 제거
+            PlayerManager.Instance.RequestRemoveAllDeadBodies();
+        }
 
         _reportCoroutine = null;
     }

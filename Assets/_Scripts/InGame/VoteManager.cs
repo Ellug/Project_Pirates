@@ -28,7 +28,7 @@ public class VoteManager : MonoBehaviour
         Instance = this;
     }
 
-    // RPC로 호출됨 (PlayerManager에서)
+    // 시체 신고됨 -> RPC로 호출됨 (PlayerManager에서)
     public void OnDeadBodyReported()
     {
         StartCoroutine(TeleportSequence(true));
@@ -79,7 +79,13 @@ public class VoteManager : MonoBehaviour
             return;
         }
 
-        // TODO: 여기서 로컬 플레이어가 살아있는지 어떤지 판단해서 추가 로직
+        // 죽은 플레이어는 텔레포트하지 않음
+        PlayerModel playerModel = localPlayer.GetComponent<PlayerModel>();
+        if (playerModel != null && playerModel.IsDead)
+        {
+            Debug.Log("[VoteManager] 죽은 플레이어는 텔레포트하지 않음");
+            return;
+        }
 
         Vector3 randomPos = GetRandomNonOverlappingPosition();
         localPlayer.transform.position = randomPos;
