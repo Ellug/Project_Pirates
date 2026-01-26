@@ -5166,6 +5166,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2779c794e6b5ec4f83f8b63c5efa52e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerContoller
+  _localHideSkin:
+  - {fileID: 9181049744423960735}
+  - {fileID: 1692370607458264546}
   isMafia: 0
 --- !u!114 &5235569673981443865
 MonoBehaviour:
