@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviourPun
 {
+    [SerializeField] private SkinnedMeshRenderer[] _localHideSkin;
+
     public static GameObject LocalInstancePlayer;
 
     [HideInInspector] public bool isMafia;
@@ -75,13 +77,12 @@ public class PlayerController : MonoBehaviourPun
 
         // 내 아바타는 숨김 처리한다.
         // 다른 사람 아바타는 볼 수 있고 내 아바타도 남한테는 보인다.
-        SkinnedMeshRenderer[] myAvatar =
-            transform.GetComponentsInChildren<SkinnedMeshRenderer>();
+        //SkinnedMeshRenderer[] myAvatar =
+        //    transform.GetComponentsInChildren<SkinnedMeshRenderer>();
 
-        foreach (var avatar in myAvatar)
-        {
-            avatar.enabled = false;
-        }
+        if (_localHideSkin != null)
+            foreach (var avatar in _localHideSkin)
+                avatar.enabled = false;
 
         // ===== [정리] 커서 Lock은 InputManager가 담당하므로 여기서 설정하지 않음 =====
         // Cursor.lockState = CursorLockMode.Locked;
@@ -89,7 +90,7 @@ public class PlayerController : MonoBehaviourPun
 
         _camera = Camera.main;
         _camera.transform.SetParent(transform, false);
-        _camera.transform.localPosition = new Vector3(0f, 1.77f, 0f);
+        _camera.transform.localPosition = new Vector3(0f, 1.653f, 0.328f);
 
         InputJump = false;
         InputMove = Vector2.zero;
@@ -251,7 +252,7 @@ public class PlayerController : MonoBehaviourPun
         float mouseY = _mouseDelta.y * _model.mouseSensitivity * Time.deltaTime;
 
         _xRotation -= mouseY;
-        _xRotation = Mathf.Clamp(_xRotation, -90f, 90f); // 위아래 90도 제한
+        _xRotation = Mathf.Clamp(_xRotation, -80f, 80f); // 위아래 80도 제한
 
         // 카메라와 플레이어 몸체에 회전 적용
         _camera.transform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f); // 카메라만 위아래로
