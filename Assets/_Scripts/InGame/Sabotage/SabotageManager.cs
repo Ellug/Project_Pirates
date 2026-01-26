@@ -1,5 +1,6 @@
 ﻿using TMPro;
-using System;
+using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 using System.Collections;
 
@@ -30,31 +31,110 @@ public class SabotageManager : MonoBehaviour
     [SerializeField] private GameObject _countdownPanel;
     [SerializeField] private TMP_Text _countdownText;
 
+    [Header("Net")]
+    [SerializeField] private PhotonView _pv;
+
     private bool _isActive;
     private SabotageId _activeId = SabotageId.None;
+    
     private float _remainingTime;
+    private float _activeDuration;
 
+    private double _startServerTime;
     private Coroutine _countdownCor;
 
     private void Awake()
     {
+        if (_pv == null) _pv = GetComponent<PhotonView>();
         SetCountdownUI(false);
     }
 
-    public bool TriggerSabotage(SabotageId id, float duration = -1f)
+    // 마피아 버튼이 호출 : Master 에게 사보타지 시작 요청
+    public void RequestTriggerSabotage(SabotageId id, float duration = -1f)
     {
-        if (_isActive) return false; // 사보타지 중복 실행 방지
-        if (id == SabotageId.None) return false;
+        if (!PhotonNetwork.InRoom) return;
+        if (id == SabotageId.None) return;
+
+        _pv.RPC(nameof(RPC_RequestStart), RpcTarget.MasterClient, (int)id, duration);
+    }
+
+    // 시민 상호작용이 호출 : Master 에게 해결 요청
+    public void RequestResolveSabotage(SabotageId id)
+    {
+        if (!PhotonNetwork.InRoom) return;
+        if (id == SabotageId.None) return;
+
+        _pv.RPC(nameof(RPC_RequestResolve), RpcTarget.MasterClient, (int)id);
+    }
+
+    [PunRPC]
+    private void RPC_RequestStart(int idRaw, float duration, PhotonMessageInfo info)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        var id = (SabotageId)idRaw;
+        if (_isActive) return;
+        if (id == SabotageId.None) return;
+
+        float dur = (duration > 0f) ? duration : _defaultDuration;
+        double startTime = PhotonNetwork.Time;
+
+        // 동일 시작
+        _pv.RPC(nameof(RPC_StartSabotage), RpcTarget.All, idRaw, dur, startTime);
+    }
+
+    [PunRPC]
+    private void RPC_RequestResolve(int idRaw, PhotonMessageInfo info)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        var id = (SabotageId)idRaw;
+        if (!_isActive) return;
+        if (_activeId != id) return;
+
+        // 동일 해제
+        _pv.RPC(nameof(RPC_ResolveSabotage), RpcTarget.All, idRaw);
+    }
+
+    [PunRPC]
+    private void RPC_StartSabotage(int idRaw, float duration, double startSeverTime)
+    {
+        var id = (SabotageId)idRaw;
 
         StopCountdownCoroutine();
 
         _isActive = true;
         _activeId = id;
-        _remainingTime = duration > 0f ? duration : _defaultDuration;
+
+        _activeDuration = duration;
+        _startServerTime = startSeverTime;
+        
+        _remainingTime = duration;
 
         OnSabotageStart(id);
         StartCountdownCoroutine();
-        return true;
+    }
+
+    [PunRPC]
+    private void RPC_ResolveSabotage(int idRaw)
+    {
+        var id = (SabotageId)idRaw;
+        if (!_isActive) return;
+        if (_activeId != id) return;
+
+        StopCountdownCoroutine();
+        SuccessSabotage();
+    }
+
+    [PunRPC]
+    private void RPC_FailSabotage(int idRaw)
+    {
+        var id = (SabotageId)idRaw;
+        if (!_isActive) return;
+        if (_activeId != id) return;
+
+        StopCountdownCoroutine();
+        FailSabotage();
     }
 
     #region Coroutine
@@ -76,21 +156,24 @@ public class SabotageManager : MonoBehaviour
     private IEnumerator Co_countdown()
     {
         SetCountdownUI(true);
-        UpdateCountdownUI(_remainingTime);
 
-        WaitForSeconds delay = new WaitForSeconds(1f);
-        // waitforsec으로 카운트다운
-        while (_isActive && _remainingTime > 0f)
+        var delay = new WaitForSeconds(1f);
+        while (_isActive)
         {
-            _remainingTime -= 1;
+            double elapsed = PhotonNetwork.Time - _startServerTime;
+            _remainingTime = Mathf.Max(0f, _activeDuration - (float)elapsed);
+
             UpdateCountdownUI(_remainingTime);
+
+            if (_remainingTime <= 0f) break;
+
             yield return delay;
         }
 
-        // 코루틴을 빠져나오면 실패
-        if(_isActive)
+        // 코루틴을 빠져나오면 실패 (판정은 Master만)
+        if(_isActive && PhotonNetwork.IsMasterClient)
         {
-            FailSabotage();
+            _pv.RPC(nameof(RPC_FailSabotage), RpcTarget.All, (int)_activeId);
         }
     }
 
@@ -124,17 +207,6 @@ public class SabotageManager : MonoBehaviour
     }
     #endregion
 
-    public bool ResolveSabotage(SabotageId id)
-    {
-        if (!_isActive) return false;
-        if (_activeId != id) return false;
-
-        // 시민이 해결하면 코루틴 중단
-        StopCountdownCoroutine();
-        SuccessSabotage();
-        return true;
-    }
-
     private void SuccessSabotage()
     {
         SabotageId resolved = _activeId;
@@ -158,6 +230,8 @@ public class SabotageManager : MonoBehaviour
         _isActive = false;
         _activeId = SabotageId.None;
         _remainingTime = 0f;
+        _activeDuration = 0f;
+        _startServerTime = 0;
 
         SetCountdownUI(false);
     }
@@ -165,26 +239,20 @@ public class SabotageManager : MonoBehaviour
     private void OnSabotageStart(SabotageId id)
     {
         Debug.Log($"[Sabotage] Start : {id}");
-        // TODO :
-        // 월드 효과 적용 ( 조명 끄기, 엔진 정지 등 )
+        // TODO : 월드 효과 적용 ( 조명 끄기, 엔진 정지 등 )
     }
 
     // UI 연결용
     private void OnSabotageResolved(SabotageId id)
     {
         Debug.Log($"[Sabotage] Resolved : {id}");
-        // TODO :
-        // UI 종료
-        // 월드 효과 원복시키기
+        // TODO : UI 종료 , 월드 효과 원복시키기
     }
 
-    private void OnSabotageFailed(SabotageId id)
+    private void OnSabotageFailed(SabotageId id) // RPC_FailSabotage(All)로 실행
     {
         Debug.Log($"[Sabotage] Failed : {id}");
 
         GameManager.Instance.Victory();
-        // TODO :
-        // 마피아 승리 처리
-        // 게임 종료 트리거
     }
 }
