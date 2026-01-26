@@ -42,6 +42,9 @@ public class PlayerModel : MonoBehaviour
         set => _isRunning = value && !_isSprintLock;
     }
 
+    private bool _isDead = false;
+    public bool IsDead => _isDead;
+
     public readonly string animNameOfMove = "MoveValue";
     public readonly string animNameOfRun = "Running";
     public readonly string animNameOfCrouch = "Crouching";
@@ -75,6 +78,7 @@ public class PlayerModel : MonoBehaviour
         _myItemNum = 0;
         Animator = GetComponent<Animator>();
         mouseSensitivity = PlayerPrefs.GetFloat("MouseSensitivity", 15.0f);
+        _isDead = false;
     }
 
     // 체력의 회복과 감소 메서드
@@ -87,6 +91,9 @@ public class PlayerModel : MonoBehaviour
         if (_curHealthPoint <= 0f)
         {
             _curHealthPoint = 0f;
+            _isDead = true;
+            // TODO: 여기서 사망처리 로직 변경 필요
+            // 시체 생성하고 시체가 애니메이션 재생하게
             Debug.Log("사망하였습니다.");
             StartCoroutine(DeathCor());
         }
@@ -110,6 +117,8 @@ public class PlayerModel : MonoBehaviour
         SpawnDeadBody();
     }
 
+    // TODO: 시체가 플레이어 모델 모양과 동일하게 (옷 색) 생성돼야함
+    // 생성되면서 사망 애니메이션 재생
     private void SpawnDeadBody()
     {
         transform.GetPositionAndRotation(out Vector3 spawnPos, out Quaternion spawnRot);
