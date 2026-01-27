@@ -4932,10 +4932,20 @@ GameObject:
   - component: {fileID: 2043083619567827126}
   - component: {fileID: 1661347413654902473}
   - component: {fileID: 7499082938276436559}
-  - component: {fileID: 7636137823507727563}
-  m_Layer: 6
-  m_Name: DeadBodyMale_Temp
-  m_TagString: Untagged
+  - component: {fileID: 3465125548412181958}
+  - component: {fileID: 4545916059697219997}
+  - component: {fileID: 2929540226426288815}
+  - component: {fileID: 753312872029953314}
+  - component: {fileID: 5235569673981443865}
+  - component: {fileID: 7177283211974919599}
+  - component: {fileID: 2144387517096788460}
+  - component: {fileID: -2294934730502125637}
+  - component: {fileID: 199456349278014441}
+  - component: {fileID: 4325506938153759799}
+  - component: {fileID: 7585779099943666917}
+  m_Layer: 7
+  m_Name: PlayerMale_Legacy
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5003,7 +5013,7 @@ Animator:
   m_GameObject: {fileID: 7431940883202560913}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 4350b309aa35d8241b5a918441629bdc, type: 3}
-  m_Controller: {fileID: 9100000, guid: bdfe5d8acd134e34fa20db3677fd809e, type: 2}
+  m_Controller: {fileID: 9100000, guid: 49e143aef44268149895a445defa928d, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -5034,10 +5044,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.2
-  m_Height: 2
-  m_Direction: 2
-  m_Center: {x: 0, y: 1.1, z: 0}
+  m_Radius: 0.5
+  m_Height: 1.8005092
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.86, z: 0}
 --- !u!54 &7499082938276436559
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -5065,7 +5075,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!114 &7636137823507727563
+--- !u!114 &3465125548412181958
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5074,11 +5084,432 @@ MonoBehaviour:
   m_GameObject: {fileID: 7431940883202560913}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2628aa5b22aa9d3429626bf559a3bda6, type: 3}
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DeadBody
-  uniqueID: 999
-  _interactionDistance: 4
+  m_EditorClassIdentifier: PhotonUnityNetworking::Photon.Pun.PhotonView
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents:
+  - {fileID: 4545916059697219997}
+  - {fileID: 2929540226426288815}
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
+--- !u!114 &4545916059697219997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7431940883202560913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PhotonUnityNetworking::Photon.Pun.PhotonTransformView
+  m_SynchronizePosition: 1
+  m_SynchronizeRotation: 1
+  m_SynchronizeScale: 0
+  m_UseLocal: 1
+--- !u!114 &2929540226426288815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7431940883202560913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PhotonUnityNetworking::Photon.Pun.PhotonAnimatorView
+  ShowLayerWeightsInspector: 1
+  ShowParameterInspector: 1
+  m_SynchronizeParameters:
+  - Type: 1
+    SynchronizeType: 1
+    Name: MoveValue
+  - Type: 4
+    SynchronizeType: 1
+    Name: Running
+  - Type: 4
+    SynchronizeType: 1
+    Name: Crouching
+  - Type: 9
+    SynchronizeType: 1
+    Name: Jumping
+  - Type: 9
+    SynchronizeType: 1
+    Name: KnockBack
+  - Type: 9
+    SynchronizeType: 1
+    Name: Attack
+  - Type: 4
+    SynchronizeType: 1
+    Name: Death
+  m_SynchronizeLayers:
+  - SynchronizeType: 0
+    LayerIndex: 0
+--- !u!114 &753312872029953314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7431940883202560913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2779c794e6b5ec4f83f8b63c5efa52e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerContoller
+  _localHideSkin:
+  - {fileID: 9181049744423960735}
+  - {fileID: 1692370607458264546}
+  isMafia: 0
+--- !u!114 &5235569673981443865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7431940883202560913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ccd9bc44aeabf342813047a0330e627, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteraction
+  _raycastDistance: 6
+  _interactableLayer:
+    serializedVersion: 2
+    m_Bits: 64
+--- !u!114 &7177283211974919599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7431940883202560913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc77d186628589f41963bf9fe9b50d06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHit
+--- !u!114 &2144387517096788460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7431940883202560913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57c2376dc4f016640885d4e2ea241a64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerModel
+  mouseSensitivity: 10
+  knockBackForce: 5
+  baseSpeed: 5
+  jumpPower: 5
+  attackPower: 10
+  runSpeed: 0
+  crouchSpeed: 0
+  _staminaRecoverPerSec: 20
+--- !u!114 &-2294934730502125637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7431940883202560913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
+  m_Actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  m_NotificationBehavior: 2
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 351f2ccd-1f9f-44bf-9bec-d62ac5c5f408
+    m_ActionName: 'Player/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 6b444451-8a00-4d00-a97e-f47457f736a8
+    m_ActionName: 'Player/Look[/Mouse/delta]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 6c2ab1b8-8984-453a-af3d-a3c78ae1679a
+    m_ActionName: 'Player/Attack[/Mouse/leftButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 3f7ae16c-4638-44cd-9810-0fa447889f60
+    m_ActionName: 'Player/KnockBack[/Mouse/rightButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 852140f2-7766-474d-8707-702459ba45f3
+    m_ActionName: 'Player/Interact[/Keyboard/f]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 27c5f898-bc57-4ee1-8800-db469aca5fe3
+    m_ActionName: 'Player/Crouch[/Keyboard/leftCtrl]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: f1ba0d36-48eb-4cd5-b651-1c94a6531f70
+    m_ActionName: 'Player/Jump[/Keyboard/space]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 2776c80d-3c14-4091-8c56-d04ced07a2b0
+    m_ActionName: 'Player/Previous[/Keyboard/1]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: b7230bb6-fc9b-4f52-8b25-f5e19cb2c2ba
+    m_ActionName: 'Player/Next[/Keyboard/2]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 641cd816-40e6-41b4-8c3d-04687c349290
+    m_ActionName: 'Player/Sprint[/Keyboard/leftShift]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 06adfa06-8290-4189-9f55-6fc3f0b0cb3d
+    m_ActionName: 'Player/JobSkill[/Keyboard/e]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: c95b2375-e6d9-4b88-9c4c-c5e76515df4b
+    m_ActionName: 'UI/Navigate[/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/tab,/Keyboard/leftArrow,/Keyboard/rightArrow]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 7607c7b6-cd76-4816-beef-bd0341cfe950
+    m_ActionName: 'UI/Submit[/Keyboard/enter,/Keyboard/numpadEnter]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 32b35790-4ed0-4e9a-aa41-69ac6d629449
+    m_ActionName: 'UI/Point[/Mouse/position]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 3c7022bf-7922-4f7c-a998-c437916075ad
+    m_ActionName: 'UI/Click[/Mouse/leftButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 44b200b1-1557-4083-816c-b22cbdf77ddf
+    m_ActionName: 'UI/RightClick[/Mouse/rightButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: dad70c86-b58c-4b17-88ad-f5e53adf419e
+    m_ActionName: 'UI/MiddleClick[/Mouse/middleButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 0489e84a-4833-4c40-bfae-cea84b696689
+    m_ActionName: 'UI/ScrollWheel[/Mouse/scroll]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 7d868ae6-f5a6-4b58-9a27-d7a5520ad0a3
+    m_ActionName: 'UI/Cancel[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 211e31e2-5a69-418c-b56b-8a23a97ba991
+    m_ActionName: 'Global/ToggleConsole[/Keyboard/f5]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 28369be8-1bc1-4efa-bed7-0494c6b44add
+    m_ActionName: 'Global/ToggleOptions[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: f6ab60b6-d1ec-42bc-8814-dc09931b2d8a
+    m_ActionName: 'UI/TabInputNext[/Keyboard/tab]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: ed63041b-6113-4142-8be3-ee76e7f1508b
+    m_ActionName: 'Global/PTT[/Keyboard/v]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 83be4363-8ea1-4377-a5b4-73bd6c974895
+    m_ActionName: 'Global/VoiceOverlay[/Keyboard/backquote]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e00d0f10-3bb4-4a46-8437-db011ab73229
+    m_ActionName: 'Player/ToggleSlidePanel[/Keyboard/f1]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+    m_ActionName: 'Player/MapPageUp[/Keyboard/pageUp]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: b2c3d4e5-f6a7-8901-bcde-f12345678901
+    m_ActionName: 'Player/MapPageDown[/Keyboard/pageDown]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e5f6a7b8-c9d0-1234-ef01-345678901234
+    m_ActionName: 'Player/ToggleMap[/Keyboard/tab]'
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: 
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
+--- !u!114 &199456349278014441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7431940883202560913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc8582c91c754f74a9715e0fd4bdd05d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerFootstepSfx
+  _walkClips:
+  - {fileID: 8300000, guid: 32f0021c02e88ee48a5e16ea1962e6c8, type: 3}
+  _runClips:
+  - {fileID: 8300000, guid: 32f0021c02e88ee48a5e16ea1962e6c8, type: 3}
+  _walkInterval: 0.5
+  _runInterval: 0.32
+  _sfxGroup: {fileID: 6842179151334961839, guid: 661a132940d2f6a4cb95dd8211a0d82c, type: 2}
+  _volume: 0.75
+  _pitchRange: {x: 0.96, y: 1.04}
+  _minDistance: 1.5
+  _maxDistance: 18
+--- !u!82 &4325506938153759799
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7431940883202560913}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 6842179151334961839, guid: 661a132940d2f6a4cb95dd8211a0d82c, type: 2}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 0.33
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 25
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &7585779099943666917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7431940883202560913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58f88f33379caa746899e80ab5da6ef3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerTshirtColor
+  upperRenderers:
+  - {fileID: 5465836326070579913}
+  - {fileID: 2361602336769110293}
+  upperMaterials:
+  - {fileID: 2100000, guid: df5e3a68f6a64bc47991758570bc7234, type: 2}
+  - {fileID: 2100000, guid: 7e565f3aac0473147a0919fd787d3df0, type: 2}
+  - {fileID: 2100000, guid: a8c3d28d729c26c48b4475708fddc003, type: 2}
+  - {fileID: 2100000, guid: d80a2dd096ab9494085309d3ebc958c9, type: 2}
+  - {fileID: 2100000, guid: 8de127cc6691b6a4f909f53f77601562, type: 2}
+  - {fileID: 2100000, guid: 1a22524e2fc7d6e4ebd42b7dabd98f53, type: 2}
+  - {fileID: 2100000, guid: aa915431f2101f5429ca9961fde080fc, type: 2}
+  - {fileID: 2100000, guid: 2d9ddd6eddd413d43bd6ef3df7df2950, type: 2}
+  - {fileID: 2100000, guid: 7827b7ffe75418742b7e1ca55e9e8de7, type: 2}
+  - {fileID: 2100000, guid: 55a96682836bc07499a3e50875b04e46, type: 2}
+  - {fileID: 2100000, guid: 4fb15b336dcba3b4f9b43260e530d9d9, type: 2}
+  - {fileID: 2100000, guid: 580b31f87da5ea84788d44b71795d33d, type: 2}
+  - {fileID: 2100000, guid: 48ad48d3a7dc3124695e224fb870fdee, type: 2}
+  - {fileID: 2100000, guid: 5b3e2b2965f22d84d9f3d8d5556e93ce, type: 2}
 --- !u!1 &7531048272763147095
 GameObject:
   m_ObjectHideFlags: 0
