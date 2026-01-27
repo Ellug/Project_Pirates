@@ -83,6 +83,8 @@ public class PlayerModel : MonoBehaviour
     // 체력의 회복과 감소 메서드
     public void TakeDamage(float damage)
     {
+        if (_isDead) return;
+
         _curHealthPoint -= damage;
         Debug.Log($"{damage}의 피해를 받았고 남은 체력은 {_curHealthPoint} 입니다.");
         OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
@@ -92,8 +94,6 @@ public class PlayerModel : MonoBehaviour
         {
             _curHealthPoint = 0f;
             _isDead = true;
-            // TODO: 여기서 사망처리 로직 변경 필요
-            // 시체 생성하고 시체가 애니메이션 재생하게
             Debug.Log("사망하였습니다.");
             StartCoroutine(DeathCor());
         }
