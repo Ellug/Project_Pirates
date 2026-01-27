@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
-using ExitGames.Client.Photon;
 
 public class InGameManager : MonoBehaviourPunCallbacks
 {
@@ -52,8 +51,12 @@ public class InGameManager : MonoBehaviourPunCallbacks
 
         if (PlayerController.LocalInstancePlayer == null)
         {
+            // 테스트용 임시 코드
+            int type = Random.Range(0, 2);
+            string char_type = type == 0 ? "PlayerFemale" : "PlayerMale";
+
             PlayerController.LocalInstancePlayer =
-                PhotonNetwork.Instantiate("PlayerFemale",
+                PhotonNetwork.Instantiate(char_type,
                     new Vector3(0f, 3f, 0f),
                     Quaternion.identity);
         }
