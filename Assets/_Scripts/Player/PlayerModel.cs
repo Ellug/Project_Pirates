@@ -108,22 +108,22 @@ public class PlayerModel : MonoBehaviour
         OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
 
         Debug.Log("투표로 처형되었습니다.");
-        StartCoroutine(DeathCor());
+        StartCoroutine(DeathCor(vote: true));
     }
 
-    IEnumerator DeathCor()
+    IEnumerator DeathCor(bool vote = false)
     {
         PlayerController controller = GetComponent<PlayerController>();
         PlayerManager.Instance.NoticeDeathPlayer(controller);
         // 시체 생성 (네트워크 동기화)
-        SpawnDeadBody();
+        if (vote) SpawnDeadBody();
+
         yield return null;
 
         controller.StateMachine.ChangeState(controller.StateDeath);
     }
 
-    // TODO: 시체가 플레이어 모델 모양과 동일하게 (옷 색) 생성돼야함
-    // 생성되면서 사망 애니메이션 재생
+    // 시체 생성되면서 사망 애니메이션 재생
     private void SpawnDeadBody()
     {
         transform.GetPositionAndRotation(out Vector3 spawnPos, out Quaternion spawnRot);
@@ -154,8 +154,6 @@ public class PlayerModel : MonoBehaviour
         float prev = _curStamina;
         _curStamina = Mathf.Max(0f, _curStamina - amount);
         OnStaminaChanged?.Invoke(_curStamina, _maxStamina);
-
-        // Debug.Log($"스테미너 소모 : {prev:F1} -> {_curStamina:F1}");
 
         if(_curStamina <= 0f)
         {
