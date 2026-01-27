@@ -246,10 +246,7 @@ public class PlayerController : MonoBehaviourPun
 
         if (_model != null && !_model.IsRunning)
             _model.RecoverStamina(_model.StaminaRecoverPerSec * Time.fixedDeltaTime);
-    }
-
-    private void LateUpdate()
-    {
+        
         PlayerLook();
     }
 
@@ -265,6 +262,7 @@ public class PlayerController : MonoBehaviourPun
         _camera.transform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f); // 카메라만 위아래로
         transform.Rotate(Vector3.up * mouseX); // 플레이어 몸체 전체가 좌우로 회전
     }
+    
     public void UpdateSensitivity(float value)
     {
         _model.mouseSensitivity = value;
