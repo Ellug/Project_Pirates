@@ -369,6 +369,15 @@ public class PlayerController : MonoBehaviourPun
     }
 
     [PunRPC]
+    public void RpcExecuteByVote()
+    {
+        if (!photonView.IsMine) return;
+
+        var model = GetComponent<PlayerModel>();
+        model.ExecuteByVote();
+    }
+
+    [PunRPC]
     public void RpcTeleportPlayer(Vector3 pos)
     {
         pos.y += 1.5f;

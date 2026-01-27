@@ -7,7 +7,7 @@ using UnityEngine;
 public class GlobalProgress : MonoBehaviourPunCallbacks
 {
     [Header("Reference")]
-    [SerializeField] private CustumPropertieManager _roomProps;
+    [SerializeField] private CustomPropertyManager _roomProps;
 
     [Header("Mission Setting")]
     [Tooltip("전체 미션 갯수")]
@@ -28,7 +28,7 @@ public class GlobalProgress : MonoBehaviourPunCallbacks
     private void Awake()
     {
         if (_roomProps == null)
-            _roomProps = FindFirstObjectByType<CustumPropertieManager>();
+            _roomProps = FindFirstObjectByType<CustomPropertyManager>();
     }
 
     private void Start()

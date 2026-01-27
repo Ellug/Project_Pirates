@@ -10,7 +10,7 @@ public class DoorInteraction : InteractionObject
     [SerializeField] private float _openAngle = 120f;
 
     [Header("Reference")]
-    [SerializeField] private CustumPropertieManager _roomProps;
+    [SerializeField] private CustomPropertyManager _roomProps;
 
     [Tooltip("실제로 회전할 문 오브젝트")]
     [SerializeField] private Transform _doorPivot;
@@ -27,7 +27,7 @@ public class DoorInteraction : InteractionObject
     private void Awake()
     {
         if (_roomProps == null)
-            _roomProps = FindFirstObjectByType<CustumPropertieManager>();
+            _roomProps = FindFirstObjectByType<CustomPropertyManager>();
 
         if (_doorPivot == null)
             _doorPivot = transform;
