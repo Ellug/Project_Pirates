@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using TMPro;
 using UnityEngine;
 
@@ -29,7 +29,7 @@ public class CreateRoomPanelView : MonoBehaviour
     {
         string name = _title != null ? _title.text : string.Empty;
         string pw = _pw != null ? _pw.text : string.Empty;
-        int maxPlayers = _maxPlayers != null ? (_maxPlayers.value + 1) : 2;
+        int maxPlayers = _maxPlayers != null ? (_maxPlayers.value + 5) : 2;
 
         ApplyRequested?.Invoke(new CreateRoomRequest(name, pw, maxPlayers));
         Close();
