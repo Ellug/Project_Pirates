@@ -65,10 +65,16 @@ public class CenterCall : InteractionObject
         _reported = true;
         Debug.Log("[CenterCall] 중앙 소집 완료! 모든 플레이어 텔레포트 요청");
 
+        // 신고자 ActorNumber 가져오기
+        int reporterActorNumber = -1;
+        var photonView = _player.GetComponent<Photon.Pun.PhotonView>();
+        if (photonView != null)
+            reporterActorNumber = photonView.OwnerActorNr;
+
         // PlayerManager를 통해 모든 플레이어에게 텔레포트 RPC 전송 + 시체 제거
         if (PlayerManager.Instance != null)
         {
-            PlayerManager.Instance.RequestCenterCall();
+            PlayerManager.Instance.RequestCenterCall(reporterActorNumber);
 
             // 필드의 모든 시체 제거
             PlayerManager.Instance.RequestRemoveAllDeadBodies();
