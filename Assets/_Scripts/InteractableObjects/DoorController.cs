@@ -1,5 +1,7 @@
 ﻿using ExitGames.Client.Photon;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 public class DoorInteraction : InteractionObject
@@ -104,6 +106,7 @@ public class DoorInteraction : InteractionObject
             : $"[Door] Changed : {open} / {angle}");
     }
 
+#if UNITY_EDITOR
     [ContextMenu("Auto Assign Unique IDs")]
     private void AutoAssignIDs()
     {
@@ -127,4 +130,5 @@ public class DoorInteraction : InteractionObject
         // 결과 확인용
         Debug.Log($"총 {foundObjects.Length}개의 오브젝트에 ID 할당이 완료되었습니다!");
     }
+#endif
 }
