@@ -66,13 +66,16 @@ public class DeadBody : InteractionObject
 
         _reported = true;
 
+        // 신고자 ActorNumber 가져오기
+        int reporterActorNumber = -1;
+        var photonView = _player.GetComponent<Photon.Pun.PhotonView>();
+        if (photonView != null)
+            reporterActorNumber = photonView.OwnerActorNr;
+
         // PlayerManager를 통해 모든 플레이어에게 텔레포트 RPC 전송 + 시체 제거
         if (PlayerManager.Instance != null)
         {
-            PlayerManager.Instance.RequestTeleportAllPlayers();
-
-            // 신고된 시체 하나만 제거
-            // PlayerManager.Instance.RequestRemoveDeadBody(uniqueID);
+            PlayerManager.Instance.RequestTeleportAllPlayers(reporterActorNumber);
 
             // 필드의 모든 시체 제거
             PlayerManager.Instance.RequestRemoveAllDeadBodies();

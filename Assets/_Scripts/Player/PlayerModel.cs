@@ -99,6 +99,18 @@ public class PlayerModel : MonoBehaviour
         }
     }
 
+    public void ExecuteByVote()
+    {
+        if (_isDead) return;
+
+        _curHealthPoint = 0f;
+        _isDead = true;
+        OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
+
+        Debug.Log("투표로 처형되었습니다.");
+        StartCoroutine(DeathCor());
+    }
+
     IEnumerator DeathCor()
     {
         PlayerController controller = GetComponent<PlayerController>();

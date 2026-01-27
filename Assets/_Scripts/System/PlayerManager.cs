@@ -81,6 +81,10 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
         yield return null; // 혹시 모르니 인게임 씬 유니티 라이프 싸이클 한번 돌릴 시간
 
+        // ============ 투표 시스템 초기화 ============
+        if (VoteRoomProperties.Instance != null)
+            VoteRoomProperties.Instance.InitializePlayerList();
+
         // ============ 무작위 스폰 포인트 선정 & 플레이어 이동 ============
 
         if (_spawnPointList != null)
@@ -230,7 +234,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     //     }
     // }
 
-    // 모든 시체 제거 요청 -> 모든 클라이언트에서 제거 (어몽어스 방식)
+    // 모든 시체 제거 요청 -> 모든 클라이언트에서 제거
     public void RequestRemoveAllDeadBodies()
     {
         _view.RPC(nameof(RpcRemoveAllDeadBodies), RpcTarget.All);
@@ -252,31 +256,31 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     }
 
     // 시체 신고 완료 시 모든 플레이어 텔레포트 요청
-    public void RequestTeleportAllPlayers()
+    public void RequestTeleportAllPlayers(int reporterActorNumber)
     {
-        _view.RPC(nameof(RpcTeleportAllPlayers), RpcTarget.All);
+        _view.RPC(nameof(RpcTeleportAllPlayers), RpcTarget.All, reporterActorNumber);
     }
 
     [PunRPC]
-    private void RpcTeleportAllPlayers()
+    private void RpcTeleportAllPlayers(int reporterActorNumber)
     {
         if (VoteManager.Instance != null)
-            VoteManager.Instance.OnDeadBodyReported();
+            VoteManager.Instance.OnDeadBodyReported(reporterActorNumber);
         else
             Debug.LogWarning("[PlayerManager] VoteManager.Instance가 null 임");
     }
 
     // 중앙 소집 버튼 사용 시 모든 플레이어 텔레포트 요청
-    public void RequestCenterCall()
+    public void RequestCenterCall(int reporterActorNumber)
     {
-        _view.RPC(nameof(RpcCenterCall), RpcTarget.All);
+        _view.RPC(nameof(RpcCenterCall), RpcTarget.All, reporterActorNumber);
     }
 
     [PunRPC]
-    private void RpcCenterCall()
+    private void RpcCenterCall(int reporterActorNumber)
     {
         if (VoteManager.Instance != null)
-            VoteManager.Instance.OnCenterReported();
+            VoteManager.Instance.OnCenterReported(reporterActorNumber);
         else
             Debug.LogWarning("[PlayerManager] VoteManager.Instance가 null 임");
     }
@@ -302,9 +306,17 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         else
             _citizenNum--;
 
+        // VoteRoomProperties에 사망 등록 (투표 UI에 반영)
+        if (_playersId.TryGetValue(viewId, out var player))
+        {
+            int actorNumber = player.photonView.OwnerActorNr;
+            if (VoteRoomProperties.Instance != null)
+                VoteRoomProperties.Instance.MarkPlayerDead(actorNumber);
+        }
+
         // 마피아 승리
-        if (_citizenNum == 0)
-            NoticeGameOverToAllPlayers(false);  
+        if (_citizenNum <= 0)
+            NoticeGameOverToAllPlayers(false);
     }
 
     [PunRPC]
