@@ -83,6 +83,8 @@ public class PlayerModel : MonoBehaviour
     // 체력의 회복과 감소 메서드
     public void TakeDamage(float damage)
     {
+        if (_isDead) return;
+
         _curHealthPoint -= damage;
         Debug.Log($"{damage}의 피해를 받았고 남은 체력은 {_curHealthPoint} 입니다.");
         OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
@@ -92,8 +94,6 @@ public class PlayerModel : MonoBehaviour
         {
             _curHealthPoint = 0f;
             _isDead = true;
-            // TODO: 여기서 사망처리 로직 변경 필요
-            // 시체 생성하고 시체가 애니메이션 재생하게
             Debug.Log("사망하였습니다.");
             StartCoroutine(DeathCor());
         }
@@ -108,29 +108,22 @@ public class PlayerModel : MonoBehaviour
         OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
 
         Debug.Log("투표로 처형되었습니다.");
-        StartCoroutine(DeathCor());
+        StartCoroutine(DeathCor(vote: true));
     }
 
-    IEnumerator DeathCor()
+    IEnumerator DeathCor(bool vote = false)
     {
         PlayerController controller = GetComponent<PlayerController>();
-        controller.StateMachine.ChangeState(controller.StateDeath);
-        this.Animator.SetBool(animNameOfDeath, true);
-        AnimatorStateInfo info =
-            Animator.GetCurrentAnimatorStateInfo(0);
-        while (info.IsName(animNameOfDeath) && info.normalizedTime < 0.95f)
-        {
-            yield return null;
-            info = Animator.GetCurrentAnimatorStateInfo(0);
-        }
         PlayerManager.Instance.NoticeDeathPlayer(controller);
-
         // 시체 생성 (네트워크 동기화)
-        SpawnDeadBody();
+        if (vote) SpawnDeadBody();
+
+        yield return null;
+
+        controller.StateMachine.ChangeState(controller.StateDeath);
     }
 
-    // TODO: 시체가 플레이어 모델 모양과 동일하게 (옷 색) 생성돼야함
-    // 생성되면서 사망 애니메이션 재생
+    // 시체 생성되면서 사망 애니메이션 재생
     private void SpawnDeadBody()
     {
         transform.GetPositionAndRotation(out Vector3 spawnPos, out Quaternion spawnRot);
@@ -161,8 +154,6 @@ public class PlayerModel : MonoBehaviour
         float prev = _curStamina;
         _curStamina = Mathf.Max(0f, _curStamina - amount);
         OnStaminaChanged?.Invoke(_curStamina, _maxStamina);
-
-        // Debug.Log($"스테미너 소모 : {prev:F1} -> {_curStamina:F1}");
 
         if(_curStamina <= 0f)
         {

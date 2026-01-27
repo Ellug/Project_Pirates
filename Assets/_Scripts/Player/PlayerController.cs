@@ -90,7 +90,7 @@ public class PlayerController : MonoBehaviourPun
 
         _camera = Camera.main;
         _camera.transform.SetParent(transform, false);
-        _camera.transform.localPosition = new Vector3(0f, 1.653f, 0.328f);
+        _camera.transform.localPosition = new Vector3(0f, 1.456f, 0.32f);
 
         InputJump = false;
         InputMove = Vector2.zero;
@@ -246,10 +246,7 @@ public class PlayerController : MonoBehaviourPun
 
         if (_model != null && !_model.IsRunning)
             _model.RecoverStamina(_model.StaminaRecoverPerSec * Time.fixedDeltaTime);
-    }
-
-    private void LateUpdate()
-    {
+        
         PlayerLook();
     }
 
@@ -259,12 +256,13 @@ public class PlayerController : MonoBehaviourPun
         float mouseY = _mouseDelta.y * _model.mouseSensitivity * Time.deltaTime;
 
         _xRotation -= mouseY;
-        _xRotation = Mathf.Clamp(_xRotation, -80f, 80f); // 위아래 80도 제한
+        _xRotation = Mathf.Clamp(_xRotation, -70f, 70f); // 위아래 80도 제한
 
         // 카메라와 플레이어 몸체에 회전 적용
         _camera.transform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f); // 카메라만 위아래로
         transform.Rotate(Vector3.up * mouseX); // 플레이어 몸체 전체가 좌우로 회전
     }
+    
     public void UpdateSensitivity(float value)
     {
         _model.mouseSensitivity = value;
