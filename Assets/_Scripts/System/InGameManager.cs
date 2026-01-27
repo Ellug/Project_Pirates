@@ -51,12 +51,12 @@ public class InGameManager : MonoBehaviourPunCallbacks
 
         if (PlayerController.LocalInstancePlayer == null)
         {
-            // 테스트용 임시 코드
-            int type = Random.Range(0, 2);
-            string char_type = type == 0 ? "PlayerFemale" : "PlayerMale";
+            // 테스트용 임시 코드 (남여 랜덤 생성)
+            //int type = Random.Range(0, 2);
+            //string char_type = type == 0 ? "PlayerFemale" : "PlayerMale";
 
             PlayerController.LocalInstancePlayer =
-                PhotonNetwork.Instantiate(char_type,
+                PhotonNetwork.Instantiate("PlayerMale",
                     new Vector3(0f, 3f, 0f),
                     Quaternion.identity);
         }

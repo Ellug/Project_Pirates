@@ -276,7 +276,9 @@ public class DeathState : IPlayerState
 
     public void Enter()
     {
-        Debug.Log("사망 상태 진입, 모든 키 입력을 무시함.");
+        Debug.Log("사망 상태 진입");
+        _player.transform.position = new Vector3(-300f, 25f, 0f);
+        _player.StateMachine.ChangeState(_player.StateIdle);
     }
 
     public void FrameUpdate() { }
