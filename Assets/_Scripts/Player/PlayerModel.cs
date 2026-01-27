@@ -102,19 +102,12 @@ public class PlayerModel : MonoBehaviour
     IEnumerator DeathCor()
     {
         PlayerController controller = GetComponent<PlayerController>();
-        controller.StateMachine.ChangeState(controller.StateDeath);
-        this.Animator.SetBool(animNameOfDeath, true);
-        AnimatorStateInfo info =
-            Animator.GetCurrentAnimatorStateInfo(0);
-        while (info.IsName(animNameOfDeath) && info.normalizedTime < 0.95f)
-        {
-            yield return null;
-            info = Animator.GetCurrentAnimatorStateInfo(0);
-        }
         PlayerManager.Instance.NoticeDeathPlayer(controller);
-
         // 시체 생성 (네트워크 동기화)
         SpawnDeadBody();
+        yield return null;
+
+        controller.StateMachine.ChangeState(controller.StateDeath);
     }
 
     // TODO: 시체가 플레이어 모델 모양과 동일하게 (옷 색) 생성돼야함

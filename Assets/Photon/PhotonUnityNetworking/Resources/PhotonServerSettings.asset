@@ -66,6 +66,11 @@ MonoBehaviour:
   - RpcRemoveDeadBody
   - RpcCenterCall
   - RpcRemoveAllDeadBodies
+  - RPC_FailSabotage
+  - RPC_RequestResolve
+  - RPC_RequestStart
+  - RPC_ResolveSabotage
+  - RPC_StartSabotage
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0
