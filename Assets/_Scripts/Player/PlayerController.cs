@@ -1,6 +1,7 @@
 ﻿using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using DG.Tweening;
 
 public class PlayerController : MonoBehaviourPun
 {
@@ -16,6 +17,9 @@ public class PlayerController : MonoBehaviourPun
     private PhotonView _view;
     private PlayerInteraction _playerInteraction;
     private PlayerModel _model;
+    private float _standingCameraY;
+    private float _crouchingCameraY;
+    Tween _camDOTween;
 
     private ExitGames.Client.Photon.Hashtable _table;
 
@@ -84,13 +88,14 @@ public class PlayerController : MonoBehaviourPun
             foreach (var avatar in _localHideSkin)
                 avatar.enabled = false;
 
-        // ===== [정리] 커서 Lock은 InputManager가 담당하므로 여기서 설정하지 않음 =====
-        // Cursor.lockState = CursorLockMode.Locked;
         isMafia = false;
+
+        _standingCameraY = 1.456f;
+        _crouchingCameraY = _standingCameraY / 2f;
 
         _camera = Camera.main;
         _camera.transform.SetParent(transform, false);
-        _camera.transform.localPosition = new Vector3(0f, 1.456f, 0.32f);
+        _camera.transform.localPosition = new Vector3(0f, _standingCameraY, 0.32f);
 
         InputJump = false;
         InputMove = Vector2.zero;
@@ -297,9 +302,17 @@ public class PlayerController : MonoBehaviourPun
     private void OnCrouch(InputAction.CallbackContext ctx)
     {
         if (ctx.performed)
+        {
             _model.IsCrouching = true;
+            _camDOTween.Kill();
+            _camDOTween = _camera.transform.DOLocalMoveY(_crouchingCameraY, 0.3f);
+        }
         else
+        {
             _model.IsCrouching = false;
+            _camDOTween.Kill();
+            _camDOTween = _camera.transform.DOLocalMoveY(_standingCameraY, 0.3f);
+        }
     }
 
     private void OnJump(InputAction.CallbackContext ctx)
