@@ -122,9 +122,6 @@ public class InGameManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("[InGame] ExitForLocal -> LoadScene(Room)");
 
-        //GameManager.Instance.ResumeGame();
-
-
         // Photon 룸은 유지한 채, 로컬 씬만 이동
         // PN 뭔가 해줘야한다 -> 플레이어를 명시적으로 파괴해야함.
         if (PlayerController.LocalInstancePlayer != null)
