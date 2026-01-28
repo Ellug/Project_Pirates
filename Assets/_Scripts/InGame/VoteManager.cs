@@ -31,11 +31,17 @@ public class VoteManager : MonoBehaviourPunCallbacks
     [SerializeField] private float _resultDisplayTime = 5f;
     [SerializeField] private float _postVoteCleanupDelay = 2f;
 
+    // 디버그용 시간 오버라이드 (-1이면 기본값 사용)
+    private float _debugDiscussionTime = -1f;
+    private float _debugVotingTime = -1f;
+    private float _debugResultTime = -1f;
+
     [Header("Dead Player Area")]
     [SerializeField] private Transform _deadPlayerArea;
 
     private List<Vector3> _usedPositions = new();
     private VoteRoomProperties _voteProps;
+    private PhotonView _view;
     private Coroutine _voteCoroutine;
     private Coroutine _timerCoroutine;
     private Coroutine _postVoteCleanupCoroutine;
@@ -45,6 +51,7 @@ public class VoteManager : MonoBehaviourPunCallbacks
     void Awake()
     {
         Instance = this;
+        _view = GetComponent<PhotonView>();
     }
 
     void Start()
@@ -127,13 +134,14 @@ public class VoteManager : MonoBehaviourPunCallbacks
     {
         // 1. 토론 시간
         _voteProps.SetVotePhase(VotePhase.Discussion);
-        yield return new WaitForSeconds(_discussionTime);
+        yield return new WaitForSeconds(GetDiscussionTime());
 
         // 2. 투표 시간
         _voteProps.SetVotePhase(VotePhase.Voting);
 
         float elapsed = 0f;
-        while (elapsed < _votingTime)
+        float votingDuration = GetVotingTime();
+        while (elapsed < votingDuration)
         {
             // 모든 생존자가 투표하면 조기 종료
             if (_voteProps.AllAlivePlayersVoted())
@@ -145,7 +153,7 @@ public class VoteManager : MonoBehaviourPunCallbacks
 
         // 3. 결과 표시
         _voteProps.SetVotePhase(VotePhase.Result);
-        yield return new WaitForSeconds(_resultDisplayTime);
+        yield return new WaitForSeconds(GetResultTime());
 
         // 4. 투표 결과 처리
         ProcessVoteResult();
@@ -316,13 +324,13 @@ public class VoteManager : MonoBehaviourPunCallbacks
         switch (phase)
         {
             case VotePhase.Discussion:
-                _timerCoroutine = StartCoroutine(PhaseTimerCoroutine(_discussionTime));
+                _timerCoroutine = StartCoroutine(PhaseTimerCoroutine(GetDiscussionTime()));
                 break;
             case VotePhase.Voting:
-                _timerCoroutine = StartCoroutine(PhaseTimerCoroutine(_votingTime));
+                _timerCoroutine = StartCoroutine(PhaseTimerCoroutine(GetVotingTime()));
                 break;
             case VotePhase.Result:
-                _timerCoroutine = StartCoroutine(PhaseTimerCoroutine(_resultDisplayTime));
+                _timerCoroutine = StartCoroutine(PhaseTimerCoroutine(GetResultTime()));
                 break;
             default:
                 if (_voteUI != null)
@@ -433,4 +441,41 @@ public class VoteManager : MonoBehaviourPunCallbacks
         _DeadBodyAlertPanel.SetActive(false);
         _CenterAlertPanel.SetActive(false);
     }
+
+    // ***********************************************************
+    // DevConsole 전용 : 투표 시간 설정 (모든 클라이언트에 동기화)
+    public void RequestSetVoteTime(float discussion, float voting, float result)
+    {
+        if (_view == null)
+        {
+            _view = GetComponent<PhotonView>();
+            if (_view == null)
+            {
+                Debug.LogWarning("[VoteManager] PhotonView가 없어서 동기화 불가. 로컬만 적용.");
+                SetVoteTimeLocal(discussion, voting, result);
+                return;
+            }
+        }
+
+        _view.RPC(nameof(RpcSetVoteTime), RpcTarget.All, discussion, voting, result);
+    }
+
+    [PunRPC]
+    private void RpcSetVoteTime(float discussion, float voting, float result)
+    {
+        SetVoteTimeLocal(discussion, voting, result);
+    }
+
+    private void SetVoteTimeLocal(float discussion, float voting, float result)
+    {
+        _debugDiscussionTime = discussion;
+        _debugVotingTime = voting;
+        _debugResultTime = result;
+        Debug.Log($"[VoteManager] 투표 시간 변경됨 - 토론: {discussion}s, 투표: {voting}s, 결과: {result}s");
+    }
+
+    // 실제 사용할 시간 반환 (디버그 오버라이드 적용)
+    private float GetDiscussionTime() => _debugDiscussionTime > 0 ? _debugDiscussionTime : _discussionTime;
+    private float GetVotingTime() => _debugVotingTime > 0 ? _debugVotingTime : _votingTime;
+    private float GetResultTime() => _debugResultTime > 0 ? _debugResultTime : _resultDisplayTime;
 }
