@@ -116,7 +116,7 @@ public class PlayerModel : MonoBehaviour
         PlayerController controller = GetComponent<PlayerController>();
         PlayerManager.Instance.NoticeDeathPlayer(controller);
         // 시체 생성 (네트워크 동기화)
-        if (vote) SpawnDeadBody();
+        if (!vote) SpawnDeadBody();
 
         yield return null;
 
