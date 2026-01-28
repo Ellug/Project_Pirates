@@ -49,6 +49,11 @@ public class InGameManager : MonoBehaviourPunCallbacks
 
         yield return new WaitForSeconds(3f);
 
+        int maxPlayerCount = PhotonNetwork.CurrentRoom.MaxPlayers;
+        int myPlayerNum = PhotonNetwork.LocalPlayer.ActorNumber;
+        
+        int SpawnPos = (myPlayerNum - 1) % maxPlayerCount;
+
         if (PlayerController.LocalInstancePlayer == null)
         {
             // 테스트용 임시 코드 (남여 랜덤 생성)
@@ -57,7 +62,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
 
             PlayerController.LocalInstancePlayer =
                 PhotonNetwork.Instantiate("PlayerMale",
-                    new Vector3(0f, 3f, 0f),
+                    new Vector3(3f, 1f, SpawnPos * 2),
                     Quaternion.identity);
         }
 
