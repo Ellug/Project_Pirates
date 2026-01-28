@@ -17,6 +17,7 @@ public class FadeController : MonoBehaviour
     void Start()
     {
         GameManager.Instance.SetFadingController(this);
+        _subText.text = "다른 플레이어를 기다리는 중입니다...";
     }
     public void StartInGameFade(bool isMafia, BaseJob jopType)
     {
@@ -60,10 +61,11 @@ public class FadeController : MonoBehaviour
             _lightEffect.color = new Color(255, 0, 0);
         }
 
-        StartCoroutine(Fading());
-        InGameManager.ExitForLocal();
+        StartCoroutine(Fading(() => {
+            InGameManager.ExitForLocal();
+            }));
     }
-    IEnumerator Fading()
+    IEnumerator Fading(Action onEndGame = null)
     {
         float alpha = 0f;
         while (alpha < 1.0f)
@@ -84,6 +86,12 @@ public class FadeController : MonoBehaviour
             SetAlpha(_mainText, alpha);
             SetAlpha(_subText, alpha);
             yield return null;
+        }
+
+        if (onEndGame != null)
+        {
+            onEndGame?.Invoke();
+            yield break;
         }
 
         float panelAlpha = 1.0f;
