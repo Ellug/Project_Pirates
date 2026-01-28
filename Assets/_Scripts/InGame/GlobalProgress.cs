@@ -2,16 +2,20 @@
 using Photon.Pun;
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
+// 글로벌 진행도의 역할
+// 1. 미션 클리어 소식을 받으면 해당 점수만큼 진행도를 증가 시킴.
+// 2. 일정 시간마다 진행도를 1%씩 증가 시킴.
+// 3. 진행도가 100%가 되면 시민 승리
 public class GlobalProgress : MonoBehaviourPunCallbacks
 {
     [Header("Reference")]
     [SerializeField] private CustomPropertyManager _roomProps;
-
-    [Header("Mission Setting")]
-    [Tooltip("전체 미션 갯수")]
-    [SerializeField] private int _totalMissionCount = 5;
+    [SerializeField] private Image _progressBar;
+    [SerializeField] private TextMeshProUGUI _progressPercent;
 
     // 공통 키
     private const string MissionPrefix = "world.mission.";
@@ -56,9 +60,9 @@ public class GlobalProgress : MonoBehaviourPunCallbacks
             _roomProps.OnRoomPropertyChanged -= OnRoomPropertyChanged;
     }
 
-    public void CompleteMission(string missionId)
+    public void CompleteMission(float missionScore)
     {
-        string key = MissionPrefix + missionId;
+        string key = MissionPrefix + missionScore;
 
         if (_missionStates.TryGetValue(key, out bool done) && done)
             return;
@@ -98,20 +102,18 @@ public class GlobalProgress : MonoBehaviourPunCallbacks
         OnMissionStateChanged?.Invoke(missionId, completed);
     }
 
+    // 미션 완료 시 점수
     private void ApplyCompletedCount(int count, bool isInit)
     {
         _completedMissionCount = count;
 
-        int percent = GetProgressPercent();
+        // int percent = GetProgressPercent();
 
-        Debug.Log(isInit
-            ? $"[GlobalProgress] Progress Init : {_completedMissionCount}/{_totalMissionCount} ({percent}%)"
-            : $"[GlobalProgress] Progress Changed : {_completedMissionCount}/{_totalMissionCount} ({percent}%)");
+        // OnProgressChanged?.Invoke(percent);
 
-        OnProgressChanged?.Invoke(percent);
-
-        if(_completedMissionCount == _totalMissionCount)
-            PlayerManager.Instance.NoticeGameOverToAllPlayers(true);
+        // 진행도 100% 시 승리 알림.
+        // if()
+        //     PlayerManager.Instance.NoticeGameOverToAllPlayers(true);
     }
 
     public bool IsMissionCompleted(string missionId)
@@ -121,14 +123,8 @@ public class GlobalProgress : MonoBehaviourPunCallbacks
 
     public int GetCompletedCount() => _completedMissionCount;
 
-    public int GetProgressPercent()
+    public float GetProgressPercent()
     {
-        if (_totalMissionCount <= 0)
-            return 0;
-
-        return Mathf.Clamp(
-            Mathf.RoundToInt((float)_completedMissionCount / _totalMissionCount * 100f),
-            0,
-            100);
+        return 0f;
     }
 }

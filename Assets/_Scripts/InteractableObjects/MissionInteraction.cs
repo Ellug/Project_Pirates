@@ -2,8 +2,16 @@
 
 public class MissionInteraction : InteractionObject
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [Header("Mission Container Index")]
+    [SerializeField] private int _missionIndex = 0;
+
+
+    public override void OnInteract(PlayerInteraction player, InteractionObjectRpcManager rpcManager)
+    {
+        
+    }
+
+    public override void OnOthersInteract()
     {
         
     }
