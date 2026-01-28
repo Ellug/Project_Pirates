@@ -16,7 +16,7 @@
   <Project Path="PhotonVoice.PUN.csproj" />
   <Project Path="Voice.FMOD.Editor.csproj" />
   <Project Path="PhotonVoice.Editor.csproj" />
-  <Project Path="PhotonVoice.Utilities.Editor.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="PhotonVoice.Utilities.Editor.csproj" />
   <Project Path="PhotonUnityNetworking.Utilities.Culling.Editor.csproj" />
 </Solution>
