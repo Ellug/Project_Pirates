@@ -3,8 +3,8 @@
 public abstract class MissionBase : MonoBehaviour
 {
     [Header("Mission Info")]
-    [SerializeField] private string _missionTitle;
-    [SerializeField] private string _missionDescription;
+    public string _missionTitle;
+    public string _missionDescription;
     [SerializeField] private float _missionScore;
 
     protected GlobalProgress globalProgress;
