@@ -5,7 +5,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -56,6 +55,29 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
         if (_roomUI != null)
             _roomUI.RoomSettingsApplyRequested += HandleRoomSettingsApplyRequested;
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            var prop = PhotonNetwork.CurrentRoom.CustomProperties;
+
+            if (prop != null)
+            {
+                if (prop.TryGetValue(ROOM_TITLE_KEY, out var title))
+                {
+                    if (prop.TryGetValue(ROOM_PW_KEY, out var roomPW))
+                    {
+                        PhotonNetwork.CurrentRoom.CustomProperties.Clear();
+
+                        var props = new ExitGames.Client.Photon.Hashtable
+                    {
+                        { ROOM_TITLE_KEY, title },
+                        { ROOM_PW_KEY, roomPW }
+                    };
+                        PhotonNetwork.CurrentRoom.SetCustomProperties(props);
+                    }
+                }
+            }
+        }
 
         // 방 진입 후 내 상태 출력
         StartCoroutine(CoWaitRoomThenRefresh());
