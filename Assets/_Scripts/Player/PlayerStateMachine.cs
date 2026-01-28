@@ -104,24 +104,30 @@ public class MoveState : IPlayerState
             // 러닝 상태에서는 스태미너 감소
             _model.Animator.SetBool(_model.animNameOfRun, true);
             _model.ConsumeStamina(_model.SprintStaminaDrainPerSec * Time.fixedDeltaTime);
-
-            _model.Animator.SetBool(_model.animNameOfRun, true);
             _model.Animator.SetFloat(_model.animNameOfMove, 1f);
             _player.transform.Translate(Time.fixedDeltaTime * _model.runSpeed * dir);
             return;
         }
+        else
+            _model.Animator.SetBool(_model.animNameOfRun, false);
+
         if (_model.IsCrouching)
         {
+
             _model.Animator.SetBool(_model.animNameOfCrouch, true);
             _model.Animator.SetFloat(_model.animNameOfMove, 0.01f);
             _player.transform.Translate(Time.fixedDeltaTime * _model.crouchSpeed * dir);
             return;
         }
+        else
+            _model.Animator.SetBool(_model.animNameOfCrouch, false);
+
         _model.Animator.SetFloat(_model.animNameOfMove, 0.5f);
         _player.transform.Translate(Time.fixedDeltaTime * _model.baseSpeed * dir);
     }
     public void Exit() 
     {
+        _model.Animator.SetBool(_model.animNameOfRun, false);
         _model.Animator.SetFloat(_model.animNameOfMove, 0f);
     }
 }

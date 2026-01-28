@@ -26,7 +26,7 @@ public sealed class PlayerFootstepSfx : MonoBehaviour
     private AudioSource _src;
     private float _timer;
 
-    private void Awake()
+    void Awake()
     {
         _model = GetComponent<PlayerModel>();
         _src = GetComponent<AudioSource>();
@@ -38,12 +38,12 @@ public sealed class PlayerFootstepSfx : MonoBehaviour
             _src.outputAudioMixerGroup = _sfxGroup;
     }
 
-    private void Update()
+    void Update()
     {
         if (_model == null || _model.Animator == null) return;
 
         // 이동 여부는 애니 파라미터로 간단히(당신 코드 유지)
-        bool isMoving = _model.Animator.GetFloat(_model.animNameOfMove) > 0.1f;
+        bool isMoving = _model.Animator.GetFloat(_model.animNameOfMove) > 0.05f;
 
         if (!isMoving)
         {
@@ -51,7 +51,7 @@ public sealed class PlayerFootstepSfx : MonoBehaviour
             return;
         }
 
-        bool isRunning = _model.IsRunning;
+        bool isRunning = _model.Animator.GetBool(_model.animNameOfRun);
         float interval = isRunning ? _runInterval : _walkInterval;
 
         _timer += Time.deltaTime;

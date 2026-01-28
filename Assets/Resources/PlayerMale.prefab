@@ -316,7 +316,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b2388b7cee621b040a376272b202b6bf, type: 2}
+  - {fileID: 2100000, guid: 626803f80868b9c41974c84e0ddb98b9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1705,20 +1705,19 @@ MonoBehaviour:
   upperRenderers:
   - {fileID: 585665330150104161}
   upperMaterials:
-  - {fileID: 2100000, guid: df5e3a68f6a64bc47991758570bc7234, type: 2}
-  - {fileID: 2100000, guid: 7e565f3aac0473147a0919fd787d3df0, type: 2}
-  - {fileID: 2100000, guid: a8c3d28d729c26c48b4475708fddc003, type: 2}
-  - {fileID: 2100000, guid: d80a2dd096ab9494085309d3ebc958c9, type: 2}
-  - {fileID: 2100000, guid: 8de127cc6691b6a4f909f53f77601562, type: 2}
-  - {fileID: 2100000, guid: 1a22524e2fc7d6e4ebd42b7dabd98f53, type: 2}
-  - {fileID: 2100000, guid: aa915431f2101f5429ca9961fde080fc, type: 2}
-  - {fileID: 2100000, guid: 2d9ddd6eddd413d43bd6ef3df7df2950, type: 2}
-  - {fileID: 2100000, guid: 7827b7ffe75418742b7e1ca55e9e8de7, type: 2}
-  - {fileID: 2100000, guid: 55a96682836bc07499a3e50875b04e46, type: 2}
-  - {fileID: 2100000, guid: 4fb15b336dcba3b4f9b43260e530d9d9, type: 2}
-  - {fileID: 2100000, guid: 580b31f87da5ea84788d44b71795d33d, type: 2}
-  - {fileID: 2100000, guid: 48ad48d3a7dc3124695e224fb870fdee, type: 2}
-  - {fileID: 2100000, guid: 5b3e2b2965f22d84d9f3d8d5556e93ce, type: 2}
+  - {fileID: 2100000, guid: 7f8a1b431e8764e4b91ecb24d77399ba, type: 2}
+  - {fileID: 2100000, guid: a2db4517e8ab19e4d90efe7781954a9c, type: 2}
+  - {fileID: 2100000, guid: b396e3dd595d41d4dac3f84f575e4ccf, type: 2}
+  - {fileID: 2100000, guid: 5cc05ca0938544342bde426d48627865, type: 2}
+  - {fileID: 2100000, guid: 4d317b66d1edb4e438102cff35bc612c, type: 2}
+  - {fileID: 2100000, guid: 80122d56dc6d8d341a3398d229eabb1b, type: 2}
+  - {fileID: 2100000, guid: 776ebc0618455f74ca77ca30b78175e3, type: 2}
+  - {fileID: 2100000, guid: 5b64ddd61243674438e5858f84428c2a, type: 2}
+  - {fileID: 2100000, guid: 20f9a538ecb6f644ca27d733d82db159, type: 2}
+  - {fileID: 2100000, guid: 77f2696d4547f314185a62c12fe9f6a4, type: 2}
+  - {fileID: 2100000, guid: 7804a21ea96af0c4bab672f9f3798c37, type: 2}
+  - {fileID: 2100000, guid: 99248c5f2fd19704da9724a4e7e02d5f, type: 2}
+  - {fileID: 2100000, guid: 626803f80868b9c41974c84e0ddb98b9, type: 2}
 --- !u!1 &3737917190972728268
 GameObject:
   m_ObjectHideFlags: 0
