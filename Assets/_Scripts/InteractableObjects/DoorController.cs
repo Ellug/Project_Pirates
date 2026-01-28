@@ -1,15 +1,18 @@
 ﻿using ExitGames.Client.Photon;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 public class DoorInteraction : InteractionObject
 {
     [Header("Door Settings")]
-    [SerializeField] private string _doorId = "A";
+    [SerializeField] private int _doorId;
     [SerializeField] private float _openSpeed = 5f;
     [SerializeField] private float _openAngle = 120f;
 
     [Header("Reference")]
-    [SerializeField] private CustumPropertieManager _roomProps;
+    [SerializeField] private CustomPropertyManager _roomProps;
 
     [Tooltip("실제로 회전할 문 오브젝트")]
     [SerializeField] private Transform _doorPivot;
@@ -26,7 +29,7 @@ public class DoorInteraction : InteractionObject
     private void Awake()
     {
         if (_roomProps == null)
-            _roomProps = FindFirstObjectByType<CustumPropertieManager>();
+            _roomProps = FindFirstObjectByType<CustomPropertyManager>();
 
         if (_doorPivot == null)
             _doorPivot = transform;
@@ -62,7 +65,7 @@ public class DoorInteraction : InteractionObject
             Time.deltaTime * _openSpeed);
     }
 
-    public override void OnInteract(PlayerInteraction player)
+    public override void OnInteract(PlayerInteraction player, InteractionObjectRpcManager rpcManager)
     {
         bool newOpen = !_isOpen;
         float angle = newOpen ? _openAngle : 0f;
@@ -102,4 +105,30 @@ public class DoorInteraction : InteractionObject
             ? $"[Door] Init : {open} / {angle}"
             : $"[Door] Changed : {open} / {angle}");
     }
+
+#if UNITY_EDITOR
+    [ContextMenu("Auto Assign Unique IDs")]
+    private void AutoAssignIDs()
+    {
+        DoorInteraction[] foundObjects =
+            FindObjectsByType<DoorInteraction>(FindObjectsSortMode.None);
+
+        // 로컬 환경 통일을 위해 이름 순으로 정렬
+        System.Array.Sort(foundObjects, (a, b) => string.Compare(a.name, b.name));
+
+        // 찾아낸 오브젝트들에게 순차적으로 ID를 부여함
+        for (int i = 0; i < foundObjects.Length; i++)
+        {
+            if (foundObjects[i]._doorId != i)
+            {
+                Undo.RecordObject(foundObjects[i], "Assign ID");
+                foundObjects[i]._doorId = i;
+
+                EditorUtility.SetDirty(foundObjects[i]);
+            }
+        }
+        // 결과 확인용
+        Debug.Log($"총 {foundObjects.Length}개의 오브젝트에 ID 할당이 완료되었습니다!");
+    }
+#endif
 }

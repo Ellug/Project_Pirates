@@ -13,6 +13,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
     // 아래 필드들은 마스터 클라이언트만 쓴다.
     private Dictionary<int, PlayerController> _playersId = new Dictionary<int, PlayerController>();
+    private Transform[] _spawnPointList;
     private int _mafiaNum = 0;
     private int _citizenNum = 0;
     public int onLoadedPlayer = 0;
@@ -23,8 +24,13 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            _view = GetComponent<PhotonView>();
         }
-        _view = GetComponent<PhotonView>();
+        else if (Instance != this)
+        {
+            // 중복 인스턴스는 즉시 파괴
+            Destroy(gameObject);
+        }
     }
 
     // 게임 시작시 세팅은 마스터 클라이언트만 실행
@@ -71,6 +77,47 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         {
             Debug.LogError("Can't found all players");
             yield break;
+        }
+
+        yield return null; // 혹시 모르니 인게임 씬 유니티 라이프 싸이클 한번 돌릴 시간
+
+        // ============ 투표 시스템 초기화 ============
+        if (VoteRoomProperties.Instance != null)
+            VoteRoomProperties.Instance.InitializePlayerList();
+
+        // ============ 무작위 스폰 포인트 선정 & 플레이어 이동 ============
+
+        if (_spawnPointList != null)
+        {
+            int[] playerSpawnPosList = new int[players.Length];
+            for (int i = 0; i < playerSpawnPosList.Length; )
+            {
+                int randSpawn = UnityEngine.Random.Range(1, _spawnPointList.Length);
+                for (int j = 0; j < playerSpawnPosList.Length; j++)
+                {
+                    if (playerSpawnPosList[j] == 0)
+                    {
+                        playerSpawnPosList[j] = randSpawn;
+                        i++;
+                        break;
+                    }
+                    else if (playerSpawnPosList[j] == randSpawn)
+                    {
+                        break;
+                    }
+                }
+            }
+            // 검증: 딕셔너리의 플레이어 수와 스폰 포지션 리스트 길이는 같아야한다.
+            if (_playersId.Count == playerSpawnPosList.Length)
+            {
+                int count = 0;
+                foreach (var player in _playersId)
+                {
+                    player.Value.RequestSpawnPostion(_spawnPointList[playerSpawnPosList[count]].position);
+                    count++;
+                    if (count >= _spawnPointList.Length) break; // 이거 통과할 일 없겠지만 혹시 몰라 또 안전코드
+                }
+            }
         }
 
         // ============ 마피아 무작위로 부여 ============
@@ -131,6 +178,11 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         _view.RPC(nameof(ChangeInGameScene), RpcTarget.All);
     }
 
+    public void SetSpawnPointList(Transform[] spawnPointList)
+    {
+        _spawnPointList = spawnPointList;
+    }
+
     public void NoticeDeathPlayer(PlayerController player)
     {
         // 마스터 클라이언트에게 내 죽음을 알림.
@@ -138,9 +190,99 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             player.GetComponent<PhotonView>().ViewID);
     }
 
+    // 시체 생성 요청 -> 모든 클라이언트에서 로컬 생성
+    private int _deadBodyIdCounter = 10000; // 시체 고유 ID 카운터
+
+    public void RequestSpawnDeadBody(Vector3 position, Quaternion rotation)
+    {
+        int deadBodyId = _deadBodyIdCounter++;
+        _view.RPC(nameof(RpcSpawnDeadBody), RpcTarget.All, position, rotation, deadBodyId);
+    }
+
+    [PunRPC]
+    private void RpcSpawnDeadBody(Vector3 position, Quaternion rotation, int deadBodyId)
+    {
+        GameObject deadBodyPrefab = Resources.Load<GameObject>("DeadBodyMale");
+        if (deadBodyPrefab != null)
+        {
+            GameObject deadBody = Instantiate(deadBodyPrefab, position, rotation);
+            DeadBody db = deadBody.GetComponent<DeadBody>();
+            if (db != null)
+                db.InitializeWithId(deadBodyId);
+
+            Debug.Log($"[DeadBody] 시체 생성 완료 - ID: {deadBodyId}, 위치: {position}");
+        }
+        else
+        {
+            Debug.LogError("[DeadBody] Deadbody 프리팹을 Resources 폴더에서 찾을 수 없습니다.");
+        }
+    }
+
+    // 시체 하나 제거 요청 -> 모든 클라이언트에서 제거
+    // public void RequestRemoveDeadBody(int deadBodyId)
+    // {
+    //     _view.RPC(nameof(RpcRemoveDeadBody), RpcTarget.All, deadBodyId);
+    // }
+
+    // [PunRPC]
+    // private void RpcRemoveDeadBody(int deadBodyId)
+    // {
+    //     if (InteractionObjectRpcManager.Instance != null)
+    //     {
+    //         InteractionObjectRpcManager.Instance.UnregisterAndDestroy(deadBodyId);
+    //         Debug.Log($"[DeadBody] 시체 제거 완료 - ID: {deadBodyId}");
+    //     }
+    // }
+
+    // 모든 시체 제거 요청 -> 모든 클라이언트에서 제거
+    public void RequestRemoveAllDeadBodies()
+    {
+        _view.RPC(nameof(RpcRemoveAllDeadBodies), RpcTarget.All);
+    }
+
+    [PunRPC]
+    private void RpcRemoveAllDeadBodies()
+    {
+        if (InteractionObjectRpcManager.Instance != null)
+        {
+            int removedCount = InteractionObjectRpcManager.Instance.UnregisterAndDestroyAllDeadBodies();
+            Debug.Log($"[DeadBody] 모든 시체 제거 완료 - 총 {removedCount}개");
+        }
+    }
+
     public void NoticeGameOverToAllPlayers(bool isCitizenVictory)
     {
         _view.RPC(nameof(GameOverAndJudge), RpcTarget.All, isCitizenVictory);
+    }
+
+    // 시체 신고 완료 시 모든 플레이어 텔레포트 요청
+    public void RequestTeleportAllPlayers(int reporterActorNumber)
+    {
+        _view.RPC(nameof(RpcTeleportAllPlayers), RpcTarget.All, reporterActorNumber);
+    }
+
+    [PunRPC]
+    private void RpcTeleportAllPlayers(int reporterActorNumber)
+    {
+        if (VoteManager.Instance != null)
+            VoteManager.Instance.OnDeadBodyReported(reporterActorNumber);
+        else
+            Debug.LogWarning("[PlayerManager] VoteManager.Instance가 null 임");
+    }
+
+    // 중앙 소집 버튼 사용 시 모든 플레이어 텔레포트 요청
+    public void RequestCenterCall(int reporterActorNumber)
+    {
+        _view.RPC(nameof(RpcCenterCall), RpcTarget.All, reporterActorNumber);
+    }
+
+    [PunRPC]
+    private void RpcCenterCall(int reporterActorNumber)
+    {
+        if (VoteManager.Instance != null)
+            VoteManager.Instance.OnCenterReported(reporterActorNumber);
+        else
+            Debug.LogWarning("[PlayerManager] VoteManager.Instance가 null 임");
     }
 
     [PunRPC]
@@ -164,9 +306,17 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         else
             _citizenNum--;
 
+        // VoteRoomProperties에 사망 등록 (투표 UI에 반영)
+        if (_playersId.TryGetValue(viewId, out var player))
+        {
+            int actorNumber = player.photonView.OwnerActorNr;
+            if (VoteRoomProperties.Instance != null)
+                VoteRoomProperties.Instance.MarkPlayerDead(actorNumber);
+        }
+
         // 마피아 승리
-        if (_citizenNum == 0)
-            NoticeGameOverToAllPlayers(false);  
+        if (_citizenNum <= 0)
+            NoticeGameOverToAllPlayers(false);
     }
 
     [PunRPC]

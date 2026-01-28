@@ -1,8 +1,7 @@
-﻿using Photon.Pun;
-using UnityEngine;
+﻿using UnityEngine;
 
 // 상호작용 가능한 모든 오브젝트는 이 클래스를 상속 받는다.
-public abstract class InteractionObject : MonoBehaviourPunCallbacks
+public abstract class InteractionObject : MonoBehaviour
 {
     // 모든 상호작용 오브젝트는 고유 ID를 가짐.
     [Header("Network Unique ID")]
@@ -13,7 +12,7 @@ public abstract class InteractionObject : MonoBehaviourPunCallbacks
 
     // 상호작용을 한 사람에게 일어날 로직
     // (오버라이드 안하면 로그만 출력)
-    public virtual void OnInteract(PlayerInteraction player)
+    public virtual void OnInteract(PlayerInteraction player, InteractionObjectRpcManager rpcManager)
     {
         Debug.Log("상호작용 됨.");
     }

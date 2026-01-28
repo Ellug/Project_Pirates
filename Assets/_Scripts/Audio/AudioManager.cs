@@ -26,7 +26,7 @@ public sealed class AudioManager : Singleton<AudioManager>
         PrepareBgm(_bgmB);
     }
 
-    private void Start()
+    void Start()
     {
         LoadAndApplySavedVolumes();
     }
@@ -40,12 +40,12 @@ public sealed class AudioManager : Singleton<AudioManager>
         s.volume = 0f;
     }
 
-    // BGM
+    #region BGM
+
     public void PlayBgm(SceneState state)
     {
         if (_bgmTable == null) return;
         if (!_bgmTable.TryGetClip(state, out var clip) || clip == null) return;
-
         CrossFadeTo(clip);
     }
 
@@ -54,12 +54,10 @@ public sealed class AudioManager : Singleton<AudioManager>
         if (_bgmA == null || _bgmB == null) return;
 
         var from = GetDominantSource();
-        var to   = (from == _bgmA) ? _bgmB : _bgmA;
+        var to = (from == _bgmA) ? _bgmB : _bgmA;
 
-        // 같은 트랙이면 무시
         if (from.isPlaying && from.clip == clip) return;
 
-        // to 재사용
         if (to.isPlaying) to.Stop();
         to.clip = clip;
         to.volume = 0f;
@@ -71,7 +69,6 @@ public sealed class AudioManager : Singleton<AudioManager>
 
     private AudioSource GetDominantSource()
     {
-        // 둘 다 안 돌면 A를 기준으로 (첫 재생)
         if (!_bgmA.isPlaying && !_bgmB.isPlaying) return _bgmA;
         return (_bgmA.volume >= _bgmB.volume) ? _bgmA : _bgmB;
     }
@@ -82,7 +79,6 @@ public sealed class AudioManager : Singleton<AudioManager>
         {
             if (from != null && from.isPlaying) from.Stop();
             if (from != null) from.volume = 0f;
-
             if (to != null) to.volume = toTarget;
             _fadeCo = null;
             yield break;
@@ -97,7 +93,7 @@ public sealed class AudioManager : Singleton<AudioManager>
             float a = Mathf.Clamp01(t / seconds);
 
             if (from != null) from.volume = Mathf.Lerp(fromStart, 0f, a);
-            if (to != null)   to.volume   = Mathf.Lerp(0f, toTarget, a);
+            if (to != null) to.volume = Mathf.Lerp(0f, toTarget, a);
 
             yield return null;
         }
@@ -110,27 +106,29 @@ public sealed class AudioManager : Singleton<AudioManager>
         }
 
         if (to != null) to.volume = toTarget;
-
         _fadeCo = null;
     }
 
-    // UI
+    #endregion
+
+    #region UI
+
     public void PlayUi(AudioClip clip, float volume = 1f)
     {
         if (clip == null || _uiSource == null) return;
         _uiSource.PlayOneShot(clip, Mathf.Clamp01(volume));
     }
 
-    // Volume
+    #endregion
+
+    #region Volume
+
     public void LoadAndApplySavedVolumes()
     {
-        float master = PlayerPrefs.GetFloat(AudioParam.MASTER_KEY, 1f);
-        float bgm    = PlayerPrefs.GetFloat(AudioParam.BGM_KEY, 1f);
-        float ui     = PlayerPrefs.GetFloat(AudioParam.UI_KEY, 1f);
-
-        SetVolume(AudioBus.Master, master);
-        SetVolume(AudioBus.BGM, bgm);
-        SetVolume(AudioBus.UI, ui);
+        SetVolume(AudioBus.Master, PlayerPrefs.GetFloat(AudioParam.MASTER_KEY, 1f));
+        SetVolume(AudioBus.BGM, PlayerPrefs.GetFloat(AudioParam.BGM_KEY, 1f));
+        SetVolume(AudioBus.UI, PlayerPrefs.GetFloat(AudioParam.UI_KEY, 1f));
+        SetVolume(AudioBus.SFX, PlayerPrefs.GetFloat(AudioParam.SFX_KEY, 1f));
     }
 
     public void SetVolume(AudioBus bus, float normalized01)
@@ -139,12 +137,15 @@ public sealed class AudioManager : Singleton<AudioManager>
 
         float db = NormalizedToDb(normalized01);
 
-        switch (bus)
+        string param = bus switch
         {
-            case AudioBus.BGM: _mixer.SetFloat(AudioParam.BGM_PARAM, db); break;
-            case AudioBus.UI:  _mixer.SetFloat(AudioParam.UI_PARAM, db);  break;
-            default:           _mixer.SetFloat(AudioParam.MASTER_PARAM, db); break;
-        }
+            AudioBus.BGM => AudioParam.BGM_PARAM,
+            AudioBus.UI => AudioParam.UI_PARAM,
+            AudioBus.SFX => AudioParam.SFX_PARAM,
+            _ => AudioParam.MASTER_PARAM
+        };
+
+        _mixer.SetFloat(param, db);
     }
 
     private static float NormalizedToDb(float v01)
@@ -152,4 +153,6 @@ public sealed class AudioManager : Singleton<AudioManager>
         v01 = Mathf.Clamp(v01, 0.0001f, 1f);
         return Mathf.Log10(v01) * 20f;
     }
+
+    #endregion
 }

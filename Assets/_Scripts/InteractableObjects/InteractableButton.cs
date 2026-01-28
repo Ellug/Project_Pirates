@@ -1,5 +1,4 @@
-﻿using Photon.Pun;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class InteractableButton : InteractionObject
@@ -9,7 +8,7 @@ public class InteractableButton : InteractionObject
     private float _timer;
     private PlayerInteraction _player;
 
-    public override void OnInteract(PlayerInteraction player)
+    public override void OnInteract(PlayerInteraction player, InteractionObjectRpcManager rpcManager)
     {
         _player = player;
         StartCoroutine(MissionCountDown());

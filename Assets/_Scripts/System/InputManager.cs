@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -14,12 +14,21 @@ public class InputManager : Singleton<InputManager>
     [SerializeField] private GameObject _optionsRoot;
 
     private const string SCENE_INGAME = "InGame";
+    private const string SCENE_INGAMELOADING = "InGameLoading";
 
     private bool _isInGameScene;
+    private bool _isInGameLoadingScene;
 
     private InputActionMap _globalMap;
+    private InputActionMap _uiMap;
+    private InputActionMap _playerMap;
+
     private InputAction _toggleConsole; // F5
     private InputAction _toggleOptions; // ESC
+    private InputAction _toggleSlidePanel; // F1
+    private InputAction _submit;
+    private InputAction _ptt;
+    private InputAction _voiceOverlay;
 
     private PlayerInput _localPlayer;
 
@@ -33,17 +42,42 @@ public class InputManager : Singleton<InputManager>
     // UI ESC 이벤트: DevConsole 닫힘 상태에서 ESC 시
     // Title/Lobby/Room 등 UI 씬에서 구독하여 자체 ESC 처리 수행
     public event Action OnEscapeUI;
+    public event Action OnSubmitUI;
+    public event Action OnToggleSlidePanelUI;
+    public event Action<bool> OnPtt;
+    public event Action<bool> OnVoiceOverlay;
+
     public bool IsOptionsOpen => _isOptionsOpen;
 
     protected override void OnSingletonAwake()
     {
         _globalMap = _actions.FindActionMap(MAP_GLOBAL, true);
+        _uiMap = _actions.FindActionMap(MAP_UI, true);
+        _playerMap = _actions.FindActionMap(MAP_PLAYER, true);
+
         _toggleConsole = _globalMap.FindAction("ToggleConsole", true);
         _toggleOptions = _globalMap.FindAction("ToggleOptions", true);
+        _toggleSlidePanel = _playerMap.FindAction("ToggleSlidePanel", true);
+
+        _submit = _uiMap.FindAction("Submit", true);
+
+        _ptt = _globalMap.FindAction("PTT", true);
+        _voiceOverlay = _globalMap.FindAction("VoiceOverlay", true);
 
         _globalMap.Enable();
+
+        // 등록
         _toggleConsole.performed += OnToggleConsole;
         _toggleOptions.performed += OnToggleOptions;
+        _toggleSlidePanel.performed += OnToggleSlidePanel;
+
+        _submit.started += OnSubmit;
+
+        _ptt.started  += OnPttDown;
+        _ptt.canceled += OnPttUp;
+
+        _voiceOverlay.started  += OnVoiceOverlayDown;
+        _voiceOverlay.canceled += OnVoiceOverlayUp;
 
         SceneManager.sceneLoaded += OnSceneLoaded;
 
@@ -56,6 +90,19 @@ public class InputManager : Singleton<InputManager>
     {
         if (_toggleConsole != null) _toggleConsole.performed -= OnToggleConsole;
         if (_toggleOptions != null) _toggleOptions.performed -= OnToggleOptions;
+        if (_toggleSlidePanel != null) _toggleSlidePanel.performed -= OnToggleSlidePanel;
+        if (_submit != null) _submit.started -= OnSubmit;
+        if (_ptt != null)
+        {
+            _ptt.started  -= OnPttDown;
+            _ptt.canceled -= OnPttUp;
+        }
+        if (_voiceOverlay != null)
+        {
+            _voiceOverlay.started  -= OnVoiceOverlayDown;
+            _voiceOverlay.canceled -= OnVoiceOverlayUp;
+        }
+
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
@@ -98,6 +145,7 @@ public class InputManager : Singleton<InputManager>
     private void UpdateSceneFlag(Scene s)
     {
         _isInGameScene = (s.name == SCENE_INGAME);
+        _isInGameLoadingScene = (s.name == SCENE_INGAMELOADING);
     }
 
     private void OnToggleConsole(InputAction.CallbackContext _)
@@ -114,6 +162,9 @@ public class InputManager : Singleton<InputManager>
     {
         // DevConsole 열림 상태에서는 ESC 완전 무시
         if (_mode == InputMode.DevConsole) return;
+
+        // InGameLoading 에서는 ESC 옵션 차단
+        if (_isInGameLoadingScene) return;
 
         // UI ESC 이벤트
         // 구독자가 있으면(Title/Lobby/Room 등) 해당 씬에서 자체 처리
@@ -155,6 +206,41 @@ public class InputManager : Singleton<InputManager>
 
         _isOptionsOpen = !_isOptionsOpen;
         ApplyState();
+    }
+
+    private void OnSubmit(InputAction.CallbackContext _)
+    {
+        OnSubmitUI?.Invoke();
+    }
+
+    private void OnToggleSlidePanel(InputAction.CallbackContext _)
+    {
+        if (_mode == InputMode.DevConsole) return;
+        OnToggleSlidePanelUI?.Invoke();
+    }
+
+    private void OnPttDown(InputAction.CallbackContext _)
+    {
+        if (_mode == InputMode.DevConsole) return;
+        OnPtt?.Invoke(true);
+    }
+
+    private void OnPttUp(InputAction.CallbackContext _)
+    {
+        if (_mode == InputMode.DevConsole) return;
+        OnPtt?.Invoke(false);
+    }
+
+    private void OnVoiceOverlayDown(InputAction.CallbackContext _)
+    {
+        if (_mode == InputMode.DevConsole) return;
+        OnVoiceOverlay?.Invoke(true);
+    }
+
+    private void OnVoiceOverlayUp(InputAction.CallbackContext _)
+    {
+        if (_mode == InputMode.DevConsole) return;
+        OnVoiceOverlay?.Invoke(false);
     }
 
     /// 게임 결과창 등에서 플레이어 입력 차단 + 커서 해제가 필요할 때 호출

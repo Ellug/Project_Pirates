@@ -1,9 +1,12 @@
 ﻿using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using DG.Tweening;
 
 public class PlayerController : MonoBehaviourPun
 {
+    [SerializeField] private SkinnedMeshRenderer[] _localHideSkin;
+
     public static GameObject LocalInstancePlayer;
 
     [HideInInspector] public bool isMafia;
@@ -14,10 +17,12 @@ public class PlayerController : MonoBehaviourPun
     private PhotonView _view;
     private PlayerInteraction _playerInteraction;
     private PlayerModel _model;
+    private float _standingCameraY;
+    private float _crouchingCameraY;
+    Tween _camDOTween;
 
     private ExitGames.Client.Photon.Hashtable _table;
 
-    // InputManager에서 ActionMap(Player/UI)을 전환할 때, 전역 InputSystem.actions는 영향을 받지 않으므로
     // 로컬 플레이어의 입력을 차단/복구하기 위해 PlayerInput.actions로 교체
     private PlayerInput _playerInput;
     private InputAction _actMove;
@@ -28,6 +33,9 @@ public class PlayerController : MonoBehaviourPun
     private InputAction _actLook;
     private InputAction _actInteract;
     // private InputAction _actJump;
+    private InputAction _actJobSkill;
+    private InputAction _actUseFirstItem;
+    private InputAction _actUseSecondItem;
 
     // Player State
     public PlayerStateMachine StateMachine { get; private set; }
@@ -73,38 +81,47 @@ public class PlayerController : MonoBehaviourPun
 
         // 내 아바타는 숨김 처리한다.
         // 다른 사람 아바타는 볼 수 있고 내 아바타도 남한테는 보인다.
-        SkinnedMeshRenderer[] myAvatar =
-            transform.GetComponentsInChildren<SkinnedMeshRenderer>();
+        //SkinnedMeshRenderer[] myAvatar =
+        //    transform.GetComponentsInChildren<SkinnedMeshRenderer>();
 
-        foreach (var avatar in myAvatar)
-        {
-            avatar.enabled = false;
-        }
+        if (_localHideSkin != null)
+            foreach (var avatar in _localHideSkin)
+                avatar.enabled = false;
 
-        // ===== [정리] 커서 Lock은 InputManager가 담당하므로 여기서 설정하지 않음 =====
-        // Cursor.lockState = CursorLockMode.Locked;
         isMafia = false;
+
+        _standingCameraY = 1.456f;
+        _crouchingCameraY = _standingCameraY / 2f;
 
         _camera = Camera.main;
         _camera.transform.SetParent(transform, false);
-        _camera.transform.localPosition = new Vector3(0f, 1.77f, 0f);
+        _camera.transform.localPosition = new Vector3(0f, _standingCameraY, 0.32f);
 
         InputJump = false;
         InputMove = Vector2.zero;
     }
 
-    void Start()
+    private void Start()
     {
-        PlayerManager.Instance.RegistLocalPlayer(this);
+        if (PlayerManager.Instance != null)
+            PlayerManager.Instance.RegistLocalPlayer(this);
+
         _playerInteraction = GetComponent<PlayerInteraction>();
-        FindFirstObjectByType<InGameManager>().RegistPlayer(this);
+
+        var inGameManager = FindFirstObjectByType<InGameManager>();
+        if (inGameManager != null)
+            inGameManager.RegistPlayer(this);
 
         // 생성된 사람 출석 체크
-        _table = new ExitGames.Client.Photon.Hashtable {
-                { "IsMafia", true }
-            };
+        _table = new ExitGames.Client.Photon.Hashtable
+        {
+            { "IsMafia", true }
+        };
+
         PhotonNetwork.LocalPlayer.SetCustomProperties(_table);
-        PlayerManager.Instance.photonView.RPC("PlayerEnterCheck", RpcTarget.MasterClient);
+
+        if (PlayerManager.Instance != null)
+            PlayerManager.Instance.photonView.RPC("PlayerEnterCheck", RpcTarget.MasterClient);
 
         // 상태 클래스 할당
         StateIdle = new IdleState(this);
@@ -116,20 +133,14 @@ public class PlayerController : MonoBehaviourPun
 
         StateMachine = new PlayerStateMachine(StateIdle);
 
-        // PlayerInput.actions 기반으로 전환하여 InputManager의 ActionMap 전환이 동작하도록 함
+        if (!_view.IsMine) return;
 
-        // InputSystem.actions["Move"].performed += OnMove;
-        // InputSystem.actions["Move"].canceled += OnMove;
-        // InputSystem.actions["Sprint"].performed += OnSprint;
-        // InputSystem.actions["Sprint"].canceled += OnSprint;
-        // InputSystem.actions["Crouch"].performed += OnCrouch;
-        // InputSystem.actions["Crouch"].canceled += OnCrouch;
-        // InputSystem.actions["Attack"].started += OnAttack;
-        // InputSystem.actions["KnockBack"].started += OnKnockBack;
-        // InputSystem.actions["Look"].performed += OnLook;
-        // InputSystem.actions["Look"].canceled += OnLook;
-        // InputSystem.actions["Interact"].started += OnInteraction;
-        // InputSystem.actions["Jump"].started += OnJump;
+        var hud = FindFirstObjectByType<PlayerHUD>();
+        hud.Bind(_model);
+
+        ItemEffects effects = new ItemEffects();
+        effects.Initialize();
+        _model.RegistItemEffects(effects);
 
         // PlayerInput.actions 기반 구독
         // InputManager가 SwitchCurrentActionMap("UI")로 바꾸면 Player 맵 입력 차단 (옵션/콘솔에서 플레이어 조작 불가)
@@ -146,7 +157,11 @@ public class PlayerController : MonoBehaviourPun
             _actLook = a["Look"];
             _actInteract = a["Interact"];
             // _actJump = a["Jump"];
+            _actJobSkill = a["JobSkill"];
+            _actUseFirstItem = a["UseFirstItem"];
+            _actUseSecondItem = a["UseSecondItem"];
 
+            // Add
             _actMove.performed += OnMove;
             _actMove.canceled += OnMove;
 
@@ -164,6 +179,10 @@ public class PlayerController : MonoBehaviourPun
 
             _actInteract.started += OnInteraction;
             // _actJump.started += OnJump;
+            _actJobSkill.started += OnJobSkill;
+
+            _actUseFirstItem.started += OnUseFirstItem;
+            _actUseSecondItem.started += OnUseSecondItem;
         }
     }
 
@@ -174,19 +193,6 @@ public class PlayerController : MonoBehaviourPun
         // 씬 전환 시 InputManager가 파괴된 PlayerInput 참조를 들고 있지 않도록 함
         if (InputManager.Instance != null && _playerInput != null)
             InputManager.Instance.UnregisterLocalPlayer(_playerInput);
-
-        // InputSystem.actions["Move"].performed -= OnMove;
-        // InputSystem.actions["Move"].canceled -= OnMove;
-        // InputSystem.actions["Sprint"].performed -= OnSprint;
-        // InputSystem.actions["Sprint"].canceled -= OnSprint;
-        // InputSystem.actions["Crouch"].performed -= OnCrouch;
-        // InputSystem.actions["Crouch"].canceled -= OnCrouch; 
-        // InputSystem.actions["Attack"].started -= OnAttack;
-        // InputSystem.actions["KnockBack"].started -= OnKnockBack;
-        // InputSystem.actions["Look"].performed -= OnLook;
-        // InputSystem.actions["Look"].canceled -= OnLook;
-        // InputSystem.actions["Interact"].started -= OnInteraction;
-        // InputSystem.actions["Jump"].started -= OnJump;
 
         // PlayerInput.actions 해제
         if (_actMove != null)
@@ -224,23 +230,28 @@ public class PlayerController : MonoBehaviourPun
 
         // if (_actJump != null)
         //     _actJump.started -= OnJump;
+
+        if (_actJobSkill != null)
+            _actJobSkill.started -= OnJobSkill;
+    }
+
+    private void OnJobSkill(InputAction.CallbackContext _)
+    {
+        _model.MyJob.UniqueSkill();
     }
 
     private void Update()
     {
-        StateMachine.CurrentState.FrameUpdate();
+        StateMachine?.CurrentState?.FrameUpdate();
     }
 
     void FixedUpdate()
     {
-        StateMachine.CurrentState.PhysicsUpdate();
+        StateMachine?.CurrentState?.PhysicsUpdate();
 
         if (_model != null && !_model.IsRunning)
             _model.RecoverStamina(_model.StaminaRecoverPerSec * Time.fixedDeltaTime);
-    }
-
-    private void LateUpdate()
-    {
+        
         PlayerLook();
     }
 
@@ -250,11 +261,18 @@ public class PlayerController : MonoBehaviourPun
         float mouseY = _mouseDelta.y * _model.mouseSensitivity * Time.deltaTime;
 
         _xRotation -= mouseY;
-        _xRotation = Mathf.Clamp(_xRotation, -90f, 90f); // 위아래 90도 제한
+        _xRotation = Mathf.Clamp(_xRotation, -70f, 70f); // 위아래 80도 제한
 
         // 카메라와 플레이어 몸체에 회전 적용
         _camera.transform.localRotation = Quaternion.Euler(_xRotation, 0f, 0f); // 카메라만 위아래로
         transform.Rotate(Vector3.up * mouseX); // 플레이어 몸체 전체가 좌우로 회전
+    }
+    
+    public void UpdateSensitivity(float value)
+    {
+        _model.mouseSensitivity = value;
+
+        PlayerPrefs.SetFloat("MouseSensitivity", value);
     }
 
     private void OnMove(InputAction.CallbackContext ctx)
@@ -284,9 +302,17 @@ public class PlayerController : MonoBehaviourPun
     private void OnCrouch(InputAction.CallbackContext ctx)
     {
         if (ctx.performed)
+        {
             _model.IsCrouching = true;
+            _camDOTween.Kill();
+            _camDOTween = _camera.transform.DOLocalMoveY(_crouchingCameraY, 0.3f);
+        }
         else
+        {
             _model.IsCrouching = false;
+            _camDOTween.Kill();
+            _camDOTween = _camera.transform.DOLocalMoveY(_standingCameraY, 0.3f);
+        }
     }
 
     private void OnJump(InputAction.CallbackContext ctx)
@@ -307,6 +333,19 @@ public class PlayerController : MonoBehaviourPun
         InputKnockBack = true;
     }
 
+    // 아이템 사용 키
+
+    private void OnUseFirstItem(InputAction.CallbackContext ctx)
+    {
+        _model.TryUseItem(0);
+    }
+
+    private void OnUseSecondItem(InputAction.CallbackContext ctx)
+    {
+        _model.TryUseItem(1);
+    }
+
+    // 인풋 초기화 (버그 방지)
     public void SetInitInput()
     {
         InputAttack = false;
@@ -316,6 +355,12 @@ public class PlayerController : MonoBehaviourPun
     public BaseJob GetPlayerJob()
     {
         return _model.MyJob;
+    }
+    public void RequestSpawnPostion(Vector3 pos)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        photonView.RPC(nameof(RpcTeleportPlayer), RpcTarget.All, pos);
     }
 
     [PunRPC]
@@ -332,5 +377,21 @@ public class PlayerController : MonoBehaviourPun
         JobId myJob = (JobId)jobId;
         _model.AssignJob(myJob);
         PlayerJob = myJob;
+    }
+
+    [PunRPC]
+    public void RpcExecuteByVote()
+    {
+        if (!photonView.IsMine) return;
+
+        var model = GetComponent<PlayerModel>();
+        model.ExecuteByVote();
+    }
+
+    [PunRPC]
+    public void RpcTeleportPlayer(Vector3 pos)
+    {
+        pos.y += 1.5f;
+        transform.position = pos;
     }
 }

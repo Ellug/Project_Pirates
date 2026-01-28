@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using Photon.Pun;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
 
 public class InGameManager : MonoBehaviourPunCallbacks
 {
+    [SerializeField] private GameObject _spawnPointParent;
+    
     [Header("Create Voice Prefab")]
     [SerializeField] private CreateVoice _createVoice;
 
@@ -17,16 +18,23 @@ public class InGameManager : MonoBehaviourPunCallbacks
     private bool _ended;
     private PlayerController _player;
 
+    private const string UPPER_COLOR_KEY = "UpperColor"; // [ADD] 상의 색상 키
+
     public override void OnEnable()
     {
         base.OnEnable();
-        StartCoroutine(SpawnPlayer());        
+        StartCoroutine(SpawnPlayer());
     }
 
     private void Start()
     {
-        if (PlayerManager.Instance != null) 
+        if (PlayerManager.Instance != null)
             PlayerManager.Instance.allReadyComplete += PopUpPlayersRole;
+
+        GameManager.Instance.SetSceneState(SceneState.InGame);
+        PlayerManager.Instance.SetSpawnPointList(
+            _spawnPointParent.transform.GetComponentsInChildren<Transform>()
+            );
     }
 
     private void OnDestroy()
@@ -41,18 +49,37 @@ public class InGameManager : MonoBehaviourPunCallbacks
 
         yield return new WaitForSeconds(3f);
 
+        int maxPlayerCount = PhotonNetwork.CurrentRoom.MaxPlayers;
+        int myPlayerNum = PhotonNetwork.LocalPlayer.ActorNumber;
+        
+        int SpawnPos = (myPlayerNum - 1) % maxPlayerCount;
+
         if (PlayerController.LocalInstancePlayer == null)
-            PlayerController.LocalInstancePlayer = 
-                PhotonNetwork.Instantiate("PlayerMale", new Vector3(0f, 3f, 0f), Quaternion.identity);
+        {
+            // 테스트용 임시 코드 (남여 랜덤 생성)
+            //int type = Random.Range(0, 2);
+            //string char_type = type == 0 ? "PlayerFemale" : "PlayerMale";
+
+            PlayerController.LocalInstancePlayer =
+                PhotonNetwork.Instantiate("PlayerMale",
+                    new Vector3(3f, 1f, SpawnPos * 2),
+                    Quaternion.identity);
+        }
 
         PhotonView myPV = PlayerController.LocalInstancePlayer.GetComponent<PhotonView>();
-        
+
         yield return new WaitUntil(() => myPV.ViewID > 0);
 
-        //ViewID 할당 동기화 기다리기
         yield return new WaitForSeconds(0.2f);
 
-        yield return StartCoroutine(_createVoice.CreateVoicePV(myPV, PlayerController.LocalInstancePlayer.transform));
+        yield return StartCoroutine(
+            _createVoice.CreateVoicePV(myPV, PlayerController.LocalInstancePlayer.transform));
+
+        // ✅ 스폰이 끝난 뒤, 마스터가 색 배정
+        if (PhotonNetwork.IsMasterClient)
+        {
+            SetPlayerColor.AssignColorsToAll();
+        }
     }
 
     public void PopUpPlayersRole()
@@ -110,21 +137,6 @@ public class InGameManager : MonoBehaviourPunCallbacks
     public void RegistPlayer(PlayerController player)
     {
         _player = player;
-    }
-
-    // 이건 인게임에서 esc키로 패널 띄우고 게임 나가는거 구현되면 지우기
-    void Update()
-    {
-        var kb = Keyboard.current;
-        if (kb == null) return;
-
-        // 0 키 → 전원 나가기 (마스터만)
-        if (kb.digit0Key.wasPressedThisFrame)
-            EndGameForAll();
-
-        // 9 키 → 나만 나가기
-        if (kb.digit9Key.wasPressedThisFrame)
-            ExitForLocal();
     }
 
     // Todo : 종료 후에 방으로 가는데, 이거 일반적인 게임 플로우처럼 처리해야함.

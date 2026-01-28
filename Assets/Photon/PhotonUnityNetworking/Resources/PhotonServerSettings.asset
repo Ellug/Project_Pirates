@@ -60,6 +60,23 @@ MonoBehaviour:
   - PlayerDeathCheck
   - GameOverAndJudge
   - AssignJob
+  - RpcSpawnDeadBody
+  - RpcTeleportAllPlayers
+  - RpcTeleportPlayer
+  - RpcRemoveDeadBody
+  - RpcCenterCall
+  - RpcRemoveAllDeadBodies
+  - RpcAnnounceExecution
+  - RpcAnnounceNoExecution
+  - RpcNotifyVote
+  - RpcSubmitVote
+  - RPC_FailSabotage
+  - RPC_RequestResolve
+  - RPC_RequestStart
+  - RPC_ResolveSabotage
+  - RPC_StartSabotage
+  - RpcExecuteByVote
+  - RpcSetVoteTime
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

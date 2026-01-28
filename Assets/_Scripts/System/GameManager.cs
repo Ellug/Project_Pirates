@@ -68,7 +68,10 @@ public class GameManager : Singleton<GameManager>
     {
         if(PlayerManager.Instance != null)
             PlayerManager.Instance.GameOver();
-        Cursor.lockState = CursorLockMode.None;
+
+        if (InputManager.Instance != null)
+            InputManager.Instance.SetUIMode(true);
+
         PauseGame();
     }
 }
