@@ -8,16 +8,16 @@ OcclusionCullingSettings:
     smallestOccluder: 5
     smallestHole: 0.25
     backfaceThreshold: 100
-  m_SceneGUID: 00000000000000000000000000000000
-  m_OcclusionCullingData: {fileID: 0}
+  m_SceneGUID: c95e71cdd17939b41948c1dd825c2570
+  m_OcclusionCullingData: {fileID: 36300000, guid: a316eba29593cc24abf7ae9ab5d2d95f, type: 2}
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
-  m_Fog: 0
-  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_Fog: 1
+  m_FogColor: {r: 0.735849, g: 0.7048143, b: 0.53800285, a: 1}
   m_FogMode: 3
-  m_FogDensity: 0.01
+  m_FogDensity: 0.03
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
@@ -4149,7 +4149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.ProbeVolume
   mode: 2
-  size: {x: 250, y: 10, z: 65}
+  size: {x: 244.25475, y: 6.2998276, z: 68.84291}
   overrideRendererFilters: 0
   minRendererVolumeSize: 0.1
   objectLayerMask:
@@ -4163,20 +4163,20 @@ MonoBehaviour:
     e00: 1
     e01: 0
     e02: 0
-    e03: 114.7
+    e03: 115.65461
     e10: 0
     e11: 1
     e12: 0
-    e13: 0
+    e13: -1.7315573
     e20: 0
     e21: 0
     e22: 1
-    e23: 0
+    e23: 0.10050583
     e30: 0
     e31: 0
     e32: 0
     e33: 1
-  cachedHashCode: -1041285727
+  cachedHashCode: 99930877
   fillEmptySpaces: 0
   version: 2
   globalVolume: 0
@@ -4189,7 +4189,7 @@ Transform:
   m_GameObject: {fileID: 555597691}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -114.7, y: 0, z: 0}
+  m_LocalPosition: {x: -115.65461, y: 1.7315573, z: -0.10050583}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7187,13 +7187,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1073507049}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.821, z: 0.627}
+  m_LocalRotation: {x: -0, y: -0.12533471, z: -0, w: 0.99211454}
+  m_LocalPosition: {x: 0.00000019391956, y: 1.821, z: 0.62700015}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -14.4, z: 0}
 --- !u!114 &1073507053
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7816,6 +7816,100 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1210997840}
   m_CullTransparentMesh: 1
+--- !u!1 &1222257944
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1222257949}
+  - component: {fileID: 1222257948}
+  - component: {fileID: 1222257947}
+  - component: {fileID: 1222257946}
+  - component: {fileID: 1222257945}
+  m_Layer: 0
+  m_Name: LightingSwitchManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1222257945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1222257944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b4776988000cdf4ebecb83a8b05c1a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BlackoutController
+  lightingManager: {fileID: 1222257948}
+  blackoutTime: 2
+  restoreTime: 1.5
+--- !u!114 &1222257946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1222257944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 879fc115aee11d84a9e9bf635788a740, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PowerSystem
+  blackout: {fileID: 1222257945}
+  lightGroup: {fileID: 1222257947}
+--- !u!114 &1222257947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1222257944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b80906c3fabc6c748a1d0807bb873852, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RealtimeLightGroup
+  autoCollect: 1
+  includeInactive: 0
+--- !u!114 &1222257948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1222257944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f817b3d49931914e97125e53a0b3a6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LightingSwitchManager
+  lightOnSet: {fileID: 11400000, guid: 70b69a757f298a543b29344b3dd85b59, type: 2}
+  lightOffSet: {fileID: 11400000, guid: cfa6010c7a87c274f9d37b4d90297c9a, type: 2}
+  lightOnScenario: LightOn
+  lightOffScenario: LightOff
+--- !u!4 &1222257949
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1222257944}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -180.11314, y: 0.11568, z: -2.35625}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1232432865
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13516,3 +13610,4 @@ SceneRoots:
   - {fileID: 770603999}
   - {fileID: 606115727}
   - {fileID: 898678296}
+  - {fileID: 1222257949}
