@@ -4,9 +4,16 @@ using UnityEngine;
 public class CenterCall : InteractionObject
 {
     private const float DEFAULT_REPORT_TIME = 2f;
+    private const float COOLDOWN_DURATION = 60f;
+
     private PlayerInteraction _player;
     private Coroutine _reportCoroutine;
     private bool _reported = false;
+    private bool _isOnCooldown = false;
+    private float _cooldownEndTime;
+
+    public bool IsOnCooldown => _isOnCooldown;
+    public float RemainingCooldown => _isOnCooldown ? Mathf.Max(0f, _cooldownEndTime - Time.time) : 0f;
 
     // PlayerManager에서 RPC로 생성 시 호출 (모든 클라이언트에서 동일 ID 사용)
     public void InitializeWithId(int id)
@@ -18,6 +25,8 @@ public class CenterCall : InteractionObject
 
     public override void OnInteract(PlayerInteraction player, InteractionObjectRpcManager rpcManager)
     {
+        // 쿨타임 중이면 무시
+        if (_isOnCooldown) return;
         // 이미 신고 진행 중, 신고된 시체면 무시
         if (_reported) return;
         if (_reportCoroutine != null) return;
@@ -92,5 +101,25 @@ public class CenterCall : InteractionObject
         if (job == null) return DEFAULT_REPORT_TIME;
 
         return job.ReportTime;
+    }
+
+    // 투표 완료 후 쿨타임 시작 (VoteManager에서 호출)
+    public void StartCooldown()
+    {
+        if (_isOnCooldown) return;
+        StartCoroutine(CooldownCoroutine());
+    }
+
+    private IEnumerator CooldownCoroutine()
+    {
+        _isOnCooldown = true;
+        _cooldownEndTime = Time.time + COOLDOWN_DURATION;
+        _reported = false; // 다음 사용을 위해 리셋
+        Debug.Log($"[CenterCall] 쿨타임 시작 ({COOLDOWN_DURATION}초)");
+
+        yield return new WaitForSeconds(COOLDOWN_DURATION);
+
+        _isOnCooldown = false;
+        Debug.Log("[CenterCall] 쿨타임 종료, 다시 사용 가능");
     }
 }

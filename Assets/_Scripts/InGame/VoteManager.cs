@@ -263,6 +263,7 @@ public class VoteManager : MonoBehaviourPunCallbacks
         {
             _voteActive = false;
             StartPostVoteCleanup();
+            StartCenterCallCooldown();
         }
     }
 
@@ -440,6 +441,13 @@ public class VoteManager : MonoBehaviourPunCallbacks
     {
         _DeadBodyAlertPanel.SetActive(false);
         _CenterAlertPanel.SetActive(false);
+    }
+
+    private void StartCenterCallCooldown()
+    {
+        CenterCall centerCall = FindFirstObjectByType<CenterCall>();
+        if (centerCall != null)
+            centerCall.StartCooldown();
     }
 
     // ***********************************************************
