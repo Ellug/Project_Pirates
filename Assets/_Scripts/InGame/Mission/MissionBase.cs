@@ -3,9 +3,9 @@
 public abstract class MissionBase : MonoBehaviour
 {
     [Header("Mission Info")]
-    [SerializeField] protected string missionId;
-    [SerializeField] private string _missionTitle;
-    [SerializeField] private string _missionDescription;
+    public string _missionTitle;
+    public string _missionDescription;
+    [SerializeField] private float _missionScore;
 
     protected GlobalProgress globalProgress;
     protected bool isFinished;
@@ -22,10 +22,9 @@ public abstract class MissionBase : MonoBehaviour
 
         isFinished = true;
 
-        Debug.Log($"[Mission] Complete : {missionId}");
 
         if (globalProgress != null)
-            globalProgress.CompleteMission(missionId);
+            globalProgress.CompleteMission(_missionScore);
 
         OnMissionCompleted();
     }
@@ -37,7 +36,6 @@ public abstract class MissionBase : MonoBehaviour
 
         isFinished = true;
 
-        Debug.Log($"[Mission] Failed : {missionId}");
 
         OnMissionFailed();
     }
