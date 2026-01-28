@@ -2,8 +2,6 @@
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
-using TMPro;
 
 public class InGameManager : MonoBehaviourPunCallbacks
 {
@@ -14,6 +12,9 @@ public class InGameManager : MonoBehaviourPunCallbacks
 
     [Header("PopUp Ui")]
     [SerializeField] private Image _playerRoleUi;
+
+    [Header("Fade Ui")]
+    [SerializeField] private FadeController _fadeController;
 
     private bool _ended;
     private PlayerController _player;
@@ -84,56 +85,12 @@ public class InGameManager : MonoBehaviourPunCallbacks
 
     public void PopUpPlayersRole()
     {
-        StartCoroutine(StartGuide());
-    }
-
-    IEnumerator StartGuide()
-    {
-        yield return new WaitUntil(() => _player != null);
-
-        TextMeshProUGUI roleText = _playerRoleUi.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
-        float duration = 0.8f;
-
-        yield return StartCoroutine(PopUpRole(roleText, duration));
-
-        yield return StartCoroutine(PopUpJob(roleText, duration));
-
-        _playerRoleUi.gameObject.SetActive(false);
-    }
-
-    IEnumerator PopUpRole(TextMeshProUGUI roleText, float duration)
-    {
-        if (_player.isMafia)
-        {
-            roleText.text = "당신은 \"마피아\" 입니다.";
-            roleText.color = new Color(1f, 0.25f, 0.25f, 0f);
-        }
-        _playerRoleUi.DOFade(1f, duration);
-        roleText.DOFade(1f, duration);
-        yield return new WaitForSeconds(duration * 3f);
-        _playerRoleUi.DOFade(0f, duration);
-        roleText.DOFade(0f, duration);
-        yield return new WaitForSeconds(duration);
-    }
-
-    IEnumerator PopUpJob(TextMeshProUGUI roleText, float duration)
-    {
         BaseJob jobType = _player.GetPlayerJob();
-        string jobName = "평범한 시민";
 
-        if (jobType != null) // null 이 아니면 직업이 있고 그 이름을 가져옴
-            jobName = jobType.name;
-
-        roleText.text = $"당신의 직업은 \"{jobName}\" 입니다.";
-        roleText.color = new Color(1f, 1f, 1f, 0f);
-        _playerRoleUi.DOFade(1f, duration);
-        roleText.DOFade(1f, duration);
-        yield return new WaitForSeconds(duration * 3f);
-        _playerRoleUi.DOFade(0f, duration);
-        roleText.DOFade(0f, duration);
-        yield return new WaitForSeconds(duration);
+        _fadeController.StartInGameFade(_player.isMafia, jobType);
     }
 
+    
     public void RegistPlayer(PlayerController player)
     {
         _player = player;
@@ -161,11 +118,9 @@ public class InGameManager : MonoBehaviourPunCallbacks
     }
 
     // 나만 종료
-    public void ExitForLocal()
+    public static void ExitForLocal()
     {
         Debug.Log("[InGame] ExitForLocal -> LoadScene(Room)");
-
-        GameManager.Instance.ResumeGame();
 
         // Photon 룸은 유지한 채, 로컬 씬만 이동
         // PN 뭔가 해줘야한다 -> 플레이어를 명시적으로 파괴해야함.
