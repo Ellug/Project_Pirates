@@ -4,6 +4,8 @@ public abstract class MissionBase : MonoBehaviour
 {
     [Header("Mission Info")]
     [SerializeField] protected string missionId;
+    [SerializeField] private string _missionTitle;
+    [SerializeField] private string _missionDescription;
 
     protected GlobalProgress globalProgress;
     protected bool isFinished;
