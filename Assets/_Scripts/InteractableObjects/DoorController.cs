@@ -17,6 +17,14 @@ public class DoorInteraction : InteractionObject
     [Tooltip("실제로 회전할 문 오브젝트")]
     [SerializeField] private Transform _doorPivot;
 
+    [Header("Door SFX")]
+    [SerializeField] private AudioClip _openClip;
+    [SerializeField] private AudioClip _closeClip;
+    [SerializeField, Range(0f, 1f)] private float _sfxVolume = 1f;
+
+    private AudioSource _audio;
+    private bool _lastOpenState;
+
     private bool _isOpen;
     private float _currentAngle;
 
@@ -33,6 +41,15 @@ public class DoorInteraction : InteractionObject
 
         if (_doorPivot == null)
             _doorPivot = transform;
+
+        _audio = GetComponent<AudioSource>();
+        if (_audio == null)
+            _audio = gameObject.AddComponent<AudioSource>();
+
+        _audio.playOnAwake = false;
+        _audio.spatialBlend = 1f;
+        _audio.minDistance = 1.5f;
+        _audio.maxDistance = 15f;
     }
 
     private void Start()
@@ -101,9 +118,26 @@ public class DoorInteraction : InteractionObject
         else
             _targetRotation = _closedRotation * Quaternion.Euler(0, angle, 0);
 
+        if(!isInit && _lastOpenState != open)
+        {
+            PlayDoorSfx(open);
+        }
+
+        _lastOpenState = open;
+
         Debug.Log(isInit
             ? $"[Door] Init : {open} / {angle}"
             : $"[Door] Changed : {open} / {angle}");
+    }
+
+    private void PlayDoorSfx(bool isOpen)
+    {
+        if (_audio == null) return;
+
+        AudioClip clip = isOpen ? _openClip : _closeClip;
+        if (clip == null) return;
+
+        _audio.PlayOneShot(clip, _sfxVolume);
     }
 
 #if UNITY_EDITOR
