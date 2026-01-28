@@ -2896,9 +2896,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MissionContainer
   _progressUi: {fileID: 308618918}
   _missionPanel: {fileID: 246665059}
-  _title: {fileID: 0}
-  _description: {fileID: 0}
-  _missionArea: {fileID: 0}
+  _title: {fileID: 1950754560}
+  _description: {fileID: 1423263023}
+  _missionArea: {fileID: 1066587200}
   _missionPrefabList:
   - {fileID: 2421164450430084403, guid: 82cea0c3d6b837743b4c4da6f3569fec, type: 3}
 --- !u!4 &343602209
