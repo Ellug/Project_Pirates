@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Properties;
 
 public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
 {
@@ -56,6 +57,26 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
         if (_roomUI != null)
             _roomUI.RoomSettingsApplyRequested += HandleRoomSettingsApplyRequested;
+
+        var prop = PhotonNetwork.CurrentRoom.CustomProperties;
+
+        if (prop != null)
+        {
+            if( prop.TryGetValue(ROOM_TITLE_KEY, out var title) )
+            {
+                if (prop.TryGetValue(ROOM_PW_KEY, out var roomPW))
+                {
+                    PhotonNetwork.CurrentRoom.CustomProperties.Clear();
+
+                    var props = new ExitGames.Client.Photon.Hashtable
+                    {
+                        { ROOM_TITLE_KEY, title },
+                        { ROOM_PW_KEY, roomPW }
+                    };
+                    PhotonNetwork.CurrentRoom.SetCustomProperties( props );
+                }
+            }
+        }
 
         // 방 진입 후 내 상태 출력
         StartCoroutine(CoWaitRoomThenRefresh());
