@@ -26,7 +26,7 @@ public sealed class AudioManager : Singleton<AudioManager>
         PrepareBgm(_bgmB);
     }
 
-    private void Start()
+    void Start()
     {
         LoadAndApplySavedVolumes();
     }
