@@ -76,6 +76,7 @@ MonoBehaviour:
   - RPC_ResolveSabotage
   - RPC_StartSabotage
   - RpcExecuteByVote
+  - RpcSetVoteTime
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0
