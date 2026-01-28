@@ -1982,7 +1982,8 @@ GameObject:
   - component: {fileID: 1910909618233613468}
   - component: {fileID: 2373837131397512929}
   - component: {fileID: 467501580652990362}
-  m_Layer: 0
+  - component: {fileID: 8242846950701210658}
+  m_Layer: 6
   m_Name: spine_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2099,6 +2100,20 @@ CharacterJoint:
   m_EnablePreprocessing: 0
   m_MassScale: 1
   m_ConnectedMassScale: 1
+--- !u!114 &8242846950701210658
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4820323802546006618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2628aa5b22aa9d3429626bf559a3bda6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeadBody
+  uniqueID: -727218
+  _interactionDistance: 4
 --- !u!1 &5021283694223997518
 GameObject:
   m_ObjectHideFlags: 0
@@ -3145,7 +3160,7 @@ Animator:
   m_GameObject: {fileID: 7989576422556279403}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: b8a7488d12adc39498433d60811eab1a, type: 3}
-  m_Controller: {fileID: 9100000, guid: 49e143aef44268149895a445defa928d, type: 2}
+  m_Controller: {fileID: 0}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
