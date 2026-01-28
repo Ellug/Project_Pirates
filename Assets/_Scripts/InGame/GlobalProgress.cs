@@ -1,7 +1,5 @@
-﻿using ExitGames.Client.Photon;
-using Photon.Pun;
-using System;
-using System.Collections.Generic;
+﻿using Photon.Pun;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,118 +11,77 @@ using UnityEngine.UI;
 public class GlobalProgress : MonoBehaviourPunCallbacks
 {
     [Header("Reference")]
-    [SerializeField] private CustomPropertyManager _roomProps;
     [SerializeField] private Image _progressBar;
     [SerializeField] private TextMeshProUGUI _progressPercent;
 
-    // 공통 키
-    private const string MissionPrefix = "world.mission.";
-    private const string CompletedCountKey = "world.mission.completedCount";
-
-    // 캐시
-    private readonly Dictionary<string, bool> _missionStates = new();
-    private int _completedMissionCount;
-
-    // 이벤트
-    public event Action<string, bool> OnMissionStateChanged;
-    public event Action<int> OnProgressChanged;
-
-    private void Awake()
-    {
-        if (_roomProps == null)
-            _roomProps = FindFirstObjectByType<CustomPropertyManager>();
-    }
+    private ExitGames.Client.Photon.Hashtable _roomProps;
+    private string _roomPropKey = "Progress";
 
     private void Start()
     {
         if (PhotonNetwork.CurrentRoom == null)
             return;
 
-        _roomProps.OnRoomPropertyChanged += OnRoomPropertyChanged;
+        _roomProps = PhotonNetwork.CurrentRoom.CustomProperties;
 
-        // 완료된 미션 수 초기화
-        if (_roomProps.TryGet(CompletedCountKey, out int count))
-            ApplyCompletedCount(count, true);
-        else
+        // 마스터 클라이언트가 대표로 초기화
+        if (PhotonNetwork.IsMasterClient)
         {
-            if (PhotonNetwork.IsMasterClient)
-                _roomProps.Set(CompletedCountKey, 0);
-
-            ApplyCompletedCount(0, true);
+            _roomProps[_roomPropKey] = 0f;
+            PhotonNetwork.CurrentRoom.SetCustomProperties(_roomProps);
+            StartCoroutine(AutoProgress());
         }
     }
 
-    private void OnDestroy()
+    // 코루틴으로 10초에 1퍼센트씩 증가
+    // (이건 마스터만 돌려야함. 모두가 돌리면 10초마다 사람 수만큼 퍼센트가 증가할 것임.)
+    private IEnumerator AutoProgress()
     {
-        if (_roomProps != null)
-            _roomProps.OnRoomPropertyChanged -= OnRoomPropertyChanged;
+        WaitForSeconds interval = new WaitForSeconds(10f);
+
+        while (true)
+        {
+            yield return interval;
+            IncreaseProgress(1f);
+        }
     }
 
+    // 외부에서 호출하며 미션 클리어시 점수를 받음.
     public void CompleteMission(float missionScore)
     {
-        string key = MissionPrefix + missionScore;
-
-        if (_missionStates.TryGetValue(key, out bool done) && done)
-            return;
-
-        _roomProps.Set(key, true);
-        _roomProps.Set(CompletedCountKey, _completedMissionCount + 1);
+        IncreaseProgress(missionScore);
     }
-    private void OnRoomPropertyChanged(Hashtable changedProps)
+
+    // 진행도를 증가 시킴.
+    // 룸 커스텀 값을 변경 시키므로 자동으로 맨 아래 콜백 함수가 수행됨.
+    private void IncreaseProgress(float amount)
     {
-        foreach (var item in changedProps)
+        if (_roomProps.ContainsKey(_roomPropKey))
         {
-            string key = item.Key as string;
-
-            if (key == null)
-                continue;
-
-            if (key == CompletedCountKey)
-            {
-                ApplyCompletedCount((int)item.Value, false);
-            }
-            else if (key.StartsWith(MissionPrefix))
-            {
-                string missionId = key.Replace(MissionPrefix, "");
-                ApplyMission(missionId, (bool)item.Value, false);
-            }
+            float temp = (float)_roomProps[_roomPropKey];
+            temp += amount;
+            _roomProps[_roomPropKey] = temp;
+            PhotonNetwork.CurrentRoom.SetCustomProperties(_roomProps);
         }
     }
 
-    private void ApplyMission(string missionId, bool completed, bool isInit)
+    // 콜백을 받으면 UI에 그 값을 적용 시킴.
+    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable changedProps)
     {
-        _missionStates[missionId] = completed;
+        if (changedProps.ContainsKey(_roomPropKey))
+        {
+            float progress = (float)changedProps[_roomPropKey];
+            if (progress > 100f)  
+                progress = 100f;
 
-        Debug.Log(isInit
-            ? $"[GlobalProgress] {missionId} Init : {completed}"
-            : $"[GlobalProgress] {missionId} Changed : {completed}");
+            _progressPercent.text = $"{progress:f1} %";
+            _progressBar.fillAmount = progress / 100f;
 
-        OnMissionStateChanged?.Invoke(missionId, completed);
-    }
-
-    // 미션 완료 시 점수
-    private void ApplyCompletedCount(int count, bool isInit)
-    {
-        _completedMissionCount = count;
-
-        // int percent = GetProgressPercent();
-
-        // OnProgressChanged?.Invoke(percent);
-
-        // 진행도 100% 시 승리 알림.
-        // if()
-        //     PlayerManager.Instance.NoticeGameOverToAllPlayers(true);
-    }
-
-    public bool IsMissionCompleted(string missionId)
-    {
-        return _missionStates.TryGetValue(missionId, out bool done) && done;
-    }
-
-    public int GetCompletedCount() => _completedMissionCount;
-
-    public float GetProgressPercent()
-    {
-        return 0f;
+            //  100퍼센트 달성 시 마스터 클라이언트가 대표로 승리 선언
+            if (PhotonNetwork.IsMasterClient && progress >= 100f)
+            {
+                PlayerManager.Instance.NoticeGameOverToAllPlayers(true);
+            }
+        }
     }
 }
