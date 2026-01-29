@@ -4811,9 +4811,10 @@ MonoBehaviour:
   _title: {fileID: 26299200}
   _description: {fileID: 725958194}
   _missionArea: {fileID: 1113937166}
-  clearMaterial: {fileID: 2100000, guid: 60cb466503dad5c42a36af5f792203bb, type: 2}
+  clearMaterial: {fileID: 0}
   _missionPrefabList:
   - {fileID: 2421164450430084403, guid: 82cea0c3d6b837743b4c4da6f3569fec, type: 3}
+  - {fileID: 1275717285825444678, guid: 20280c086e9f4ed46979aff7d8498c83, type: 3}
 --- !u!4 &281732574
 Transform:
   m_ObjectHideFlags: 0
@@ -6951,7 +6952,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MissionInteraction
   uniqueID: 77
   _interactionDistance: 4
-  _missionIndex: 0
+  _missionIndex: 1
   alreadyCleared: 0
   isUsing: 0
 --- !u!1 &486596932
@@ -23968,7 +23969,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2037784276}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 50215296b375baa47bf3bc049ec64b1e, type: 3}
   m_Name: 

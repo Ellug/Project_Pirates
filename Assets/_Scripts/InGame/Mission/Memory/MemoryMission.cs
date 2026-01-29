@@ -32,18 +32,34 @@ public class MemoryMission : MissionBase
 
     private Coroutine _showCor;
 
-    protected override void Awake()
+    public override void Init()
     {
-        base.Awake();
-
-        SetCellsInteractable(false);
+        if(_cellImages == null || _cellImages.Length == 0)
+        {
+            _cellImages = new Image[_cellButtons.Length];
+            for (int i = 0; i < _cellButtons.Length; i++)
+                _cellImages[i] = _cellButtons[i] != null ? _cellButtons[i].GetComponent<Image>() : null;
+        }
 
         if (_startButton != null)
+            _startButton.onClick.RemoveListener(StartGame);
             _startButton.onClick.AddListener(StartGame);
 
+        // 상태 초기화
+        _sequence.Clear();
+        _round = 0;
+        _targetLen = _roundLengths.Length > 0 ? _roundLengths[0] : 0;
+        _inputIndex = 0;
+        _isShowing = false;
+        _isPlaying = false;
+
+        if (_showCor != null) StopCoroutine(_showCor);
+        _showCor = null;
+
+        SetCellsInteractable(false);
+        ResetCellColors();
         UpdateUI();
         SetInfo("Start를 눌러 시작하세요");
-        ResetCellColors();
     }
 
     private void OnDisable()
@@ -54,7 +70,6 @@ public class MemoryMission : MissionBase
 
     private void StartGame()
     {
-        if (isFinished) return;
         if (_isShowing) return;
 
         _sequence.Clear();
@@ -71,9 +86,9 @@ public class MemoryMission : MissionBase
         _round++;
         if(_round > _roundLengths.Length)
         {
-            CompleteMission();
             SetInfo("성공! 미션 완료!");
             SetCellsInteractable(false);
+            CompleteMission();
             return;
         }
 
@@ -116,7 +131,6 @@ public class MemoryMission : MissionBase
 
     public void OnCellClicked(int idx)
     {
-        if (isFinished) return;
         if (!_isPlaying) return;
         if (_isShowing) return;
 
@@ -126,10 +140,9 @@ public class MemoryMission : MissionBase
         // 정답 체크
         if(idx != _sequence[_inputIndex])
         {
-            SetInfo("틀렸습니다. 미션 실패");
-            SetCellsInteractable(false);
-            FailMission();
             _isPlaying = false;
+            SetCellsInteractable(false);
+            SetInfo("틀렸습니다. Start를 눌러 재시도하세요.");
             return;
         }
 
@@ -189,10 +202,5 @@ public class MemoryMission : MissionBase
     {
         if (_infoText != null)
             _infoText.text = msg;
-    }
-
-    protected override void OnMissionFailed()
-    {
-        
     }
 }
