@@ -17,17 +17,22 @@ public class GlobalProgress : MonoBehaviourPunCallbacks
     private ExitGames.Client.Photon.Hashtable _roomProps;
     private string _roomPropKey = "Progress";
 
-    private void Start()
+    private IEnumerator Start()
     {
         if (PhotonNetwork.CurrentRoom == null)
-            return;
+            yield break;
 
         _roomProps = PhotonNetwork.CurrentRoom.CustomProperties;
+
+        yield return new WaitUntil(() => PhotonNetwork.IsConnectedAndReady);
 
         // 마스터 클라이언트가 대표로 초기화
         if (PhotonNetwork.IsMasterClient)
         {
             _roomProps[_roomPropKey] = 0f;
+
+            yield return new WaitForSeconds(2f);
+
             PhotonNetwork.CurrentRoom.SetCustomProperties(_roomProps);
             StartCoroutine(AutoProgress());
         }
