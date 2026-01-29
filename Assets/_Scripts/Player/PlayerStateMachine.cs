@@ -50,8 +50,6 @@ public class IdleState : IPlayerState
     {
         if (_player.InputMove != Vector2.zero)
             _player.StateMachine.ChangeState(_player.StateMove);
-        else if (_player.InputJump == true)
-            _player.StateMachine.ChangeState(_player.StateJump);
         else if (_model.IsCrouching == false &&
             (_player.InputAttack == true || _player.InputKnockBack == true))
             _player.StateMachine.ChangeState(_player.StateAttack);
@@ -92,8 +90,6 @@ public class MoveState : IPlayerState
         else if (_model.IsCrouching == false && 
             (_player.InputAttack == true || _player.InputKnockBack == true))
             _player.StateMachine.ChangeState(_player.StateAttack);
-        else if (_player.InputJump == true)
-            _player.StateMachine.ChangeState(_player.StateJump);
     }
 
     public void PhysicsUpdate()
@@ -131,45 +127,15 @@ public class MoveState : IPlayerState
         }
 
         Vector3 velocity = worldDir * speed;
-        velocity.y = _rb.linearVelocity.y;
+        velocity.y = 0f;
         _rb.linearVelocity = velocity;
     }
+
     public void Exit()
     {
         _model.Animator.SetBool(_model.animNameOfRun, false);
         _model.Animator.SetFloat(_model.animNameOfMove, 0f);
         _rb.linearVelocity = new Vector3(0f, _rb.linearVelocity.y, 0f);
-    }
-}
-
-public class JumpState : IPlayerState
-{
-    PlayerController _player;
-    PlayerModel _model;
-    Rigidbody _playerRigidBody;
-
-    public JumpState(PlayerController player)
-    {
-        _player = player;
-        _playerRigidBody = _player.GetComponent<Rigidbody>();
-        _model = _player.GetComponent<PlayerModel>();
-    }
-
-    public void Enter() 
-    {
-        Debug.Log("Jump 상태 진입");
-        _playerRigidBody.AddForce(Vector3.up * _model.jumpPower, ForceMode.Impulse);
-        _model.Animator.SetTrigger(_model.animNameOfJump);
-        
-    }
-    public void FrameUpdate() { }
-    public void PhysicsUpdate() 
-    { 
-    }
-    public void Exit()
-    {
-        _player.SetInitInput();
-        _model.IsGrounded = true;
     }
 }
 
