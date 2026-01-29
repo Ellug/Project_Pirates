@@ -34,8 +34,10 @@ public class RealtimeLightGroup : MonoBehaviour
         foreach (var l in lights)
         {
             // 베이크 전용 라이트 제외하고 싶으면 조건 추가 가능
+#if UNITY_EDITOR
             if (l.lightmapBakeType == LightmapBakeType.Baked)
                 continue;
+#endif
 
             l.enabled = on;
         }

@@ -7,39 +7,10 @@ public abstract class MissionBase : MonoBehaviour
     public string _missionDescription;
     [SerializeField] private float _missionScore;
 
-    protected GlobalProgress globalProgress;
-    protected bool isFinished;
-
-    protected virtual void Awake()
-    {
-        globalProgress = FindFirstObjectByType<GlobalProgress>();
-    }
+    public virtual void Init() { }
 
     protected void CompleteMission()
     {
-        if (isFinished)
-            return;
-
-        isFinished = true;
-
-
-        if (globalProgress != null)
-            globalProgress.CompleteMission(_missionScore);
-
-        OnMissionCompleted();
+        MissionContainer.Instance.ClearMission(_missionScore);
     }
-
-    protected void FailMission()
-    {
-        if (isFinished)
-            return;
-
-        isFinished = true;
-
-
-        OnMissionFailed();
-    }
-
-    protected virtual void OnMissionCompleted() { }
-    protected virtual void OnMissionFailed() { }
 }
