@@ -66,11 +66,13 @@ public class MoveState : IPlayerState
 {
     PlayerController _player;
     PlayerModel _model;
+    Rigidbody _rb;
 
     public MoveState(PlayerController player)
     {
         _player = player;
         _model = _player.GetComponent<PlayerModel>();
+        _rb = _player.GetComponent<Rigidbody>();
     }
 
     public void Enter() 
@@ -94,10 +96,13 @@ public class MoveState : IPlayerState
             _player.StateMachine.ChangeState(_player.StateJump);
     }
 
-    public void PhysicsUpdate() 
+    public void PhysicsUpdate()
     {
         Vector2 input = _player.InputMove;
-        Vector3 dir = new Vector3(input.x, 0f, input.y).normalized;
+        Vector3 localDir = new Vector3(input.x, 0f, input.y).normalized;
+        Vector3 worldDir = _player.transform.TransformDirection(localDir);
+
+        float speed;
 
         if (_model.IsRunning && _model.IsSprintLock == false)
         {
@@ -105,30 +110,35 @@ public class MoveState : IPlayerState
             _model.Animator.SetBool(_model.animNameOfRun, true);
             _model.ConsumeStamina(_model.SprintStaminaDrainPerSec * Time.fixedDeltaTime);
             _model.Animator.SetFloat(_model.animNameOfMove, 1f);
-            _player.transform.Translate(Time.fixedDeltaTime * _model.runSpeed * dir);
-            return;
+            speed = _model.runSpeed;
         }
         else
+        {
             _model.Animator.SetBool(_model.animNameOfRun, false);
 
-        if (_model.IsCrouching)
-        {
-
-            _model.Animator.SetBool(_model.animNameOfCrouch, true);
-            _model.Animator.SetFloat(_model.animNameOfMove, 0.01f);
-            _player.transform.Translate(Time.fixedDeltaTime * _model.crouchSpeed * dir);
-            return;
+            if (_model.IsCrouching)
+            {
+                _model.Animator.SetBool(_model.animNameOfCrouch, true);
+                _model.Animator.SetFloat(_model.animNameOfMove, 0.01f);
+                speed = _model.crouchSpeed;
+            }
+            else
+            {
+                _model.Animator.SetBool(_model.animNameOfCrouch, false);
+                _model.Animator.SetFloat(_model.animNameOfMove, 0.5f);
+                speed = _model.baseSpeed;
+            }
         }
-        else
-            _model.Animator.SetBool(_model.animNameOfCrouch, false);
 
-        _model.Animator.SetFloat(_model.animNameOfMove, 0.5f);
-        _player.transform.Translate(Time.fixedDeltaTime * _model.baseSpeed * dir);
+        Vector3 velocity = worldDir * speed;
+        velocity.y = _rb.linearVelocity.y;
+        _rb.linearVelocity = velocity;
     }
-    public void Exit() 
+    public void Exit()
     {
         _model.Animator.SetBool(_model.animNameOfRun, false);
         _model.Animator.SetFloat(_model.animNameOfMove, 0f);
+        _rb.linearVelocity = new Vector3(0f, _rb.linearVelocity.y, 0f);
     }
 }
 
