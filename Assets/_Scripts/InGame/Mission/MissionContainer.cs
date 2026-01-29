@@ -31,14 +31,13 @@ public class MissionContainer : MonoBehaviour
 
             _missionObj = missionObj;
 
-            MissionBase target = _missionPrefabList[index].GetComponent<MissionBase>();
-            target.Init();
+            _missionInstance = Instantiate(_missionPrefabList[index], _missionArea);
+            MissionBase target = _missionInstance.GetComponent<MissionBase>();
             _title.text = target._missionTitle;
             _description.text = target._missionDescription;
+            target.Init();
             _missionPanel.SetActive(true);
-            _missionInstance = Instantiate(target.gameObject, _missionArea);
             InputManager.Instance.SetUIMode(true);
-  
         }
         else
         {
