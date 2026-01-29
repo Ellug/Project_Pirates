@@ -10,7 +10,7 @@ public class PowerSystem : MonoBehaviour
         Debug.Log("[PowerSystem] Power OFF");
 
         if (lightGroup != null)
-            lightGroup.SetLights(false);
+            lightGroup.SetPower(false);
 
         if (blackout != null)
             blackout.StartBlackout();
@@ -21,7 +21,7 @@ public class PowerSystem : MonoBehaviour
         Debug.Log("[PowerSystem] Power ON");
 
         if (lightGroup != null)
-            lightGroup.SetLights(true);
+            lightGroup.SetPower(true);
 
         if (blackout != null)
             blackout.RestoreLight();
