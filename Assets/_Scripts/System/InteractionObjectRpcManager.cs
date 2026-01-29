@@ -84,11 +84,28 @@ public class InteractionObjectRpcManager : MonoBehaviourPun
         _view.RPC(nameof(RpcInteractionObject), RpcTarget.Others, id);
     }
 
+    public void RequestNetworkMissionCleared(int id)
+    {
+        _view.RPC(nameof(RpcMissionClearObject), RpcTarget.All, id);
+    }
+
     [PunRPC]
     private void RpcInteractionObject(int id)
     {
         if (_objectCache.TryGetValue(id, out var obj))
             obj.OnOthersInteract();
+        else
+            Debug.LogWarning($"[RPC] ID {id}에 해당하는 오브젝트를 찾을 수 없음");
+    }
+
+    [PunRPC]
+    private void RpcMissionClearObject(int id)
+    {
+        if (_objectCache.TryGetValue(id, out var obj))
+            if (obj is MissionInteraction)
+            {
+                (obj as MissionInteraction).SetCleared();
+            }
         else
             Debug.LogWarning($"[RPC] ID {id}에 해당하는 오브젝트를 찾을 수 없음");
     }
