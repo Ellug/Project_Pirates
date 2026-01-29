@@ -1156,6 +1156,7 @@ GameObject:
   - component: {fileID: 6298784283470023150}
   - component: {fileID: 850340773740427094}
   - component: {fileID: 6917188577444250820}
+  - component: {fileID: 5327445884465091450}
   m_Layer: 7
   m_Name: PlayerMale
   m_TagString: Player
@@ -1718,6 +1719,23 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 7804a21ea96af0c4bab672f9f3798c37, type: 2}
   - {fileID: 2100000, guid: 99248c5f2fd19704da9724a4e7e02d5f, type: 2}
   - {fileID: 2100000, guid: 626803f80868b9c41974c84e0ddb98b9, type: 2}
+--- !u!114 &5327445884465091450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3649402652787755768}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d7ae69c79245e046a21fc40aa20d435, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LightCullingController
+  playerHead: {fileID: 697893731915319955}
+  proximityRadius: 12
+  minCameraDistance: 0
+  maxCameraDistance: 30
+  checkInterval: 0.1
 --- !u!1 &3737917190972728268
 GameObject:
   m_ObjectHideFlags: 0
