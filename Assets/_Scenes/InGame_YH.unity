@@ -11348,6 +11348,7 @@ MonoBehaviour:
   _spawnPointParent: {fileID: 486596932}
   _createVoice: {fileID: 1136181371}
   _playerRoleUi: {fileID: 1688580676}
+  _fadeController: {fileID: 0}
 --- !u!4 &2037784278
 Transform:
   m_ObjectHideFlags: 0
