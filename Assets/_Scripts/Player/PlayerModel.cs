@@ -55,7 +55,6 @@ public class PlayerModel : MonoBehaviour
 
     public Animator Animator { get; private set; }
     public bool IsCrouching { get; set; }
-    public bool IsGrounded { get; set; }
     public BaseJob MyJob { get; private set; }
 
     public event Action<float, float> OnHealthChanged;
@@ -71,7 +70,6 @@ public class PlayerModel : MonoBehaviour
         _curHealthPoint = _maxHealthPoint;
         _maxStamina = 100f;
         _curStamina = _maxStamina;
-        IsGrounded = true;
         runSpeed = baseSpeed * 1.6f;
         crouchSpeed = baseSpeed * 0.4f;
         _inventory = new ItemData[2];

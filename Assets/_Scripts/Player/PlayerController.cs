@@ -32,7 +32,6 @@ public class PlayerController : MonoBehaviourPun
     private InputAction _actKnockBack;
     private InputAction _actLook;
     private InputAction _actInteract;
-    // private InputAction _actJump;
     private InputAction _actJobSkill;
     private InputAction _actUseFirstItem;
     private InputAction _actUseSecondItem;
@@ -41,13 +40,11 @@ public class PlayerController : MonoBehaviourPun
     public PlayerStateMachine StateMachine { get; private set; }
     public IdleState StateIdle { get; private set; }
     public MoveState StateMove { get; private set; }
-    public JumpState StateJump { get; private set; }
     public CrouchState StateCrouch { get; private set; }
     public AttackState StateAttack { get; private set; }
     public DeathState StateDeath { get; private set; }
 
     public Vector2 InputMove { get; private set; }
-    public bool InputJump { get; private set; }
     public bool InputKnockBack { get; private set; }
     public bool InputAttack { get; private set; }
     public JobId PlayerJob { get; private set; }
@@ -97,7 +94,6 @@ public class PlayerController : MonoBehaviourPun
         _camera.transform.SetParent(transform, false);
         _camera.transform.localPosition = new Vector3(0f, _standingCameraY, 0.32f);
 
-        InputJump = false;
         InputMove = Vector2.zero;
     }
 
@@ -126,7 +122,6 @@ public class PlayerController : MonoBehaviourPun
         // 상태 클래스 할당
         StateIdle = new IdleState(this);
         StateMove = new MoveState(this);
-        StateJump = new JumpState(this);
         StateCrouch = new CrouchState(this);
         StateAttack = new AttackState(this);
         StateDeath = new DeathState(this);
@@ -313,11 +308,6 @@ public class PlayerController : MonoBehaviourPun
             _camDOTween.Kill();
             _camDOTween = _camera.transform.DOLocalMoveY(_standingCameraY, 0.3f);
         }
-    }
-
-    private void OnJump(InputAction.CallbackContext ctx)
-    {
-        InputJump = true;
     }
 
     // 공격, 밀기, 직업 스킬 키가 무시되는 조건

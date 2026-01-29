@@ -24,7 +24,7 @@ public abstract class BaseJob
     // 직업의 고유 능력
     public virtual void UniqueSkill()
     {
-        if (_model == null || _model.IsCrouching || !_model.IsGrounded) return;
+        if (_model == null || _model.IsCrouching) return;
 
         // 실제 로직 개별 클래스에서 적용
     }
