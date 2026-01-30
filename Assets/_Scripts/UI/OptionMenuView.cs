@@ -16,7 +16,10 @@ public class OptionMenuView : MonoBehaviourPunCallbacks
 
     public void CloseOptionPanel()
     {
-        _root.SetActive(false);
+        if (InputManager.Instance != null)
+            InputManager.Instance.CloseOptions();
+        else
+            _root.SetActive(false);
     }
 
     public void OnClickTab(GameObject Panel)
