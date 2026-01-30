@@ -44,14 +44,15 @@ public class MissionContainer : MonoBehaviour
 
     public void OnClickExitButton()
     {
-        _missionObj.ExitUse();
-        if (_missionInstance != null)
-            Destroy(_missionInstance);
         CloseMissionPanel();
     }
 
     public void CloseMissionPanel()
     {
+        if (_missionInstance != null)
+            Destroy(_missionInstance);
+
+        _missionObj.ExitUse();
         _missionPanel.SetActive(false);
         InputManager.Instance.SetUIMode(false);
     }
