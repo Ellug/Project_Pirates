@@ -30,7 +30,6 @@ public class DoorInteraction : InteractionObject
     private float _currentAngle;
 
     private Quaternion _closedRotation;
-    private Quaternion _targetRotation;
 
     private string DoorOpenKey => $"world.door.{_doorId}.open";
     private string DoorAngleKey => $"world.door.{_doorId}.angle";
