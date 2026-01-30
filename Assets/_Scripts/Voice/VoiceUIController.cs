@@ -21,7 +21,6 @@ public class VoiceUIController : Singleton<VoiceUIController>
 
     private void HandleVoiceOverlay(bool pressed)
     {
-        Debug.Log("왜안돼");
         if (GameManager.Instance != null)
         {
             SceneState currentState = GameManager.Instance.FlowState;

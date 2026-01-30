@@ -16,6 +16,9 @@ public class FadeController : MonoBehaviour
 
     void Start()
     {
+        if(_fadeCanvas.activeSelf == false) 
+            _fadeCanvas.SetActive(true);
+        
         GameManager.Instance.SetFadingController(this);
         _subText.text = "다른 플레이어를 기다리는 중입니다...";
     }
