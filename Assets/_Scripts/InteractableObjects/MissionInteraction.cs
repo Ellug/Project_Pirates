@@ -16,11 +16,12 @@ public class MissionInteraction : InteractionObject
         if (isUsing)
             return;
 
-        Debug.Log("상호작용에 응함.");
-        isUsing = !isUsing;
-        Debug.Log($"isUsing 값이 {isUsing} 로 설정됨.");
-        _rpcManager = rpcManager;
+        if (_rpcManager == null)
+            _rpcManager = rpcManager;
+
         _rpcManager.RequestNetworkInteraction(uniqueID);
+        isUsing = !isUsing;
+
         MissionContainer.Instance.StartMission(_missionIndex, this);
     }
 
@@ -28,7 +29,6 @@ public class MissionInteraction : InteractionObject
     public override void OnOthersInteract()
     {
         isUsing = !isUsing;
-        Debug.Log($"isUsing 값이 {isUsing} 로 설정됨.");
     }
 
     // 모두가 RPC를 받아서 클리어했음을 설정하는 메서드
@@ -43,7 +43,6 @@ public class MissionInteraction : InteractionObject
     {
         _rpcManager.RequestNetworkInteraction(uniqueID);
         isUsing = !isUsing;
-        Debug.Log($"isUsing 값이 {isUsing} 로 설정됨.");
     }
 
     // 로컬에서 실행되어 모두에게 알리는 메서드
