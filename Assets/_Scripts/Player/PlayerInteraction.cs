@@ -26,7 +26,7 @@ public class PlayerInteraction : MonoBehaviour
             _interactionBtn.SetActive(false);
     }
 
-    void Update()
+    void FixedUpdate()
     {
         CheckInteractionObject();
         if (_interactionBtn != null)
