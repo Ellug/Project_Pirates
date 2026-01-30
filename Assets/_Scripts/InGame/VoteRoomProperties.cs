@@ -139,13 +139,19 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
         // 투표 단계 변경
         if (propertiesThatChanged.TryGetValue(KEY_VOTE_PHASE, out var phaseObj))
         {
-            _currentPhase = (VotePhase)(int)phaseObj;
-            OnVotePhaseChanged?.Invoke(_currentPhase);
+            VotePhase newPhase = (VotePhase)(int)phaseObj;
 
-            // 단계가 바뀔 때 플레이어 리스트도 갱신
-            if (_currentPhase == VotePhase.Discussion)
+            // 실제로 Phase가 변경되었을 때만 이벤트 발생
+            if (_currentPhase != newPhase)
             {
-                RebuildPlayerInfoList();
+                _currentPhase = newPhase;
+                OnVotePhaseChanged?.Invoke(_currentPhase);
+
+                // 단계가 바뀔 때 플레이어 리스트도 갱신
+                if (_currentPhase == VotePhase.Discussion)
+                {
+                    RebuildPlayerInfoList();
+                }
             }
         }
 
