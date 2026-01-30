@@ -147,6 +147,11 @@ public class PlayerModel : MonoBehaviour
         runSpeed += amount;
     }
 
+    public void ChangeDamageStatus(float amount)
+    {
+        attackPower += amount;
+    }
+
     // 스태미나의 회복과 감소 메서드
     public void ConsumeStamina(float amount)
     {
