@@ -1,4 +1,5 @@
 ﻿using ExitGames.Client.Photon;
+using UnityEngine.Audio;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
