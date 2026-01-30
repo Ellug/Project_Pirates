@@ -22,6 +22,11 @@ public class MemoryMission : MissionBase
     [SerializeField] private float _lightOffGap = 0.15f;
     [SerializeField] private float _preShowDelay = 0.3f;
 
+    [Header("Color")]
+    [SerializeField] private Color _showColor = new Color(1f, 0f, 0f, 1f); // Red
+    [SerializeField] private Color _clickColor = new Color(0f, 1f, 0f, 1f); // Green
+    [SerializeField] private Color _defaultColor = Color.white;
+
     private readonly List<int> _sequence = new();
     private int _inputIndex;
     private int _round;
@@ -196,10 +201,10 @@ public class MemoryMission : MissionBase
         {
             int idx = _sequence[i];
 
-            LightCell(idx, true);
+            LightCell(idx, _showColor);
             yield return new WaitForSeconds(_lightOnTime);
 
-            LightCell(idx, false);
+            LightCell(idx, _defaultColor);
             yield return new WaitForSeconds(_lightOffGap);
         }
 
@@ -250,9 +255,9 @@ public class MemoryMission : MissionBase
 
     private IEnumerator CoClickFlash(int idx)
     {
-        LightCell(idx, true);
+        LightCell(idx, _clickColor);
         yield return new WaitForSeconds(0.12f);
-        LightCell(idx, false);
+        LightCell(idx, _defaultColor);
         _flashCor = null;
     }
 
@@ -263,21 +268,23 @@ public class MemoryMission : MissionBase
             if (_cellButtons[i] != null) _cellButtons[i].interactable = on;
     }
 
-    private void LightCell(int idx, bool on)
+    private void LightCell(int idx, Color color)
     {
         if (_cellImages == null) return;
         if (idx < 0 || idx >= _cellImages.Length) return;
         if (_cellImages[idx] == null) return;
 
-        // 에셋 없이 색만 조절
-        _cellImages[idx].color = on ? new Color(1f, 1f, 0.4f, 1f) : Color.white;
+        // 에셋없이 색만 조정
+        _cellImages[idx].color = color;
     }
 
     private void ResetCellColors()
     {
         if (_cellImages == null) return;
+
         for (int i = 0; i < _cellImages.Length; i++)
-            if (_cellImages[i] != null) _cellImages[i].color = Color.white;
+            if (_cellImages[i] != null)
+                _cellImages[i].color = _defaultColor;
     }
 
     private void UpdateUI()
