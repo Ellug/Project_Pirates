@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 917e9a9e33337194382e847ac528d661, type: 3}
   m_Name: Rope
   m_EditorClassIdentifier: Assembly-CSharp::ItemData
-  itemId: 0
-  itemName: 
-  icon: {fileID: 0}
+  itemId: 6
+  itemName: "\uC18D\uBC15 \uB85C\uD504"
+  icon: {fileID: 21300000, guid: c709d05f6b3014d4b8e76f2d32488252, type: 3}

@@ -97,6 +97,12 @@ public class PlayerModel : MonoBehaviour
         }
     }
 
+    public void HealingHealthPoint(float amount)
+    {
+        _curHealthPoint = Mathf.Min(_maxHealthPoint, _curHealthPoint + amount);
+        OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
+    }
+
     public void ExecuteByVote()
     {
         if (_isDead) return;
@@ -128,18 +134,6 @@ public class PlayerModel : MonoBehaviour
 
         // RPC로 모든 클라이언트에서 로컬 생성
         PlayerManager.Instance.RequestSpawnDeadBody(spawnPos, spawnRot);
-    }
-
-    public void HealingHealthPoint(float amount)
-    {
-        _curHealthPoint = Mathf.Min(_maxHealthPoint, _curHealthPoint + amount);
-        OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
-    }
-
-    public void HealingStaminaPoint(float amount)
-    {
-        _curHealthPoint = Mathf.Min(_maxStamina, _curStamina + amount);
-        OnHealthChanged?.Invoke(_curStamina, _maxStamina);
     }
 
     public void ChangeSpeedStatus(float amount)

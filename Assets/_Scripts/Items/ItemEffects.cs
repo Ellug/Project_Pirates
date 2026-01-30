@@ -42,16 +42,16 @@ public class ItemEffects
     private void RecoveryStaminaPoint(PlayerModel player)
     {
         Debug.Log("스태미너 알약 사용함");
-        player.HealingStaminaPoint(50f);
+        player.RecoverStamina(50f);
     }
     
     IEnumerator TakeSpeedPill(PlayerModel player)
     {
-        Debug.Log("이동 속도 증가 알약 사용!");
-        player.ChangeSpeedStatus(0.5f);
+        Debug.Log("달리기 속도 증가 알약 사용!");
+        player.ChangeSpeedStatus(3f);
         yield return new WaitForSecondsRealtime(5f);
-        player.ChangeSpeedStatus(-0.5f);
-        Debug.Log("이동 속도 정상화..");
+        player.ChangeSpeedStatus(-3f);
+        Debug.Log("달리기 속도 정상화..");
     }
 
     IEnumerator TakeAttackPill(PlayerModel player)
@@ -72,12 +72,15 @@ public class ItemEffects
 
         if (player.OtherPlayerInteraction(out Vector3 direction, out hit, knifeRange))
         {
+            Debug.Log("단검 명중 성공!");
             PhotonView targetView = hit.transform.GetComponent<PhotonView>();
             if (targetView != null)
             {
                 targetView.RPC("RpcGetHitAttack", targetView.Owner, knifeDamage);
             }
         }
+        else
+            Debug.Log("단검 명중 실패!");
     }
 
     private void ThrowRope(PlayerModel player)
@@ -88,11 +91,14 @@ public class ItemEffects
 
         if (player.OtherPlayerInteraction(out Vector3 direction, out hit, ropeRange))
         {
+            Debug.Log("로프 명중 성공!");
             PhotonView targetView = hit.transform.GetComponent<PhotonView>();
             if (targetView != null)
             {
                 targetView.RPC("RpcGetHitBondage", targetView.Owner, 5f);
             }
         }
+        else
+            Debug.Log("로프 명중 실패!");
     }
 }
