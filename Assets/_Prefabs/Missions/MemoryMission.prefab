@@ -440,7 +440,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4390350686139997909}
   - component: {fileID: 3266054981037767700}
-  - component: {fileID: -105117966456345986}
   m_Layer: 5
   m_Name: MemoryMission
   m_TagString: Untagged
@@ -514,23 +513,6 @@ MonoBehaviour:
   _lightOnTime: 0.35
   _lightOffGap: 0.15
   _preShowDelay: 0.3
---- !u!114 &-105117966456345986
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1275717285825444678}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a55b72a0a11ca245a3f6ba6a1953659, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MissionInteraction
-  uniqueID: -354762
-  _interactionDistance: 4
-  _missionIndex: 0
-  alreadyCleared: 0
-  isUsing: 0
 --- !u!1 &1768587670455701709
 GameObject:
   m_ObjectHideFlags: 0
