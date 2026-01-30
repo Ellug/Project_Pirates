@@ -1,17 +1,19 @@
-﻿using ExitGames.Client.Photon;
+﻿using ExitGames.Client.Photon; 
 using UnityEngine.Audio;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 using UnityEngine;
 using DG.Tweening;
+using Photon.Pun;
+using System.Collections;
 
-public class DoorInteraction : InteractionObject
+public class DoorController : InteractionObject
 {
     [Header("Door Settings")]
     [SerializeField] private int _doorId;
-    [SerializeField] private float _openSpeed = 5f;
     [SerializeField] private float _openAngle = 120f;
+    [SerializeField] private float _tweenDuration = 0.3f;
 
     [Header("Reference")]
     [SerializeField] private CustomPropertyManager _roomProps;
@@ -25,15 +27,20 @@ public class DoorInteraction : InteractionObject
     [SerializeField, Range(0f, 1f)] private float _sfxVolume = 1f;
 
     private AudioSource _audio;
-    private bool _lastOpenState;
 
     private bool _isOpen;
-    private float _currentAngle;
+    private bool _isLocked;
+    private bool _lastOpenState;
 
+    private float _currentAngle;
     private Quaternion _closedRotation;
 
+    private Coroutine _lockTimerCoroutine;
+
+    // Keys
     private string DoorOpenKey => $"world.door.{_doorId}.open";
     private string DoorAngleKey => $"world.door.{_doorId}.angle";
+    private const string LOCK_KEY = "world.door.locked";
 
     private void Awake()
     {
@@ -56,15 +63,27 @@ public class DoorInteraction : InteractionObject
     private void Start()
     {
         _closedRotation = _doorPivot.localRotation;
-        DoorAction(_closedRotation);
 
         _roomProps.OnRoomPropertyChanged += OnRoomPropertyChanged;
 
-        if (_roomProps.TryGet(DoorOpenKey, out bool open))
-            _isOpen = open;
+        SyncInitialState();
+    }
 
-        if (_roomProps.TryGet(DoorAngleKey, out float angle))
-            _currentAngle = angle;
+    private void SyncInitialState()
+    {
+        if (_roomProps.TryGet(LOCK_KEY, out object lockVal))
+        {
+            HandleLockLogic(lockVal);
+        }
+
+        if (!_isLocked)
+        {
+            if (_roomProps.TryGet(DoorOpenKey, out bool open))
+                _isOpen = open;
+
+            if (_roomProps.TryGet(DoorAngleKey, out float angle))
+                _currentAngle = angle;
+        }
 
         ApplyDoor(_isOpen, _currentAngle, true);
     }
@@ -75,13 +94,71 @@ public class DoorInteraction : InteractionObject
             _roomProps.OnRoomPropertyChanged -= OnRoomPropertyChanged;
     }
 
-    private void DoorAction(Quaternion targetRotation)
+    private void OnRoomPropertyChanged(ExitGames.Client.Photon.Hashtable changedProps)
     {
-        _doorPivot.DOLocalRotateQuaternion(targetRotation, 0.3f);
+        bool dirty = false;
+
+        if (changedProps.TryGetValue(LOCK_KEY, out var lockVal))
+        {
+            HandleLockLogic(lockVal);
+            return;
+        }
+
+        if (!_isLocked)
+        {
+            if (changedProps.TryGetValue(DoorOpenKey, out var open))
+            {
+                _isOpen = (bool)open;
+                dirty = true;
+            }
+            if (changedProps.TryGetValue(DoorAngleKey, out var angle))
+            {
+                _currentAngle = (float)angle;
+                dirty = true;
+            }
+
+            if (dirty) ApplyDoor(_isOpen, _currentAngle, false);
+        }
+    }
+
+    private void HandleLockLogic(object lockVal)
+    {
+        if (_lockTimerCoroutine != null) StopCoroutine(_lockTimerCoroutine);
+
+        if (lockVal is double unlockTime)
+        {
+            _isLocked = true;
+            _isOpen = false;
+            _currentAngle = 0f;
+            ApplyDoor(false, 0f, false);
+            _lockTimerCoroutine = StartCoroutine(LockTimerCoroutine(unlockTime));
+        }
+        else if (lockVal is bool locked && !locked)
+        {
+            _isLocked = false;
+        }
+    }
+
+    private IEnumerator LockTimerCoroutine(double unlockTime)
+    {
+        while (PhotonNetwork.Time < unlockTime)
+        {
+            yield return null;
+        }
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            _roomProps.Set(LOCK_KEY, false);
+        }
+
+        _isLocked = false;
+        _lockTimerCoroutine = null;
     }
 
     public override void OnInteract(PlayerInteraction player, InteractionObjectRpcManager rpcManager)
     {
+        if (_isLocked) return;
+
         bool newOpen = !_isOpen;
         float angle = newOpen ? _openAngle : 0f;
 
@@ -89,78 +166,39 @@ public class DoorInteraction : InteractionObject
         _roomProps.Set(DoorAngleKey, angle);
     }
 
-    private void OnRoomPropertyChanged(Hashtable changedProps)
-    {
-        bool dirty = false;
-
-        if (changedProps.TryGetValue(DoorOpenKey, out var open))
-        {
-            _isOpen = (bool)open;
-            dirty = true;
-        }
-
-        if (changedProps.TryGetValue(DoorAngleKey, out var angle))
-        {
-            _currentAngle = (float)angle;
-            dirty = true;
-        }
-
-        if (dirty)
-            ApplyDoor(_isOpen, _currentAngle, false);
-    }
-
     private void ApplyDoor(bool open, float angle, bool isInit)
     {
-        if (!open)
-            DoorAction(_closedRotation);
-        else
-            DoorAction(_closedRotation * Quaternion.Euler(0, angle, 0));
+        Quaternion targetRot = open
+            ? _closedRotation * Quaternion.Euler(0, angle, 0)
+            : _closedRotation;
 
-        if(!isInit && _lastOpenState != open)
-        {
+        _doorPivot.DOLocalRotateQuaternion(targetRot, _tweenDuration);
+
+        if (!isInit && _lastOpenState != open)
             PlayDoorSfx(open);
-        }
 
         _lastOpenState = open;
-
-        Debug.Log(isInit
-            ? $"[Door] Init : {open} / {angle}"
-            : $"[Door] Changed : {open} / {angle}");
     }
 
     private void PlayDoorSfx(bool isOpen)
     {
         if (_audio == null) return;
-
         AudioClip clip = isOpen ? _openClip : _closeClip;
-        if (clip == null) return;
-
-        _audio.PlayOneShot(clip, _sfxVolume);
+        if (clip != null) _audio.PlayOneShot(clip, _sfxVolume);
     }
 
 #if UNITY_EDITOR
     [ContextMenu("Auto Assign Unique IDs")]
     private void AutoAssignIDs()
     {
-        DoorInteraction[] foundObjects =
-            FindObjectsByType<DoorInteraction>(FindObjectsSortMode.None);
-
-        // 로컬 환경 통일을 위해 이름 순으로 정렬
+        DoorController[] foundObjects = FindObjectsByType<DoorController>(FindObjectsSortMode.None);
         System.Array.Sort(foundObjects, (a, b) => string.Compare(a.name, b.name));
-
-        // 찾아낸 오브젝트들에게 순차적으로 ID를 부여함
         for (int i = 0; i < foundObjects.Length; i++)
         {
-            if (foundObjects[i]._doorId != i)
-            {
-                Undo.RecordObject(foundObjects[i], "Assign ID");
-                foundObjects[i]._doorId = i;
-
-                EditorUtility.SetDirty(foundObjects[i]);
-            }
+            Undo.RecordObject(foundObjects[i], "Assign ID");
+            foundObjects[i]._doorId = i;
+            EditorUtility.SetDirty(foundObjects[i]);
         }
-        // 결과 확인용
-        Debug.Log($"총 {foundObjects.Length}개의 오브젝트에 ID 할당이 완료되었습니다!");
     }
 #endif
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,6 +15,9 @@ public class ItemEffects
     public void Initialize()
     {
         itemEffectsDictionary.Add(1, RecoveryHealthPoint);
+        itemEffectsDictionary.Add(2, RecoveryStaminaPoint);
+        itemEffectsDictionary.Add(3, (player) => player.StartCoroutine(TakeSpeedPill(player)));
+        itemEffectsDictionary.Add(3, (player) => player.StartCoroutine(TakeAttackPill(player)));
         itemEffectsDictionary.Add(1001, EquipWeapon);
     }
 
@@ -34,7 +38,31 @@ public class ItemEffects
         Debug.Log("회복약 사용함");
         player.HealingHealthPoint(50f);
     }
+
+    private void RecoveryStaminaPoint(PlayerModel player)
+    {
+        Debug.Log("스태미너 알약 사용함");
+        player.HealingStaminaPoint(50f);
+    }
     
+    IEnumerator TakeSpeedPill(PlayerModel player)
+    {
+        Debug.Log("이동 속도 증가 알약 사용!");
+        player.ChangeSpeedStatus(0.5f);
+        yield return new WaitForSecondsRealtime(5f);
+        player.ChangeSpeedStatus(-0.5f);
+        Debug.Log("이동 속도 정상화..");
+    }
+
+    IEnumerator TakeAttackPill(PlayerModel player)
+    {
+        Debug.Log("이동 속도 증가 알약 사용!");
+        player.ChangeDamageStatus(10f);
+        yield return new WaitForSecondsRealtime(5f);
+        player.ChangeDamageStatus(-10f);
+        Debug.Log("이동 속도 정상화..");
+    }
+
     private void EquipWeapon(PlayerModel player)
     {
         // TODO : 무기 장착 로직 추가

@@ -136,6 +136,22 @@ public class PlayerModel : MonoBehaviour
         OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
     }
 
+    public void HealingStaminaPoint(float amount)
+    {
+        _curHealthPoint = Mathf.Min(_maxStamina, _curStamina + amount);
+        OnHealthChanged?.Invoke(_curStamina, _maxStamina);
+    }
+
+    public void ChangeSpeedStatus(float amount)
+    {
+        runSpeed += amount;
+    }
+
+    public void ChangeDamageStatus(float amount)
+    {
+        attackPower += amount;
+    }
+
     // 스태미나의 회복과 감소 메서드
     public void ConsumeStamina(float amount)
     {
