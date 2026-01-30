@@ -42,7 +42,7 @@ public sealed class PlayerFootstepSfx : MonoBehaviour
     {
         if (_model == null || _model.Animator == null) return;
 
-        // 이동 여부는 애니 파라미터로 간단히(당신 코드 유지)
+        // 이동 여부는 애니 파라미터로 간단히
         bool isMoving = _model.Animator.GetFloat(_model.animNameOfMove) > 0.05f;
 
         if (!isMoving)

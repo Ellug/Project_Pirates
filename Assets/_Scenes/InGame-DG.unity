@@ -9195,7 +9195,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &656503391
 RectTransform:
   m_ObjectHideFlags: 0
@@ -15383,8 +15383,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b80906c3fabc6c748a1d0807bb873852, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RealtimeLightGroup
-  autoCollect: 1
-  includeInactive: 0
 --- !u!114 &1222257948
 MonoBehaviour:
   m_ObjectHideFlags: 0

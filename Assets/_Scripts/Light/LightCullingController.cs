@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class LightCullingController : MonoBehaviour
 {
@@ -17,6 +18,9 @@ public class LightCullingController : MonoBehaviour
     [Tooltip("카메라 시야 컬링 최대 거리")]
     public float maxCameraDistance = 30f;
 
+    [Tooltip("프러스텀 기준 좌우 시야를 추가로 늘리거나 줄이는 각도 (±n도)")]
+    public float horizontalFOVOffset = 0f; // 0이면 카메라 기본 시야, 30이면 좌우 30도 더 넓음
+
     [Tooltip("컬링 체크 간격 (초)")]
     public float checkInterval = 0.1f;
 
@@ -28,17 +32,15 @@ public class LightCullingController : MonoBehaviour
         // 씬 시작 시 라이트 수집
         allLights.AddRange(FindObjectsByType<ProximityLight>(FindObjectsSortMode.None));
 
-        // 로컬 플레이어 카메라 자동 참조
-        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-        foreach (var p in players)
+        // 자신에게 할당된 플레이어 캐릭터 카메라만 가져오기
+        var localPlayer = FindObjectsByType<PlayerController>(FindObjectsSortMode.None)
+                          .FirstOrDefault(p => p.photonView != null && p.photonView.IsMine);
+
+        if (localPlayer != null)
         {
-            if (p.photonView.IsMine)
-            {
-                _playerCamera = p.GetComponentInChildren<Camera>();
-                if (playerHead == null)
-                    playerHead = _playerCamera?.transform;
-                break;
-            }
+            _playerCamera = localPlayer.GetComponentInChildren<Camera>();
+            if (playerHead == null && _playerCamera != null)
+                playerHead = _playerCamera.transform;
         }
 
         if (_playerCamera == null)
@@ -50,7 +52,6 @@ public class LightCullingController : MonoBehaviour
 
     private void Start()
     {
-        // Coroutine으로 주기적 컬링 체크
         StartCoroutine(LightCullingLoop());
     }
 
@@ -69,7 +70,6 @@ public class LightCullingController : MonoBehaviour
     {
         if (_playerCamera == null || playerHead == null) return;
 
-        // 카메라 시야 프러스텀 한 번만 계산
         Plane[] planes = GeometryUtility.CalculateFrustumPlanes(_playerCamera);
 
         foreach (var light in allLights)
@@ -79,15 +79,34 @@ public class LightCullingController : MonoBehaviour
             // 플레이어 근접 Sphere 체크
             bool inProximity = Vector3.Distance(light.transform.position, playerHead.position) <= proximityRadius;
 
-            // 카메라 시야 + 거리 체크
+            // 카메라 거리 체크
             float distance = Vector3.Distance(light.transform.position, _playerCamera.transform.position);
-            bool inCameraView = distance >= minCameraDistance && distance <= maxCameraDistance &&
-                                light.IsVisibleFromCamera(planes);
+            bool inDistance = distance >= minCameraDistance && distance <= maxCameraDistance;
 
-            // 컬링 적용
-            light.SetByOcclusion(inCameraView);
+            // 카메라 프러스텀 컬링
+            bool inCameraView = GeometryUtility.TestPlanesAABB(planes, light.GetComponent<Renderer>().bounds);
+
+            // 좌우 시야 각도 조정 (기본 FOV + horizontalFOVOffset)
+            Vector3 dirToLight = (light.transform.position - _playerCamera.transform.position).normalized;
+            float angle = Vector3.Angle(_playerCamera.transform.forward, dirToLight);
+
+            float cameraFOVHorizontal = CameraVerticalToHorizontalFOV(_playerCamera.fieldOfView, _playerCamera.aspect);
+            bool inHorizontalFOV = angle <= (cameraFOVHorizontal * 0.5f + horizontalFOVOffset);
+
+            // 최종 컬링 적용
+            bool shouldBeActive = inDistance && inCameraView && inHorizontalFOV;
+
+            light.SetByOcclusion(shouldBeActive);
             light.SetByPlayer(inProximity);
             light.ApplyFinalState();
         }
+    }
+
+    // 유니티 카메라 수직 FOV를 수평 FOV로 변환
+    private float CameraVerticalToHorizontalFOV(float verticalFOV, float aspect)
+    {
+        float radV = verticalFOV * Mathf.Deg2Rad;
+        float radH = 2f * Mathf.Atan(Mathf.Tan(radV / 2f) * aspect);
+        return radH * Mathf.Rad2Deg;
     }
 }
