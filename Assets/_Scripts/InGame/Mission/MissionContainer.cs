@@ -26,9 +26,6 @@ public class MissionContainer : MonoBehaviour
     {
         if (index < _missionPrefabList.Length) 
         {
-            while (_missionArea.childCount != 0)
-                Destroy(_missionArea.GetChild(0).gameObject);
-
             _missionObj = missionObj;
 
             _missionInstance = Instantiate(_missionPrefabList[index], _missionArea);
@@ -48,6 +45,8 @@ public class MissionContainer : MonoBehaviour
     public void OnClickExitButton()
     {
         _missionObj.ExitUse();
+        if (_missionInstance != null)
+            Destroy(_missionInstance);
         CloseMissionPanel();
     }
 
