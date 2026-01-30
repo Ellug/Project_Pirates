@@ -17,6 +17,7 @@ public class ItemEffects
         itemEffectsDictionary.Add(1, RecoveryHealthPoint);
         itemEffectsDictionary.Add(2, RecoveryStaminaPoint);
         itemEffectsDictionary.Add(3, (player) => player.StartCoroutine(TakeSpeedPill(player)));
+        itemEffectsDictionary.Add(3, (player) => player.StartCoroutine(TakeAttackPill(player)));
         itemEffectsDictionary.Add(1001, EquipWeapon);
     }
 
@@ -50,6 +51,15 @@ public class ItemEffects
         player.ChangeSpeedStatus(0.5f);
         yield return new WaitForSecondsRealtime(5f);
         player.ChangeSpeedStatus(-0.5f);
+        Debug.Log("이동 속도 정상화..");
+    }
+
+    IEnumerator TakeAttackPill(PlayerModel player)
+    {
+        Debug.Log("이동 속도 증가 알약 사용!");
+        player.ChangeDamageStatus(10f);
+        yield return new WaitForSecondsRealtime(5f);
+        player.ChangeDamageStatus(-10f);
         Debug.Log("이동 속도 정상화..");
     }
 
