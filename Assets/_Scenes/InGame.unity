@@ -8968,7 +8968,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BlackoutSwitchObject
   uniqueID: 75
   _interactionDistance: 4
-  blackoutBinder: {fileID: 0}
+  blackoutBinder: {fileID: 847436566}
 --- !u!135 &620420145
 SphereCollider:
   m_ObjectHideFlags: 0

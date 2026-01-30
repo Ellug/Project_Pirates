@@ -1734,7 +1734,8 @@ MonoBehaviour:
   playerHead: {fileID: 697893731915319955}
   proximityRadius: 12
   minCameraDistance: 0
-  maxCameraDistance: 30
+  maxCameraDistance: 40
+  horizontalFOVOffset: 30
   checkInterval: 0.1
 --- !u!1 &3737917190972728268
 GameObject:
