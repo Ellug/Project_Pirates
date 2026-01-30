@@ -1,12 +1,14 @@
-﻿using TMPro;
+﻿using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class AjeMission : MissionBase
 {
-    [SerializeField] private TMP_Text _curProblem;
+    [SerializeField] private TMP_Text _curQuestion;
     [SerializeField] private TMP_InputField _answerInput;
-    [SerializeField] private TMP_Text _curAnswer;
     [SerializeField] private TMP_Text _resultText;
+    
+    private string _curAnswer;
 
     private readonly (string problem, string answer)[] _quizList =
     {
@@ -49,31 +51,52 @@ public class AjeMission : MissionBase
         ("치아가 잘 보이는 사람은?", "이보영"),
         ("씨엘의 엉덩이를 영어로?", "class"),
     };
+    
+    private static WaitForSeconds _waitForSeconds2 = new(2f);
 
     public override void Init()
     {
         _resultText.text = "";
 
         int index = Random.Range(0, _quizList.Length);
-        _curProblem.text = _quizList[index].problem;
-        _curAnswer.text = _quizList[index].answer;
+        _curQuestion.text = _quizList[index].problem;
+        _curAnswer = _quizList[index].answer;
         _answerInput.text = "";
-        
-        _curAnswer.gameObject.SetActive(false);
+        _answerInput.onSubmit.AddListener(OnSubmit);
+    }
+
+    void OnDestroy()
+    {
+        _answerInput.onSubmit.RemoveListener(OnSubmit);
+    }
+
+    private void OnSubmit(string _)
+    {
+        OnClickSubmit();
     }
 
     public void OnClickSubmit()
     {
-        _curAnswer.gameObject.SetActive(true);
-
-        if (_answerInput.text != _curAnswer.text)
+        if (_answerInput.text != _curAnswer)
         {
-            _resultText.text = $"오답입니다ㅋ 정답은 {_curAnswer.text} 깔깔깔";
-            MissionContainer.Instance.CloseMissionPanel();
+            _resultText.text = $"오답입니다ㅋ 정답은 {_curAnswer} 깔깔깔";
+            StartCoroutine(DelayedClose());
             return;
         }
 
         _resultText.text = "이걸 맞추네...";
+        StartCoroutine(DelayedComplete());
+    }
+
+    private IEnumerator DelayedComplete()
+    {
+        yield return _waitForSeconds2;
         CompleteMission();
+    }
+
+    private IEnumerator DelayedClose()
+    {
+        yield return _waitForSeconds2;
+        MissionContainer.Instance.CloseMissionPanel();
     }
 }
