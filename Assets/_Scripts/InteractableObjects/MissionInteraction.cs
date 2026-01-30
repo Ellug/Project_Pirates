@@ -6,8 +6,8 @@ public class MissionInteraction : InteractionObject
     [SerializeField] private int _missionIndex = 0;
     private InteractionObjectRpcManager _rpcManager;
 
-    public bool alreadyCleared = false;  // 이미 클리어했는지 여부 (누군가 클리어한건 또 수행 불가)
-    public bool isUsing = false;         // 누군가 상호작용 중인지 여부 (중복 수행 불가)
+    [HideInInspector] public bool alreadyCleared = false;  // 이미 클리어했는지 여부 (누군가 클리어한건 또 수행 불가)
+    [HideInInspector] public bool isUsing = false;         // 누군가 상호작용 중인지 여부 (중복 수행 불가)
 
     public override void OnInteract(PlayerInteraction player, InteractionObjectRpcManager rpcManager)
     {
@@ -16,8 +16,12 @@ public class MissionInteraction : InteractionObject
         if (isUsing)
             return;
 
-        _rpcManager = rpcManager;
+        if (_rpcManager == null)
+            _rpcManager = rpcManager;
+
         _rpcManager.RequestNetworkInteraction(uniqueID);
+        isUsing = !isUsing;
+
         MissionContainer.Instance.StartMission(_missionIndex, this);
     }
 
@@ -38,6 +42,7 @@ public class MissionInteraction : InteractionObject
     public void ExitUse()
     {
         _rpcManager.RequestNetworkInteraction(uniqueID);
+        isUsing = !isUsing;
     }
 
     // 로컬에서 실행되어 모두에게 알리는 메서드

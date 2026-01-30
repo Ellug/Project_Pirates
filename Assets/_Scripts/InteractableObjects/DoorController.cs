@@ -3,6 +3,7 @@
 using UnityEditor;
 #endif
 using UnityEngine;
+using DG.Tweening;
 
 public class DoorInteraction : InteractionObject
 {
@@ -29,7 +30,6 @@ public class DoorInteraction : InteractionObject
     private float _currentAngle;
 
     private Quaternion _closedRotation;
-    private Quaternion _targetRotation;
 
     private string DoorOpenKey => $"world.door.{_doorId}.open";
     private string DoorAngleKey => $"world.door.{_doorId}.angle";
@@ -55,7 +55,7 @@ public class DoorInteraction : InteractionObject
     private void Start()
     {
         _closedRotation = _doorPivot.localRotation;
-        _targetRotation = _closedRotation;
+        DoorAction(_closedRotation);
 
         _roomProps.OnRoomPropertyChanged += OnRoomPropertyChanged;
 
@@ -74,12 +74,9 @@ public class DoorInteraction : InteractionObject
             _roomProps.OnRoomPropertyChanged -= OnRoomPropertyChanged;
     }
 
-    private void Update()
+    private void DoorAction(Quaternion targetRotation)
     {
-        _doorPivot.localRotation = Quaternion.Slerp(
-            _doorPivot.localRotation,
-            _targetRotation,
-            Time.deltaTime * _openSpeed);
+        _doorPivot.DOLocalRotateQuaternion(targetRotation, 0.3f);
     }
 
     public override void OnInteract(PlayerInteraction player, InteractionObjectRpcManager rpcManager)
@@ -114,9 +111,9 @@ public class DoorInteraction : InteractionObject
     private void ApplyDoor(bool open, float angle, bool isInit)
     {
         if (!open)
-            _targetRotation = _closedRotation;
+            DoorAction(_closedRotation);
         else
-            _targetRotation = _closedRotation * Quaternion.Euler(0, angle, 0);
+            DoorAction(_closedRotation * Quaternion.Euler(0, angle, 0));
 
         if(!isInit && _lastOpenState != open)
         {
