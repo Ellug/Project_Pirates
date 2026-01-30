@@ -33,7 +33,8 @@ public class InputManager : Singleton<InputManager>
     private PlayerInput _localPlayer;
 
     private InputMode _mode = InputMode.Player;
-    private bool _isOptionsOpen;    
+    private bool _isOptionsOpen;
+    private int _externalUIModeCount = 0;  // 외부 UI 모드 요청 카운터 (Mission, Vote 등)
 
     private const string MAP_PLAYER = "Player";
     private const string MAP_UI     = "UI";
@@ -124,8 +125,9 @@ public class InputManager : Singleton<InputManager>
     {
         UpdateSceneFlag(s);
 
-        // 씬 바뀌면 옵션은 닫아두기
+        // 씬 바뀌면 UI 상태 초기화
         _isOptionsOpen = false;
+        _externalUIModeCount = 0;
 
         // 씬 전환 시 기존 _localPlayer 참조 명시적 정리 : MissingReferenceException 발생 방지
         _localPlayer = null;
@@ -243,24 +245,16 @@ public class InputManager : Singleton<InputManager>
         OnVoiceOverlay?.Invoke(false);
     }
 
-    /// 게임 결과창 등에서 플레이어 입력 차단 + 커서 해제가 필요할 때 호출
-    /// InGame 씬에서 게임 종료 시 사용
+    /// 게임 결과창, 미션, 투표 등에서 플레이어 입력 차단 + 커서 해제가 필요할 때 호출
+    /// 카운터 기반으로 동작하여 여러 UI가 중첩되어도 안전하게 관리
     public void SetUIMode(bool uiMode)
     {
-        if (_localPlayer != null)
-        {
-            try
-            {
-                string map = uiMode ? MAP_UI : MAP_PLAYER;
-                _localPlayer.SwitchCurrentActionMap(map);
-            }
-            catch (MissingReferenceException)
-            {
-                _localPlayer = null;
-            }
-        }
+        if (uiMode)
+            _externalUIModeCount++;
+        else
+            _externalUIModeCount = Mathf.Max(0, _externalUIModeCount - 1);
 
-        ApplyCursor(uiMode);
+        ApplyState();
     }    
 
     private void ApplyState()
@@ -268,7 +262,7 @@ public class InputManager : Singleton<InputManager>
         if (_optionsRoot != null)
             _optionsRoot.SetActive(_isOptionsOpen);
 
-        bool uiMode = (_mode == InputMode.DevConsole || _isOptionsOpen);
+        bool uiMode = (_mode == InputMode.DevConsole || _isOptionsOpen || _externalUIModeCount > 0);
 
         // 파괴된 오브젝트 참조 방어
         if (_localPlayer != null)
