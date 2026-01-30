@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -6,31 +7,26 @@ using UnityEngine.UI;
 public class TetrisMission : MissionBase
 {
     private const int PieceCellCount = 4;
-
-    private enum PieceType
-    {
-        I,
-        O,
-        T,
-        S,
-        Z,
-        J,
-        L
-    }
+    private enum PieceType { I, O, T, S, Z, J, L }
 
     [Header("UI")]
     [SerializeField] private TMP_Text _resultText;
     [SerializeField] private RectTransform _cellRoot;
     [SerializeField] private Color _emptyCellColor = new(0f, 0f, 0f, 0.2f);
+    [SerializeField] private Color _dangerZoneColor = new(0.3f, 0.1f, 0.1f, 0.3f);  // 게임오버 위험 영역
 
     [Header("Board")]
     [SerializeField] private int _boardWidth = 10;
     [SerializeField] private int _boardHeight = 20;
-    [SerializeField] private float _fallInterval = 0.6f;
+    [SerializeField] private float _fallInterval = 0.3f;
     [SerializeField] private float _softDropInterval = 0.05f;
-    [SerializeField] private int _linesToComplete = 3;
-    [SerializeField] private float _cellSpacing = 1f;
+    [SerializeField] private int _linesToComplete = 20;
 
+    [Header("Input")]
+    [SerializeField] private float _delayAutoShift = 0.17f;    // 키 홀드 시 반복 시작까지 대기 시간
+    [SerializeField] private float _autoRepeatRate = 0.03f;    // 반복 이동 간격
+
+    // 각 조각의 기본 형태
     private static readonly Vector2Int[][] BaseShapes =
     {
         new[] { new Vector2Int(0, 1), new Vector2Int(1, 1), new Vector2Int(2, 1), new Vector2Int(3, 1) }, // I
@@ -47,16 +43,15 @@ public class TetrisMission : MissionBase
 
     private readonly Color[] _pieceColors =
     {
-        new(0f, 0.9f, 0.9f, 1f),   // I
-        new(1f, 0.92f, 0.2f, 1f),  // O
-        new(0.75f, 0.3f, 0.9f, 1f),// T
-        new(0.2f, 0.9f, 0.35f, 1f),// S
-        new(0.95f, 0.2f, 0.2f, 1f),// Z
-        new(0.2f, 0.4f, 0.95f, 1f),// J
-        new(1f, 0.55f, 0.1f, 1f),  // L
+        new(0f, 0.9f, 0.9f, 1f),   // I - cyan
+        new(1f, 0.92f, 0.2f, 1f),  // O - yellow
+        new(0.75f, 0.3f, 0.9f, 1f),// T - purple
+        new(0.2f, 0.9f, 0.35f, 1f),// S - green
+        new(0.95f, 0.2f, 0.2f, 1f),// Z - red
+        new(0.2f, 0.4f, 0.95f, 1f),// J - blue
+        new(1f, 0.55f, 0.1f, 1f),  // L - orange
     };
 
-    private GridLayoutGroup _grid;
     private Image[,] _cells;
     private int[,] _board;
 
@@ -67,139 +62,56 @@ public class TetrisMission : MissionBase
     private float _fallTimer;
     private bool _softDrop;
     private bool _isGameOver;
-    private bool _isInitialized;
     private int _linesCleared;
+
+    // DAS/ARR 입력 처리용
+    private float _leftHoldTime;
+    private float _rightHoldTime;
+    private float _leftRepeatTimer;
+    private float _rightRepeatTimer;
 
     public override void Init()
     {
-        _boardWidth = Mathf.Max(4, _boardWidth);
-        _boardHeight = Mathf.Max(4, _boardHeight);
-
-        EnsureBoardRoot();
-        ConfigureGrid();
+        _resultText.text = "";
         BuildCells();
-
         StartNewGame();
-        _isInitialized = true;
     }
 
     void Update()
     {
-        if (!_isInitialized || _isGameOver) return;
+        if (_isGameOver) return;
 
         HandleInput();
         StepFall(Time.deltaTime);
         Render();
     }
 
-    private void EnsureBoardRoot()
-    {
-        if (_cellRoot == null)
-        {
-            var existing = transform.Find("Cells") as RectTransform;
-            if (existing != null)
-            {
-                _cellRoot = existing;
-            }
-            else
-            {
-                var go = new GameObject("Cells", typeof(RectTransform));
-                _cellRoot = go.GetComponent<RectTransform>();
-                _cellRoot.SetParent(transform, false);
-            }
-        }
-
-        _cellRoot.anchorMin = Vector2.zero;
-        _cellRoot.anchorMax = Vector2.one;
-        _cellRoot.offsetMin = Vector2.zero;
-        _cellRoot.offsetMax = Vector2.zero;
-
-        bool useRootGrid = _cellRoot == (RectTransform)transform;
-        var rootGrid = GetComponent<GridLayoutGroup>();
-        if (rootGrid != null && rootGrid.transform == transform)
-            rootGrid.enabled = useRootGrid;
-
-        _grid = _cellRoot.GetComponent<GridLayoutGroup>();
-        if (_grid == null)
-        {
-            _grid = _cellRoot.gameObject.AddComponent<GridLayoutGroup>();
-        }
-        else
-        {
-            _grid.enabled = true;
-        }
-    }
-
-    private void ConfigureGrid()
-    {
-        if (_grid == null) return;
-
-        _grid.startCorner = GridLayoutGroup.Corner.LowerLeft;
-        _grid.startAxis = GridLayoutGroup.Axis.Horizontal;
-        _grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        _grid.constraintCount = Mathf.Max(1, _boardWidth);
-        _grid.childAlignment = TextAnchor.LowerLeft;
-
-        float spacing = Mathf.Max(0f, _cellSpacing);
-        _grid.spacing = new Vector2(spacing, spacing);
-
-        var rect = _cellRoot.rect;
-        float width = rect.width > 0f ? rect.width : _boardWidth * 30f;
-        float height = rect.height > 0f ? rect.height : _boardHeight * 30f;
-        float cellSize = Mathf.Min(
-            (width - (_boardWidth - 1) * spacing) / _boardWidth,
-            (height - (_boardHeight - 1) * spacing) / _boardHeight
-        );
-        cellSize = Mathf.Max(6f, Mathf.Floor(cellSize));
-        _grid.cellSize = new Vector2(cellSize, cellSize);
-    }
-
+    // 보드 셀 이미지들 생성
     private void BuildCells()
     {
-        if (_cells != null &&
-            _cells.GetLength(0) == _boardWidth &&
-            _cells.GetLength(1) == _boardHeight)
-        {
-            ClearCellColors();
-            return;
-        }
-
-        if (_cellRoot == null) return;
-
+        // 기존 셀 제거
         for (int i = _cellRoot.childCount - 1; i >= 0; i--)
-        {
-            var child = _cellRoot.GetChild(i);
-            if (!child.name.StartsWith("Cell_")) continue;
-
-            if (Application.isPlaying)
-                Destroy(child.gameObject);
-            else
-                DestroyImmediate(child.gameObject);
-        }
+            Destroy(_cellRoot.GetChild(i).gameObject);
 
         _cells = new Image[_boardWidth, _boardHeight];
         for (int y = 0; y < _boardHeight; y++)
         {
             for (int x = 0; x < _boardWidth; x++)
             {
-                _cells[x, y] = CreateCellImage(x, y);
+                var go = new GameObject($"Cell_{x}_{y}", typeof(RectTransform), typeof(Image));
+                go.transform.SetParent(_cellRoot, false);
+
+                var image = go.GetComponent<Image>();
+                image.sprite = GetWhiteSprite();
+                image.raycastTarget = false;
+                image.color = _emptyCellColor;
+
+                _cells[x, y] = image;
             }
         }
     }
 
-    private Image CreateCellImage(int x, int y)
-    {
-        var go = new GameObject($"Cell_{x}_{y}", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-        go.transform.SetParent(_cellRoot, false);
-
-        var image = go.GetComponent<Image>();
-        image.sprite = GetWhiteSprite();
-        image.raycastTarget = false;
-        image.color = _emptyCellColor;
-
-        return image;
-    }
-
+    // 게임 상태 초기화 및 첫 조각 생성
     private void StartNewGame()
     {
         _board = new int[_boardWidth, _boardHeight];
@@ -212,23 +124,79 @@ public class TetrisMission : MissionBase
         Render();
     }
 
+    // 키보드 입력 처리 (DAS/ARR 방식)
     private void HandleInput()
     {
         var keyboard = Keyboard.current;
         if (keyboard == null) return;
 
+        float dt = Time.deltaTime;
+
+        // 좌측 이동
         if (keyboard.leftArrowKey.wasPressedThisFrame)
+        {
             TryMove(Vector2Int.left);
+            _leftHoldTime = 0f;
+            _leftRepeatTimer = 0f;
+        }
+        else if (keyboard.leftArrowKey.isPressed)
+        {
+            _leftHoldTime += dt;
+            if (_leftHoldTime >= _delayAutoShift)
+            {
+                _leftRepeatTimer += dt;
+                while (_leftRepeatTimer >= _autoRepeatRate)
+                {
+                    TryMove(Vector2Int.left);
+                    _leftRepeatTimer -= _autoRepeatRate;
+                }
+            }
+        }
+
+        // 우측 이동
         if (keyboard.rightArrowKey.wasPressedThisFrame)
+        {
             TryMove(Vector2Int.right);
+            _rightHoldTime = 0f;
+            _rightRepeatTimer = 0f;
+        }
+        else if (keyboard.rightArrowKey.isPressed)
+        {
+            _rightHoldTime += dt;
+            if (_rightHoldTime >= _delayAutoShift)
+            {
+                _rightRepeatTimer += dt;
+                while (_rightRepeatTimer >= _autoRepeatRate)
+                {
+                    TryMove(Vector2Int.right);
+                    _rightRepeatTimer -= _autoRepeatRate;
+                }
+            }
+        }
+
+        // 회전
         if (keyboard.upArrowKey.wasPressedThisFrame)
             TryRotate();
+
+        // 하드드롭
+        if (keyboard.spaceKey.wasPressedThisFrame)
+            HardDrop();
+
+        // 소프트드롭
         if (keyboard.downArrowKey.wasPressedThisFrame)
             TryMove(Vector2Int.down);
 
         _softDrop = keyboard.downArrowKey.isPressed;
     }
 
+    // 즉시 바닥까지 떨어뜨림
+    private void HardDrop()
+    {
+        while (TryMove(Vector2Int.down)) { }
+        LockPiece();
+    }
+
+    // 시간당 자동 낙하
     private void StepFall(float deltaTime)
     {
         float interval = _softDrop ? _softDropInterval : _fallInterval;
@@ -240,14 +208,12 @@ public class TetrisMission : MissionBase
             LockPiece();
     }
 
+    // 새 조각 생성 (상단 중앙)
     private void SpawnPiece()
     {
         _currentType = (PieceType)Random.Range(0, 7);
         _currentRotation = 0;
-
-        int spawnX = Mathf.Max(0, (_boardWidth - 4) / 2);
-        int spawnY = Mathf.Max(0, _boardHeight - 4);
-        _currentPosition = new Vector2Int(spawnX, spawnY);
+        _currentPosition = new Vector2Int((_boardWidth - 4) / 2, _boardHeight - 4);
 
         if (!IsValidPosition(_currentPosition, _currentRotation))
             GameOver();
@@ -271,18 +237,11 @@ public class TetrisMission : MissionBase
             return;
         }
 
-        Vector2Int[] kicks =
+        // Wall Kick
+        Vector2Int[] kicks = { new(-1, 0), new(1, 0), new(-2, 0), new(2, 0), new(0, 1) };
+        foreach (var kick in kicks)
         {
-            new(-1, 0),
-            new(1, 0),
-            new(-2, 0),
-            new(2, 0),
-            new(0, 1)
-        };
-
-        for (int i = 0; i < kicks.Length; i++)
-        {
-            var kickedPos = _currentPosition + kicks[i];
+            var kickedPos = _currentPosition + kick;
             if (IsValidPosition(kickedPos, nextRotation))
             {
                 _currentPosition = kickedPos;
@@ -300,14 +259,15 @@ public class TetrisMission : MissionBase
             int x = pos.x + cell.x;
             int y = pos.y + cell.y;
 
-            if (x < 0 || x >= _boardWidth) return false;
-            if (y < 0 || y >= _boardHeight) return false;
-            if (_board[x, y] != 0) return false;
+            if (x < 0 || x >= _boardWidth || y < 0 || y >= _boardHeight)
+                return false;
+            if (_board[x, y] != 0)
+                return false;
         }
-
         return true;
     }
 
+    // 현재 조각을 보드에 고정
     private void LockPiece()
     {
         for (int i = 0; i < PieceCellCount; i++)
@@ -315,21 +275,16 @@ public class TetrisMission : MissionBase
             var cell = ShapeCache[(int)_currentType, _currentRotation, i];
             int x = _currentPosition.x + cell.x;
             int y = _currentPosition.y + cell.y;
-            if (x < 0 || x >= _boardWidth || y < 0 || y >= _boardHeight)
-                continue;
-
             _board[x, y] = (int)_currentType + 1;
         }
 
-        int cleared = ClearFullLines();
-        if (cleared > 0)
-            _linesCleared += cleared;
+        _linesCleared += ClearFullLines();
 
         if (_linesCleared >= _linesToComplete)
         {
             _isGameOver = true;
             UpdateHud(true);
-            CompleteMission();
+            StartCoroutine(DelayedComplete());
             return;
         }
 
@@ -337,6 +292,7 @@ public class TetrisMission : MissionBase
         UpdateHud();
     }
 
+    // 가득 찬 줄 제거 후 위 줄 내림
     private int ClearFullLines()
     {
         int cleared = 0;
@@ -346,11 +302,7 @@ public class TetrisMission : MissionBase
             bool full = true;
             for (int x = 0; x < _boardWidth; x++)
             {
-                if (_board[x, y] == 0)
-                {
-                    full = false;
-                    break;
-                }
+                if (_board[x, y] == 0) { full = false; break; }
             }
 
             if (!full) continue;
@@ -361,7 +313,6 @@ public class TetrisMission : MissionBase
                 for (int x = 0; x < _boardWidth; x++)
                     _board[x, yy] = _board[x, yy + 1];
             }
-
             for (int x = 0; x < _boardWidth; x++)
                 _board[x, _boardHeight - 1] = 0;
 
@@ -371,16 +322,20 @@ public class TetrisMission : MissionBase
         return cleared;
     }
 
+    // 보드와 현재 조각 렌더링
     private void Render()
     {
-        if (_cells == null || _board == null) return;
+        int dangerLine = _boardHeight - 4;  // 스폰 영역 (상단 4줄)
 
         for (int y = 0; y < _boardHeight; y++)
         {
             for (int x = 0; x < _boardWidth; x++)
             {
                 int cell = _board[x, y];
-                _cells[x, y].color = cell == 0 ? _emptyCellColor : _pieceColors[cell - 1];
+                if (cell != 0)
+                    _cells[x, y].color = _pieceColors[cell - 1];
+                else
+                    _cells[x, y].color = y >= dangerLine ? _dangerZoneColor : _emptyCellColor;
             }
         }
 
@@ -392,9 +347,6 @@ public class TetrisMission : MissionBase
             var cell = ShapeCache[(int)_currentType, _currentRotation, i];
             int x = _currentPosition.x + cell.x;
             int y = _currentPosition.y + cell.y;
-            if (x < 0 || x >= _boardWidth || y < 0 || y >= _boardHeight)
-                continue;
-
             _cells[x, y].color = pieceColor;
         }
     }
@@ -405,40 +357,21 @@ public class TetrisMission : MissionBase
         UpdateHud();
     }
 
+    private IEnumerator DelayedComplete()
+    {
+        yield return new WaitForSeconds(2f);
+        CompleteMission();
+    }
+
     private void UpdateHud(bool completed = false)
     {
-        if (_resultText == null) return;
-
         if (completed)
-        {
             _resultText.text = "미션 완료!";
-            return;
-        }
-
-        if (_isGameOver)
-        {
+        else if (_isGameOver)
             _resultText.text = "Game Over";
-            return;
-        }
-
-        _resultText.text = $"Lines: {_linesCleared}/{_linesToComplete}\n← → 이동 / ↑ 회전 / ↓ 내리기";
     }
 
-    private void ClearCellColors()
-    {
-        if (_cells == null) return;
-
-        for (int y = 0; y < _boardHeight; y++)
-        {
-            for (int x = 0; x < _boardWidth; x++)
-                _cells[x, y].color = _emptyCellColor;
-        }
-    }
-
-    private static Vector2Int RotateCW(Vector2Int p)
-    {
-        return new Vector2Int(3 - p.y, p.x);
-    }
+    private static Vector2Int RotateCW(Vector2Int p) => new(3 - p.y, p.x);
 
     private static Vector2Int[,,] BuildShapeCache()
     {
@@ -454,7 +387,6 @@ public class TetrisMission : MissionBase
                     cache[p, r, i] = RotateCW(cache[p, r - 1, i]);
             }
         }
-
         return cache;
     }
 

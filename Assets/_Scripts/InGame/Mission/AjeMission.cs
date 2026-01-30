@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class AjeMission : MissionBase
@@ -7,7 +8,7 @@ public class AjeMission : MissionBase
     [SerializeField] private TMP_InputField _answerInput;
     [SerializeField] private TMP_Text _resultText;
     
-    private TMP_Text _curAnswer;
+    private string _curAnswer;
 
     private readonly (string problem, string answer)[] _quizList =
     {
@@ -50,6 +51,8 @@ public class AjeMission : MissionBase
         ("치아가 잘 보이는 사람은?", "이보영"),
         ("씨엘의 엉덩이를 영어로?", "class"),
     };
+    
+    private static WaitForSeconds _waitForSeconds2 = new(2f);
 
     public override void Init()
     {
@@ -57,35 +60,43 @@ public class AjeMission : MissionBase
 
         int index = Random.Range(0, _quizList.Length);
         _curQuestion.text = _quizList[index].problem;
-        _curAnswer.text = _quizList[index].answer;
+        _curAnswer = _quizList[index].answer;
         _answerInput.text = "";
-
-        _curAnswer.gameObject.SetActive(false);
-
-        // Enter 키 이벤트 구독
-        if (InputManager.Instance != null)
-            InputManager.Instance.OnSubmitUI += OnClickSubmit;
+        _answerInput.onSubmit.AddListener(OnSubmit);
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
-        // Enter 키 이벤트 구독 해제
-        if (InputManager.Instance != null)
-            InputManager.Instance.OnSubmitUI -= OnClickSubmit;
+        _answerInput.onSubmit.RemoveListener(OnSubmit);
+    }
+
+    private void OnSubmit(string _)
+    {
+        OnClickSubmit();
     }
 
     public void OnClickSubmit()
     {
-        _curAnswer.gameObject.SetActive(true);
-
-        if (_answerInput.text != _curAnswer.text)
+        if (_answerInput.text != _curAnswer)
         {
-            _resultText.text = $"오답입니다ㅋ 정답은 {_curAnswer.text} 깔깔깔";
-            MissionContainer.Instance.CloseMissionPanel();
+            _resultText.text = $"오답입니다ㅋ 정답은 {_curAnswer} 깔깔깔";
+            StartCoroutine(DelayedClose());
             return;
         }
 
         _resultText.text = "이걸 맞추네...";
+        StartCoroutine(DelayedComplete());
+    }
+
+    private IEnumerator DelayedComplete()
+    {
+        yield return _waitForSeconds2;
         CompleteMission();
+    }
+
+    private IEnumerator DelayedClose()
+    {
+        yield return _waitForSeconds2;
+        MissionContainer.Instance.CloseMissionPanel();
     }
 }
