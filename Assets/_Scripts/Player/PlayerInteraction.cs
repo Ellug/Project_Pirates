@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class PlayerInteraction : MonoBehaviour
 {
@@ -10,6 +11,9 @@ public class PlayerInteraction : MonoBehaviour
     private Camera _camera;
     private InteractionObject _curInteractable;
     private InteractionObjectRpcManager _rpcManager;
+
+    private float _raycastInterval = 0.2f;
+    private Coroutine _raycastRoutine;
 
     void Awake()
     {
@@ -24,13 +28,26 @@ public class PlayerInteraction : MonoBehaviour
 
         if (_interactionBtn != null)
             _interactionBtn.SetActive(false);
+
+        _raycastRoutine = StartCoroutine(RaycastRoutine());
     }
 
-    void FixedUpdate()
+    private void OnDestroy()
     {
-        CheckInteractionObject();
-        if (_interactionBtn != null)
-            _interactionBtn.SetActive(IsInteractable);
+        StopCoroutine(_raycastRoutine);
+    }
+
+    private IEnumerator RaycastRoutine()
+    {
+        WaitForSeconds wait = new WaitForSeconds(_raycastInterval);
+
+        while (true) 
+        {
+            CheckInteractionObject();
+            if (_interactionBtn != null)
+                _interactionBtn.SetActive(IsInteractable);
+            yield return wait;
+        }
     }
 
     private void CheckInteractionObject()
