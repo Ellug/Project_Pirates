@@ -3,10 +3,11 @@ using UnityEngine;
 
 public class AjeMission : MissionBase
 {
-    [SerializeField] private TMP_Text _curProblem;
+    [SerializeField] private TMP_Text _curQuestion;
     [SerializeField] private TMP_InputField _answerInput;
-    [SerializeField] private TMP_Text _curAnswer;
     [SerializeField] private TMP_Text _resultText;
+    
+    private TMP_Text _curAnswer;
 
     private readonly (string problem, string answer)[] _quizList =
     {
@@ -55,11 +56,22 @@ public class AjeMission : MissionBase
         _resultText.text = "";
 
         int index = Random.Range(0, _quizList.Length);
-        _curProblem.text = _quizList[index].problem;
+        _curQuestion.text = _quizList[index].problem;
         _curAnswer.text = _quizList[index].answer;
         _answerInput.text = "";
-        
+
         _curAnswer.gameObject.SetActive(false);
+
+        // Enter 키 이벤트 구독
+        if (InputManager.Instance != null)
+            InputManager.Instance.OnSubmitUI += OnClickSubmit;
+    }
+
+    private void OnDestroy()
+    {
+        // Enter 키 이벤트 구독 해제
+        if (InputManager.Instance != null)
+            InputManager.Instance.OnSubmitUI -= OnClickSubmit;
     }
 
     public void OnClickSubmit()
