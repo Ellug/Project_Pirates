@@ -1,9 +1,4 @@
-﻿using ExitGames.Client.Photon; 
-using UnityEngine.Audio;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-using UnityEngine;
+﻿using UnityEngine;
 using DG.Tweening;
 using Photon.Pun;
 using System.Collections;
@@ -11,7 +6,7 @@ using System.Collections;
 public class DoorController : InteractionObject
 {
     [Header("Door Settings")]
-    [SerializeField] private int _doorId;
+    public int doorId;
     [SerializeField] private float _openAngle = 120f;
     [SerializeField] private float _tweenDuration = 0.3f;
 
@@ -38,8 +33,8 @@ public class DoorController : InteractionObject
     private Coroutine _lockTimerCoroutine;
 
     // Keys
-    private string DoorOpenKey => $"world.door.{_doorId}.open";
-    private string DoorAngleKey => $"world.door.{_doorId}.angle";
+    private string DoorOpenKey => $"world.door.{doorId}.open";
+    private string DoorAngleKey => $"world.door.{doorId}.angle";
     private const string LOCK_KEY = "world.door.locked";
 
     private void Awake()
@@ -186,19 +181,4 @@ public class DoorController : InteractionObject
         AudioClip clip = isOpen ? _openClip : _closeClip;
         if (clip != null) _audio.PlayOneShot(clip, _sfxVolume);
     }
-
-#if UNITY_EDITOR
-    [ContextMenu("Auto Assign Unique IDs")]
-    private void AutoAssignIDs()
-    {
-        DoorController[] foundObjects = FindObjectsByType<DoorController>(FindObjectsSortMode.None);
-        System.Array.Sort(foundObjects, (a, b) => string.Compare(a.name, b.name));
-        for (int i = 0; i < foundObjects.Length; i++)
-        {
-            Undo.RecordObject(foundObjects[i], "Assign ID");
-            foundObjects[i]._doorId = i;
-            EditorUtility.SetDirty(foundObjects[i]);
-        }
-    }
-#endif
 }

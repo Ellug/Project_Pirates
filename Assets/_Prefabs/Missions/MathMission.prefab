@@ -693,7 +693,7 @@ MonoBehaviour:
   _missionTitle: "\uC218\uD559 \uD480\uC774"
   _missionDescription: "\uC544\uB798 \uC218\uD559 \uBB38\uC81C\uC758 \uC815\uB2F5\uC744
     \uC785\uB825\uD558\uC138\uC694."
-  _missionScore: 20
+  _missionScore: 2
   _problem: {fileID: 5311411079255271605}
   _answerInput: {fileID: 4463964827957647932}
   _result: {fileID: 1922448768271643372}

@@ -53,7 +53,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UpAndDownMission
   _missionTitle: "\uC5C5\uC564\uB2E4\uC6B4"
-  _missionDescription: "\uC22B\uC790\uB97C \uB9DE\uCDB0\uB77C!"
+  _missionDescription: "1~100 \uC0AC\uC774 \uBB34\uC791\uC704 \uC22B\uC790\uB97C
+    \uB9DE\uCDB0\uB77C!\\n\uAE30\uD68C\uB294 7\uBC88"
   _missionScore: 3
   _input: {fileID: 6842536184422012132}
   _resultText: {fileID: 6013399142718976493}
