@@ -34,7 +34,8 @@ public class PlayerInteraction : MonoBehaviour
 
     private void OnDestroy()
     {
-        StopCoroutine(_raycastRoutine);
+        if (_raycastRoutine != null)
+            StopCoroutine(_raycastRoutine);
     }
 
     private IEnumerator RaycastRoutine()

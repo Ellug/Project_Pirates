@@ -201,19 +201,17 @@ public class AttackState : IPlayerState
             _model.Animator.SetTrigger(_model.animNameOfKnockBack);
 
         // 어택 상태에 들어오면 자신의 앞에 판정을 검사할 무언가를 만든다.
-        float range = 1.5f; // 유효거리
-        Vector3 direction = _player.transform.forward; // 바라보는 방향 (미는 방향)
+        // float range = 1.5f; // 유효거리
+        // Vector3 direction = _player.transform.forward; // 바라보는 방향 (미는 방향)
 
         // 충돌 최적화를 위해 플레이어 레이어로 제한한다.
-        int layerMask = 1 << LayerMask.NameToLayer("Player");
+        // int layerMask = 1 << LayerMask.NameToLayer("Player");
 
         RaycastHit hit;
+        Vector3 direction;
 
-        if (Physics.SphereCast(
-            _player.transform.position, 0.5f, direction, out hit, range, layerMask))
+        if (_model.OtherPlayerInteraction(out direction, out hit))
         {
-            if (hit.transform == _player.transform) return;
-
             PhotonView targetView = hit.transform.GetComponent<PhotonView>();
             if (targetView != null)
             {
@@ -223,6 +221,21 @@ public class AttackState : IPlayerState
                     targetView.RPC("RpcGetHitKnockBack", targetView.Owner, direction, _model.knockBackForce);
             }
         }
+
+        //if (Physics.SphereCast(
+        //    _player.transform.position, 0.5f, direction, out hit, range, layerMask))
+        //{
+        //    if (hit.transform == _player.transform) return;
+
+        //    PhotonView targetView = hit.transform.GetComponent<PhotonView>();
+        //    if (targetView != null)
+        //    {
+        //        if (_isAttack)
+        //            targetView.RPC("RpcGetHitAttack", targetView.Owner, _model.attackPower);
+        //        else
+        //            targetView.RPC("RpcGetHitKnockBack", targetView.Owner, direction, _model.knockBackForce);
+        //    }
+        //}
     }
 
     

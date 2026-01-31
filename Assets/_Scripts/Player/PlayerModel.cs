@@ -97,6 +97,12 @@ public class PlayerModel : MonoBehaviour
         }
     }
 
+    public void HealingHealthPoint(float amount)
+    {
+        _curHealthPoint = Mathf.Min(_maxHealthPoint, _curHealthPoint + amount);
+        OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
+    }
+
     public void ExecuteByVote()
     {
         if (_isDead) return;
@@ -128,18 +134,6 @@ public class PlayerModel : MonoBehaviour
 
         // RPC로 모든 클라이언트에서 로컬 생성
         PlayerManager.Instance.RequestSpawnDeadBody(spawnPos, spawnRot);
-    }
-
-    public void HealingHealthPoint(float amount)
-    {
-        _curHealthPoint = Mathf.Min(_maxHealthPoint, _curHealthPoint + amount);
-        OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
-    }
-
-    public void HealingStaminaPoint(float amount)
-    {
-        _curHealthPoint = Mathf.Min(_maxStamina, _curStamina + amount);
-        OnHealthChanged?.Invoke(_curStamina, _maxStamina);
     }
 
     public void ChangeSpeedStatus(float amount)
@@ -248,5 +242,32 @@ public class PlayerModel : MonoBehaviour
             }
         }
         return false;
+    }
+
+    // 다른 플레이어와 상호작용을 위해 자신의 앞을 판정한다.
+    // 반환은 다른 플레이어가 감지되면 true 아니면 false, 기타 out으로 필요한 정보 할당.
+    public bool OtherPlayerInteraction(out Vector3 direction, out RaycastHit raycastHit, float range = 1.5f)
+    {
+        direction = transform.forward; // 바라보는 방향
+
+        // 충돌 최적화를 위해 플레이어 레이어로 제한한다.
+        int layerMask = 1 << LayerMask.NameToLayer("Player");
+
+        RaycastHit hit;
+
+        if (Physics.SphereCast(
+            transform.position, 0.5f, direction, out hit, range, layerMask))
+        {
+            raycastHit = hit;
+            if (hit.transform == this.transform)
+                return false;
+
+            return true;
+        }
+        else
+        {
+            raycastHit = hit;
+            return false;
+        }
     }
 }
