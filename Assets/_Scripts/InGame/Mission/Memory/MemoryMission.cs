@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEngine;
 using UnityEngine.UI;
 
 public class MemoryMission : MissionBase
@@ -23,6 +22,11 @@ public class MemoryMission : MissionBase
     [SerializeField] private float _lightOffGap = 0.15f;
     [SerializeField] private float _preShowDelay = 0.3f;
 
+    [Header("Color")]
+    [SerializeField] private Color _showColor = new Color(1f, 0f, 0f, 1f); // Red
+    [SerializeField] private Color _clickColor = new Color(0f, 1f, 0f, 1f); // Green
+    [SerializeField] private Color _defaultColor = Color.white;
+
     private readonly List<int> _sequence = new();
     private int _inputIndex;
     private int _round;
@@ -31,30 +35,38 @@ public class MemoryMission : MissionBase
     private bool _isPlaying;
 
     private Coroutine _showCor;
+    private Coroutine _nextRoundCor;
+    private Coroutine _flashCor;
 
     public override void Init()
     {
-        if(_cellImages == null || _cellImages.Length == 0)
+        if (_cellButtons == null || _cellButtons.Length == 0)
+        {
+            Debug.LogError("[MemoryMission] Cell Buttons가 비어있습니다.");
+            return;
+        }
+
+        if (_cellImages == null || _cellImages.Length != _cellButtons.Length)
         {
             _cellImages = new Image[_cellButtons.Length];
             for (int i = 0; i < _cellButtons.Length; i++)
                 _cellImages[i] = _cellButtons[i] != null ? _cellButtons[i].GetComponent<Image>() : null;
         }
 
-        if (_startButton != null)
-            _startButton.onClick.RemoveListener(StartGame);
-            _startButton.onClick.AddListener(StartGame);
+        // 버튼/셀 연결
+        BindStartButton();
+        BindCellButtons();
 
         // 상태 초기화
+        StopAllMissionCoroutines();
+
         _sequence.Clear();
         _round = 0;
-        _targetLen = _roundLengths.Length > 0 ? _roundLengths[0] : 0;
         _inputIndex = 0;
         _isShowing = false;
         _isPlaying = false;
 
-        if (_showCor != null) StopCoroutine(_showCor);
-        _showCor = null;
+        _targetLen = (_roundLengths != null && _roundLengths.Length > 0) ? _roundLengths[0] : 0;
 
         SetCellsInteractable(false);
         ResetCellColors();
@@ -64,17 +76,77 @@ public class MemoryMission : MissionBase
 
     private void OnDisable()
     {
+        StopAllMissionCoroutines();
+
         if (_startButton != null)
             _startButton.onClick.RemoveListener(StartGame);
+
+        if (_cellButtons != null)
+        {
+            for (int i = 0; i < _cellButtons.Length; i++)
+            {
+                int idx = i;
+                if (_cellButtons[i] != null)
+                    _cellButtons[i].onClick.RemoveListener(() => OnCellClicked(idx));
+            }
+        }
+    }
+
+    private void BindStartButton()
+    {
+        if (_startButton == null) return;
+
+        _startButton.onClick.RemoveListener(StartGame);
+        _startButton.onClick.AddListener(StartGame);
+    }
+
+    private void BindCellButtons()
+    {
+        for (int i = 0; i < _cellButtons.Length; i++)
+        {
+            Button b = _cellButtons[i];
+            if (b == null) continue;
+
+            var cell = b.GetComponent<MemoryCell>();
+            if (cell != null)
+            {
+                cell.Init(this, i);
+                continue;
+            }
+
+            // MemoryCell이 없다면 직접 연결
+            int idx = i;
+            b.onClick.RemoveListener(() => OnCellClicked(idx));
+            b.onClick.AddListener(() => OnCellClicked(idx));
+        }
+    }
+
+    private void StopAllMissionCoroutines()
+    {
+        if (_showCor != null) StopCoroutine(_showCor);
+        if (_nextRoundCor != null) StopCoroutine(_nextRoundCor);
+        if (_flashCor != null) StopCoroutine(_flashCor);
+
+        _showCor = null;
+        _nextRoundCor = null;
+        _flashCor = null;
     }
 
     private void StartGame()
     {
         if (_isShowing) return;
 
+        // 재시작시 리셋
+        StopAllMissionCoroutines();
+        ResetCellColors();
+        SetCellsInteractable(false);
+
         _sequence.Clear();
         _round = 0;
+        _inputIndex = 0;
+
         _isPlaying = true;
+        _isShowing = false;
 
         NextRound();
     }
@@ -83,8 +155,18 @@ public class MemoryMission : MissionBase
     {
         if (!_isPlaying) return;
 
+        int totalRounds = (_roundLengths != null) ? _roundLengths.Length : 0;
+        if (totalRounds <= 0)
+        {
+            _isPlaying = false;
+            SetInfo("라운드 설정(_roundLengths)이 비어있습니다.");
+            return;
+        }
+
         _round++;
-        if(_round > _roundLengths.Length)
+
+        // 실제 라운드 기준으로 완료 판정
+        if (_round > totalRounds)
         {
             SetInfo("성공! 미션 완료!");
             SetCellsInteractable(false);
@@ -115,12 +197,14 @@ public class MemoryMission : MissionBase
 
         yield return new WaitForSeconds(_preShowDelay);
 
-        foreach (int idx in _sequence)
+        for (int i = 0; i < _sequence.Count; i++)
         {
-            LightCell(idx, true);
+            int idx = _sequence[i];
+
+            LightCell(idx, _showColor);
             yield return new WaitForSeconds(_lightOnTime);
 
-            LightCell(idx, false);
+            LightCell(idx, _defaultColor);
             yield return new WaitForSeconds(_lightOffGap);
         }
 
@@ -134,11 +218,15 @@ public class MemoryMission : MissionBase
         if (!_isPlaying) return;
         if (_isShowing) return;
 
-        // 클릭시 짧게 깜빡
-        StartCoroutine(CoClickFlash(idx));
+        if (_sequence == null || _sequence.Count == 0) return;
+        if (_inputIndex < 0 || _inputIndex >= _sequence.Count) return;
+
+        // 클릭시 점등
+        if (_flashCor != null) StopCoroutine(_flashCor);
+        _flashCor = StartCoroutine(CoClickFlash(idx));
 
         // 정답 체크
-        if(idx != _sequence[_inputIndex])
+        if (idx != _sequence[_inputIndex])
         {
             _isPlaying = false;
             SetCellsInteractable(false);
@@ -149,11 +237,13 @@ public class MemoryMission : MissionBase
         _inputIndex++;
 
         // 라운드 클리어
-        if(_inputIndex >= _sequence.Count)
+        if (_inputIndex >= _sequence.Count)
         {
             SetCellsInteractable(false);
             SetInfo("정답! 다음 라운드로");
-            StartCoroutine(CoNextRoundDelay());
+
+            if (_nextRoundCor != null) StopCoroutine(_nextRoundCor);
+            _nextRoundCor = StartCoroutine(CoNextRoundDelay());
         }
     }
 
@@ -165,9 +255,10 @@ public class MemoryMission : MissionBase
 
     private IEnumerator CoClickFlash(int idx)
     {
-        LightCell(idx, true);
+        LightCell(idx, _clickColor);
         yield return new WaitForSeconds(0.12f);
-        LightCell(idx, false);
+        LightCell(idx, _defaultColor);
+        _flashCor = null;
     }
 
     private void SetCellsInteractable(bool on)
@@ -177,25 +268,31 @@ public class MemoryMission : MissionBase
             if (_cellButtons[i] != null) _cellButtons[i].interactable = on;
     }
 
-    private void LightCell(int idx, bool on)
+    private void LightCell(int idx, Color color)
     {
-        if (_cellButtons == null || idx < 0 || idx >= _cellImages.Length) return;
+        if (_cellImages == null) return;
+        if (idx < 0 || idx >= _cellImages.Length) return;
+        if (_cellImages[idx] == null) return;
 
-        // 에셋 없이 색만 조절
-        _cellImages[idx].color = on ? new Color(1f, 1f, 0.4f, 1f) : Color.white;
+        // 에셋없이 색만 조정
+        _cellImages[idx].color = color;
     }
 
     private void ResetCellColors()
     {
-        if (_cellButtons == null) return;
+        if (_cellImages == null) return;
+
         for (int i = 0; i < _cellImages.Length; i++)
-            if (_cellImages[i] != null) _cellImages[i].color = Color.white;
+            if (_cellImages[i] != null)
+                _cellImages[i].color = _defaultColor;
     }
 
     private void UpdateUI()
     {
+        int totalRounds = (_roundLengths != null) ? _roundLengths.Length : 0;
+
         if (_roundText != null)
-            _roundText.text = $"Round: {_round}/{_maxRound} ({_targetLen}개)";
+            _roundText.text = $"Round: {_round}/{totalRounds} ({_targetLen}개)";
     }
 
     private void SetInfo(string msg)
