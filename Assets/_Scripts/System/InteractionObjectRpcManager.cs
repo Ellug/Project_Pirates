@@ -137,5 +137,20 @@ public class InteractionObjectRpcManager : MonoBehaviourPun
         // 결과 확인용
         Debug.Log($"총 {foundObjects.Length}개의 오브젝트에 ID 할당이 완료되었습니다!");
     }
+
+    [ContextMenu("Auto Assign Door IDs")]
+    private void AutoAssignDoorIDs()
+    {
+        DoorController[] foundObjects = FindObjectsByType<DoorController>(FindObjectsSortMode.None);
+        System.Array.Sort(foundObjects, (a, b) => string.Compare(a.name, b.name));
+        for (int i = 0; i < foundObjects.Length; i++)
+        {
+            Undo.RecordObject(foundObjects[i], "Assign ID");
+            foundObjects[i].doorId = i;
+            EditorUtility.SetDirty(foundObjects[i]);
+        }
+        // 결과 확인용
+        Debug.Log($"총 {foundObjects.Length}개의 문에 ID 할당이 완료되었습니다!");
+    }
 #endif
 }

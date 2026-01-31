@@ -484,7 +484,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MemoryMission
   _missionTitle: "\uBA54\uBAA8\uB9AC \uBC84\uD2BC"
   _missionDescription: "\uBC84\uD2BC\uC758 \uC21C\uC11C\uB97C \uAE30\uC5B5\uD574\uB77C!"
-  _missionScore: 5
+  _missionScore: 4
   _cellButtons:
   - {fileID: 684955754977090328}
   - {fileID: 7964633843710548551}
@@ -513,6 +513,9 @@ MonoBehaviour:
   _lightOnTime: 0.35
   _lightOffGap: 0.15
   _preShowDelay: 0.3
+  _showColor: {r: 1, g: 0, b: 0, a: 1}
+  _clickColor: {r: 0, g: 1, b: 0, a: 1}
+  _defaultColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1768587670455701709
 GameObject:
   m_ObjectHideFlags: 0
