@@ -216,7 +216,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MissionInteraction
   uniqueID: -292392
-  _interactionDistance: 4
+  _interactionDistance: 2.5
   _missionIndex: 0
   alreadyCleared: 0
   isUsing: 0
