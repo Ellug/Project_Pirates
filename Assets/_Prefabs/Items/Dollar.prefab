@@ -372,7 +372,8 @@ GameObject:
   - component: {fileID: 842777364019839080}
   - component: {fileID: 1176319188703320784}
   - component: {fileID: 4839076282177893873}
-  m_Layer: 0
+  - component: {fileID: 966753785676328640}
+  m_Layer: 6
   m_Name: Dollar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -476,6 +477,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &966753785676328640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8432210764222662324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff85b4f07537d5d4a8981298921cd0ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DropItem
+  uniqueID: -678596
+  _interactionDistance: 4
+  _itemData: {fileID: 11400000, guid: 410c33baa7698194bbf92419c12aea21, type: 2}
 --- !u!1 &9112727173163048478
 GameObject:
   m_ObjectHideFlags: 0

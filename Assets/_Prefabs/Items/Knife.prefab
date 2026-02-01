@@ -462,7 +462,8 @@ GameObject:
   - component: {fileID: 8731371311654668463}
   - component: {fileID: 1746712426946623634}
   - component: {fileID: 4405400469814224025}
-  m_Layer: 0
+  - component: {fileID: -5715111278084459085}
+  m_Layer: 6
   m_Name: Knife
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -566,3 +567,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-5715111278084459085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8658877212923646586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff85b4f07537d5d4a8981298921cd0ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DropItem
+  uniqueID: -678604
+  _interactionDistance: 4
+  _itemData: {fileID: 11400000, guid: 5c57a699f29eb294d99ed245bcc96a69, type: 2}
