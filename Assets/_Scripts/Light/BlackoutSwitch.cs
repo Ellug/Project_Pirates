@@ -26,6 +26,10 @@ public class BlackoutSwitchObject : InteractionObject
 
         // 토글
         bool next = !isBlackout;
+        if (next)
+            transform.localRotation = Quaternion.Euler(30f, 0f, 0f);
+        else
+            transform.localRotation = Quaternion.Euler(-30f, 0f, 0f);
 
         Debug.Log($"[BlackoutSwitch] Toggle -> {next}");
 
