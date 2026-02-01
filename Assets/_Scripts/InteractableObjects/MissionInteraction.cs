@@ -22,7 +22,7 @@ public class MissionInteraction : InteractionObject
         _rpcManager.RequestNetworkInteraction(uniqueID);
         isUsing = !isUsing;
 
-        MissionContainer.Instance.StartMission(_missionIndex, this);
+        MissionContainer.Instance.StartMission(_missionIndex, this, player.transform);
     }
 
     // 다른 사람에게 변화가 생기는건
