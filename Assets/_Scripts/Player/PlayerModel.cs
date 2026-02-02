@@ -94,7 +94,7 @@ public class PlayerModel : MonoBehaviour
         OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
         PostProcessingController.Instance.HitEffect();
 
-        if (_curHealthPoint <= 0f)
+        if (_curHealthPoint < 1f)
         {
             _curHealthPoint = 0f;
             _isDead = true;
