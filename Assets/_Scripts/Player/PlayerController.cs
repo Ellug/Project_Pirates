@@ -369,6 +369,11 @@ public class PlayerController : MonoBehaviourPun
         var mafiaTeleporter = FindFirstObjectByType<MafiaTeleporter>();
         if (mafiaTeleporter != null)
             mafiaTeleporter.SetButtonsActive(true);
+
+        // 사보타지 버튼 활성화
+        var sabotageManager = FindFirstObjectByType<SabotageManager>();
+        if (sabotageManager != null)
+            sabotageManager.EnableMafiaButtons();
     }
 
     [PunRPC]
