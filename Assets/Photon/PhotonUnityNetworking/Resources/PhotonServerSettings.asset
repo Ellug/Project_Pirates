@@ -79,6 +79,7 @@ MonoBehaviour:
   - RpcSetVoteTime
   - RpcMissionClearObject
   - RpcGetHitBondage
+  - RPC_RequestResolvePower
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0
