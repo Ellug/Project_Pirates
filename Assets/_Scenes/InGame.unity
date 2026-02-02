@@ -32977,7 +32977,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EngineSabotageConsole
   uniqueID: 19
   _interactionDistance: 4
-  _addInteractionDuration: 0
+  _addInteractionDuration: 3
   _sabotageManager: {fileID: 1426808068}
   _engineManager: {fileID: 1426808072}
   _consoleIndex: 0
