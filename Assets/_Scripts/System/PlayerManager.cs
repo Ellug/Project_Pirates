@@ -150,11 +150,11 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         // 플레이어 수가 5 미만이면 1명에게만 부여
         // 이건 테스트용으로 실제 게임에선 최소 5명의 플레이어가 요구됨
         if (players.Length < 5)
-            jobDeck.Add(JobId.Doctor); // 테스트할 땐 여기 직업 바꿈
+            jobDeck.Add(JobId.Delivery); // 테스트할 땐 여기 직업 바꿈
         else // 5명 이상 이면 직업들 여기 넣음
         {
             jobDeck.Add(JobId.Doctor);
-            jobDeck.Add(JobId.Sprinter);
+            jobDeck.Add(JobId.Delivery);
         }
         // 나머지는 무직으로 채움
         while (jobDeck.Count < players.Length)
