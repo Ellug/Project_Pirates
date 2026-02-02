@@ -8,6 +8,7 @@ public class SprinterJob : BaseJob
         _isActive = false;
         base.Initialize(model);
         name = "육상 선수";
+        jobInformation = "기본 이동속도가 증가한다. (패시브)";
         model.baseSpeed *= 1.3f;
     }
 }
