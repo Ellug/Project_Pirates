@@ -11,6 +11,7 @@ public abstract class BaseJob
     protected PlayerModel _model;
 
     public string name;
+    public string jobInformation;
 
     // 시체 신고에 필요한 시간 (기본 2초, 특정 직업에서 오버라이드 하는 식으로 특성 구현)
     public virtual float ReportTime => 2f;

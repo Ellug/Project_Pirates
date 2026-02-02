@@ -8,6 +8,7 @@ public class DoctorJob : BaseJob
         _isActive = true;
         base.Initialize(model);
         name = "의사";
+        jobInformation = "현재는 아무 능력이 없다..";
         Debug.Log("의사 직업 배정 완료!");
     }
 

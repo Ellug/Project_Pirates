@@ -9,8 +9,11 @@ public class PlayerModel : MonoBehaviour
     public float baseSpeed;
     public float jumpPower;
     public float attackPower;
+    public float interactionDuration = 0.3f;
     [HideInInspector] public float runSpeed;
     [HideInInspector] public float crouchSpeed;
+    [HideInInspector] public bool isInteracting;
+    [HideInInspector] public bool isInteractSuccess;
 
     private float _maxHealthPoint;
     public float MaxHP => _maxHealthPoint;
@@ -61,6 +64,7 @@ public class PlayerModel : MonoBehaviour
     public event Action<float, float> OnHealthChanged;
     public event Action<float, float> OnStaminaChanged;
     public event Action<ItemData[]> OnItemSlotChanged;
+    public event Action<float, float> OnInteractionChanged;
 
     private ItemData[] _inventory;
     private ItemEffects _effects;
@@ -244,6 +248,40 @@ public class PlayerModel : MonoBehaviour
         return false;
     }
 
+    // 오브젝트와 상호작용을 하기 위한 딜레이
+     public void StartInteraction(PlayerInteraction playerInteraction, float addDuration = 0f)
+    {
+        StartCoroutine(InteractingCor(addDuration, playerInteraction));
+    }
+
+    private IEnumerator InteractingCor(float addValue, PlayerInteraction playerInteraction)
+    {
+        float elapsedTime = 0f;
+        float goalTime = interactionDuration + addValue;
+        while (isInteracting)
+        {
+            elapsedTime += Time.deltaTime;
+            OnInteractionChanged?.Invoke(elapsedTime, goalTime);
+            if (!playerInteraction.IsInteractable)
+            {
+                // 딴데 보거나 키 떼면 상호작용 취소
+                isInteracting = false;
+            }
+            // 상호작용 시간을 모두 채우면 상호작용 실행함.
+            if (isInteractSuccess == true)
+            {
+                playerInteraction.InteractObj();
+                break;
+            }
+            if (elapsedTime >= goalTime)
+            {
+                isInteractSuccess = true;
+            }
+            yield return null;
+        }
+        OnInteractionChanged?.Invoke(0f, goalTime);
+    }
+
     // 다른 플레이어와 상호작용을 위해 자신의 앞을 판정한다.
     // 반환은 다른 플레이어가 감지되면 true 아니면 false, 기타 out으로 필요한 정보 할당.
     public bool OtherPlayerInteraction(out Vector3 direction, out RaycastHit raycastHit, float range = 1.5f)
@@ -276,5 +314,10 @@ public class PlayerModel : MonoBehaviour
         isMafia = true;
         _maxHealthPoint += 40f;
         _curHealthPoint += 40f;
+    }
+
+    public ItemData[] GetInventory()
+    {
+        return _inventory;
     }
 }
