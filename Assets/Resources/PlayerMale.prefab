@@ -1402,6 +1402,7 @@ MonoBehaviour:
   runSpeed: 0
   crouchSpeed: 0
   _staminaRecoverPerSec: 20
+  isMafia: 0
 --- !u!114 &7816228282713603067
 MonoBehaviour:
   m_ObjectHideFlags: 0

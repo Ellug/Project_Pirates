@@ -13,7 +13,6 @@ public enum SabotageId
 {
     None,
     Engine,
-    Power,
     Light
 }
 
@@ -34,6 +33,10 @@ public class SabotageManager : MonoBehaviour
     [Header("Net")]
     [SerializeField] private PhotonView _pv;
 
+    [Header("Sabotage References")]
+    [SerializeField] private BlackoutPropertyBinder _blackoutBinder;
+    [SerializeField] private SabotageButton _sabotageButton;
+
     private bool _isActive; // 사보타지가 진행중인지 판단
     private SabotageId _activeId = SabotageId.None;
     
@@ -47,6 +50,16 @@ public class SabotageManager : MonoBehaviour
     {
         if (_pv == null) _pv = GetComponent<PhotonView>();
         SetCountdownUI(false);
+
+        if (_sabotageButton != null)
+            _sabotageButton.SetButtonsActive(false);
+    }
+
+    // 마피아 전용 버튼 활성화 (PlayerController.IsMafia에서 호출)
+    public void EnableMafiaButtons()
+    {
+        if (_sabotageButton != null)
+            _sabotageButton.SetButtonsActive(true);
     }
 
     // 마피아 버튼이 호출 : Master 에게 사보타지 시작 요청
@@ -73,13 +86,21 @@ public class SabotageManager : MonoBehaviour
         if (!PhotonNetwork.IsMasterClient) return;
 
         var id = (SabotageId)idRaw;
-        if (_isActive) return;
         if (id == SabotageId.None) return;
+
+        // Light는 타이머 없이 즉시 효과만 적용
+        if (id == SabotageId.Light)
+        {
+            _pv.RPC(nameof(RPC_TriggerLight), RpcTarget.All, true);
+            return;
+        }
+
+        // Engine 등 타이머 사보타지
+        if (_isActive) return;
 
         float dur = (duration > 0f) ? duration : _defaultDuration;
         double startTime = PhotonNetwork.Time;
 
-        // 동일 시작
         _pv.RPC(nameof(RPC_StartSabotage), RpcTarget.All, idRaw, dur, startTime);
     }
 
@@ -89,10 +110,18 @@ public class SabotageManager : MonoBehaviour
         if (!PhotonNetwork.IsMasterClient) return;
 
         var id = (SabotageId)idRaw;
+
+        // Light는 타이머 없이 즉시 해제
+        if (id == SabotageId.Light)
+        {
+            _pv.RPC(nameof(RPC_TriggerLight), RpcTarget.All, false);
+            return;
+        }
+
+        // Engine 등 타이머 사보타지
         if (!_isActive) return;
         if (_activeId != id) return;
 
-        // 동일 해제
         _pv.RPC(nameof(RPC_ResolveSabotage), RpcTarget.All, idRaw);
     }
 
@@ -239,14 +268,21 @@ public class SabotageManager : MonoBehaviour
     private void OnSabotageStart(SabotageId id)
     {
         Debug.Log($"[Sabotage] Start : {id}");
-        // TODO : 월드 효과 적용 ( 조명 끄기, 엔진 정지 등 )
     }
 
-    // UI 연결용
+    // Light 전용 RPC (타이머/승패 없음)
+    [PunRPC]
+    private void RPC_TriggerLight(bool on)
+    {
+        Debug.Log($"[Sabotage] Light : {(on ? "ON" : "OFF")}");
+
+        if (_blackoutBinder != null)
+            _blackoutBinder.RequestBlackout(on);
+    }
+
     private void OnSabotageResolved(SabotageId id)
     {
         Debug.Log($"[Sabotage] Resolved : {id}");
-        // TODO : UI 종료 , 월드 효과 원복시키기
     }
 
     private void OnSabotageFailed(SabotageId id) // RPC_FailSabotage(All)로 실행
