@@ -59,6 +59,12 @@ public class SlidePanel : MonoBehaviour
             _jobName.text = $"[{job.name}]";
             _jobInfo.text = job.jobInformation;
         }
+        else
+        {
+            // job이 null(무직)일 때 표시될 내용
+            _jobName.text = "[무직]";
+            _jobInfo.text = "아무런 능력이 없습니다.";
+        }
 
         _firstItemInfo.text = (items != null && items.Length > 0 && items[0] != null)
             ? $"[{items[0].itemName}] : {items[0].itemInformation}"
