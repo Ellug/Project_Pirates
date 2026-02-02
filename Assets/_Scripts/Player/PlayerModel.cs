@@ -9,7 +9,7 @@ public class PlayerModel : MonoBehaviour
     public float baseSpeed;
     public float jumpPower;
     public float attackPower;
-    public float interactionDuration = 1f;
+    public float interactionDuration = 0.3f;
     [HideInInspector] public float runSpeed;
     [HideInInspector] public float crouchSpeed;
     [HideInInspector] public bool isInteracting;
