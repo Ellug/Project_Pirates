@@ -203,6 +203,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     private void RpcSpawnDeadBody(Vector3 position, Quaternion rotation, int deadBodyId)
     {
         GameObject deadBodyPrefab = Resources.Load<GameObject>("DeadBodyMale");
+        position.y += 0.4f;
         if (deadBodyPrefab != null)
         {
             GameObject deadBody = Instantiate(deadBodyPrefab, position, rotation);
