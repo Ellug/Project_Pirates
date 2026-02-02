@@ -801,6 +801,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_MovingBoxClosed01 1 (10)
       objectReference: {fileID: 0}
+    - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 420908, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 6.3399963
@@ -2851,6 +2855,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_MovingBoxClosedStack01 1 (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 105592, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 470978, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 6.72
@@ -4267,6 +4275,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_MovingBoxClosedStack01 1 (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 105592, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 470978, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 7.82
@@ -4329,6 +4341,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_MovingBoxClosedStack01 1 (11)
       objectReference: {fileID: 0}
+    - target: {fileID: 105592, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 470978, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 7.19
@@ -4390,6 +4406,10 @@ PrefabInstance:
     - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_Name
       value: mH_MovingBoxClosed01 1 (11)
+      objectReference: {fileID: 0}
+    - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 420908, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4878,6 +4898,10 @@ PrefabInstance:
     - target: {fileID: 105592, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
       propertyPath: m_Name
       value: mH_MovingBoxClosedStack01 1 (13)
+      objectReference: {fileID: 0}
+    - target: {fileID: 105592, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 470978, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5693,6 +5717,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_DinnerTableLarge 1
       objectReference: {fileID: 0}
+    - target: {fileID: 192622, guid: fecb00328bbaf084a8561f50732b48d4, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 460066, guid: fecb00328bbaf084a8561f50732b48d4, type: 3}
       propertyPath: m_LocalPosition.x
       value: -4.91
@@ -5754,6 +5782,10 @@ PrefabInstance:
     - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_Name
       value: mH_MovingBoxClosed01 1 (4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 420908, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6315,6 +6347,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_MovingBoxClosedStack01 1 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 105592, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 470978, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 4.34
@@ -6586,6 +6622,10 @@ PrefabInstance:
     - target: {fileID: 105592, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
       propertyPath: m_Name
       value: mH_MovingBoxClosedStack01 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 105592, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 470978, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7146,6 +7186,10 @@ PrefabInstance:
     - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_Name
       value: mH_MovingBoxClosed01 1 (9)
+      objectReference: {fileID: 0}
+    - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 420908, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7987,6 +8031,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_MovingBoxClosedStack01 1 (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 105592, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 470978, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 6.28
@@ -8118,6 +8166,10 @@ PrefabInstance:
     - target: {fileID: 119420, guid: 804c7da4186202c44909f799cd9eb59b, type: 3}
       propertyPath: m_Name
       value: mH_MovingBoxOpen01 1 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 119420, guid: 804c7da4186202c44909f799cd9eb59b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 448960, guid: 804c7da4186202c44909f799cd9eb59b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -8395,6 +8447,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_MovingBoxOpen01 1
       objectReference: {fileID: 0}
+    - target: {fileID: 119420, guid: 804c7da4186202c44909f799cd9eb59b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 448960, guid: 804c7da4186202c44909f799cd9eb59b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.82
@@ -8456,6 +8512,10 @@ PrefabInstance:
     - target: {fileID: 119420, guid: 804c7da4186202c44909f799cd9eb59b, type: 3}
       propertyPath: m_Name
       value: mH_MovingBoxOpen01 1 (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 119420, guid: 804c7da4186202c44909f799cd9eb59b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 448960, guid: 804c7da4186202c44909f799cd9eb59b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -8588,6 +8648,10 @@ PrefabInstance:
     - target: {fileID: 196650, guid: 26e704a700d9b09418518d721d12757f, type: 3}
       propertyPath: m_Name
       value: mH_Chair 1 (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 196650, guid: 26e704a700d9b09418518d721d12757f, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 424082, guid: 26e704a700d9b09418518d721d12757f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -9079,6 +9143,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_MovingBoxClosedStack01 1 (6)
       objectReference: {fileID: 0}
+    - target: {fileID: 105592, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 470978, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 5.12
@@ -9284,6 +9352,10 @@ PrefabInstance:
     - target: {fileID: 196650, guid: 26e704a700d9b09418518d721d12757f, type: 3}
       propertyPath: m_Name
       value: mH_Chair 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 196650, guid: 26e704a700d9b09418518d721d12757f, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 424082, guid: 26e704a700d9b09418518d721d12757f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -9837,6 +9909,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_MovingBoxClosed01 1 (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 420908, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 6.3399963
@@ -9898,6 +9974,10 @@ PrefabInstance:
     - target: {fileID: 148082, guid: a78f760625d91544781874365e7a5b10, type: 3}
       propertyPath: m_Name
       value: mHFP02_Shelf01 1 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 148082, guid: a78f760625d91544781874365e7a5b10, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 467998, guid: a78f760625d91544781874365e7a5b10, type: 3}
       propertyPath: m_LocalPosition.x
@@ -10801,9 +10881,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7945893183562723536}
     m_Modifications:
+    - target: {fileID: 139436, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
+    - target: {fileID: 140068, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
+    - target: {fileID: 149690, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 157286, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
       propertyPath: m_Name
       value: mH_FloorCabinet01 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 157286, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 433822, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
       propertyPath: m_LocalPosition.x
@@ -10866,6 +10962,10 @@ PrefabInstance:
     - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_Name
       value: mH_MovingBoxClosed01 1 (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 420908, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -11068,6 +11168,10 @@ PrefabInstance:
     - target: {fileID: 192622, guid: fecb00328bbaf084a8561f50732b48d4, type: 3}
       propertyPath: m_Name
       value: mH_DinnerTableLarge 1 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 192622, guid: fecb00328bbaf084a8561f50732b48d4, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 460066, guid: fecb00328bbaf084a8561f50732b48d4, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12621,6 +12725,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_MovingBoxClosed01 1 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 420908, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 2.076
@@ -13036,6 +13144,10 @@ PrefabInstance:
     - target: {fileID: 148082, guid: a78f760625d91544781874365e7a5b10, type: 3}
       propertyPath: m_Name
       value: mHFP02_Shelf01 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 148082, guid: a78f760625d91544781874365e7a5b10, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 467998, guid: a78f760625d91544781874365e7a5b10, type: 3}
       propertyPath: m_LocalPosition.x
@@ -13597,6 +13709,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_MovingBoxClosed01 1 (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 420908, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.57
@@ -13655,9 +13771,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7945893183562723536}
     m_Modifications:
+    - target: {fileID: 139436, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
+    - target: {fileID: 140068, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
+    - target: {fileID: 149690, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 157286, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
       propertyPath: m_Name
       value: mH_FloorCabinet01 1 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 157286, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 433822, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
       propertyPath: m_LocalPosition.x
@@ -13720,6 +13852,10 @@ PrefabInstance:
     - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_Name
       value: mH_MovingBoxClosed01 1 (7)
+      objectReference: {fileID: 0}
+    - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 420908, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -14203,6 +14339,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_Chair 1 (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 196650, guid: 26e704a700d9b09418518d721d12757f, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 424082, guid: 26e704a700d9b09418518d721d12757f, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3.245
@@ -14482,6 +14622,10 @@ PrefabInstance:
     - target: {fileID: 105592, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
       propertyPath: m_Name
       value: mH_MovingBoxClosedStack01 1 (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 105592, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 470978, guid: 2d62728a23ad5714c9eca88e893eaac5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -14968,6 +15112,10 @@ PrefabInstance:
     - target: {fileID: 196650, guid: 26e704a700d9b09418518d721d12757f, type: 3}
       propertyPath: m_Name
       value: mH_Chair 1 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 196650, guid: 26e704a700d9b09418518d721d12757f, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 424082, guid: 26e704a700d9b09418518d721d12757f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -16307,6 +16455,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_MovingBoxClosed01 1
       objectReference: {fileID: 0}
+    - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 420908, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 9.62
@@ -16435,9 +16587,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7945893183562723536}
     m_Modifications:
+    - target: {fileID: 109710, guid: 630408b5016310f46acdda8bc344bac2, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 123034, guid: 630408b5016310f46acdda8bc344bac2, type: 3}
       propertyPath: m_Name
       value: mH_WallClock 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 123034, guid: 630408b5016310f46acdda8bc344bac2, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
+    - target: {fileID: 158026, guid: 630408b5016310f46acdda8bc344bac2, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
+    - target: {fileID: 189920, guid: 630408b5016310f46acdda8bc344bac2, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 423054, guid: 630408b5016310f46acdda8bc344bac2, type: 3}
       propertyPath: m_LocalScale.x
@@ -16583,6 +16751,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_MovingBoxClosed01 1 (8)
       objectReference: {fileID: 0}
+    - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 420908, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 4.59
@@ -16644,6 +16816,10 @@ PrefabInstance:
     - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_Name
       value: mH_MovingBoxClosed01 1 (6)
+      objectReference: {fileID: 0}
+    - target: {fileID: 149102, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 420908, guid: 02752e4cd7619ff4c9576fc57bc3625b, type: 3}
       propertyPath: m_LocalPosition.x

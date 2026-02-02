@@ -210,6 +210,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_SingleBed 1
       objectReference: {fileID: 0}
+    - target: {fileID: 182024, guid: 0200eca5138aeb9489617c58e04177b8, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 417716, guid: 0200eca5138aeb9489617c58e04177b8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.9310331
@@ -864,6 +868,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_MovingBoxOpen01 1
       objectReference: {fileID: 0}
+    - target: {fileID: 119420, guid: 804c7da4186202c44909f799cd9eb59b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 448960, guid: 804c7da4186202c44909f799cd9eb59b, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3.826669
@@ -1070,6 +1078,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_WritersDesk02 1
       objectReference: {fileID: 0}
+    - target: {fileID: 107422, guid: f33cb09843b39ea41b3f05401414f22d, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 458578, guid: f33cb09843b39ea41b3f05401414f22d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -4.77
@@ -1128,9 +1140,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3029081095092776062}
     m_Modifications:
+    - target: {fileID: 139436, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
+    - target: {fileID: 140068, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
+    - target: {fileID: 149690, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 157286, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
       propertyPath: m_Name
       value: mH_FloorCabinet01 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 157286, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 433822, guid: a36e0ae7ffb4071499e453453d951965, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2272,6 +2300,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_Chair 1 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 196650, guid: 26e704a700d9b09418518d721d12757f, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 424082, guid: 26e704a700d9b09418518d721d12757f, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.11
@@ -2832,6 +2864,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: mH_Chair 1
       objectReference: {fileID: 0}
+    - target: {fileID: 196650, guid: 26e704a700d9b09418518d721d12757f, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
+      objectReference: {fileID: 0}
     - target: {fileID: 424082, guid: 26e704a700d9b09418518d721d12757f, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.8
@@ -3177,6 +3213,10 @@ PrefabInstance:
     - target: {fileID: 169494, guid: 27172f23f87299d4caf86f4d7d7f5fcb, type: 3}
       propertyPath: m_Name
       value: mH_RoundEndTable 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 169494, guid: 27172f23f87299d4caf86f4d7d7f5fcb, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 125
       objectReference: {fileID: 0}
     - target: {fileID: 472388, guid: 27172f23f87299d4caf86f4d7d7f5fcb, type: 3}
       propertyPath: m_LocalPosition.x
