@@ -177,6 +177,7 @@ public class PlayerController : MonoBehaviourPun
             _actLook.canceled += OnLook;
 
             _actInteract.started += OnInteraction;
+            _actInteract.canceled += OnInteraction;
             // _actJump.started += OnJump;
             _actJobSkill.started += OnJobSkill;
 
@@ -225,7 +226,10 @@ public class PlayerController : MonoBehaviourPun
         }
 
         if (_actInteract != null)
+        {
             _actInteract.started -= OnInteraction;
+            _actInteract.canceled -= OnInteraction;
+        }
 
         // if (_actJump != null)
         //     _actJump.started -= OnJump;
@@ -281,8 +285,20 @@ public class PlayerController : MonoBehaviourPun
 
     private void OnInteraction(InputAction.CallbackContext ctx)
     {
-        if (_playerInteraction.IsInteractable)
-            _playerInteraction.InteractObj();
+        if (ctx.started)
+        {
+            if (_playerInteraction.IsInteractable)
+            {
+                _model.isInteractSuccess = false;
+                _model.isInteracting = true;
+                _model.StartInteraction(_playerInteraction, _playerInteraction.GetAddDuration());
+            }
+        }
+
+        if (ctx.canceled)
+        {
+            _model.isInteracting = false;
+        }
     }
 
     private void OnLook(InputAction.CallbackContext ctx)
