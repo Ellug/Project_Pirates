@@ -7,7 +7,6 @@ public class StatusNoticeUI : MonoBehaviour
     public static StatusNoticeUI Instance { get; private set; }
 
     [Header("UI")]
-    [SerializeField] private GameObject _panel;
     [SerializeField] private TMP_Text _infoText; // 무슨 일이 일어났는지 표시
     [SerializeField] private TMP_Text _descText; // 진행상황
 
@@ -24,24 +23,31 @@ public class StatusNoticeUI : MonoBehaviour
     {
         StopAllRunning();
 
-        if (_panel != null) _panel.SetActive(true);
-        if (_infoText != null) _infoText.text = info;
+        if (_infoText != null)
+        {
+            _infoText.gameObject.SetActive(true);
+            _infoText.text = info;
+        }
 
         if (_descText != null)
         {
-            _descText.gameObject.SetActive(!string.IsNullOrEmpty(desc));
-            _descText.text = desc;
+            bool hasDesc = !string.IsNullOrEmpty(desc);
+            _descText.gameObject.SetActive(hasDesc);
+            if (hasDesc) _descText.text = desc;
         }
 
         _hideCor = StartCoroutine(Co_HideAfter(duration));
     }
 
-    public void ShowCountdown(string title, float seconds)
+    public void ShowCountdown(string info, float seconds)
     {
         StopAllRunning();
 
-        if (_panel != null) _panel.SetActive(true);
-        if (_infoText != null) _infoText.text = title;
+        if (_infoText != null)
+        {
+            _infoText.gameObject.SetActive(true);
+            _infoText.text = info;
+        }
 
         if (_descText != null)
         {
@@ -54,7 +60,9 @@ public class StatusNoticeUI : MonoBehaviour
     public void HideImmediate()
     {
         StopAllRunning();
-        if (_panel != null) _panel.SetActive(false);
+
+        if (_infoText != null) _infoText.gameObject.SetActive(false);
+        if (_descText != null) _descText.gameObject.SetActive(false);
     }
 
     private IEnumerator Co_HideAfter(float t)
@@ -66,16 +74,20 @@ public class StatusNoticeUI : MonoBehaviour
     private IEnumerator Co_Countdown(float seconds)
     {
         float remain = seconds;
+
         while (remain > 0f)
         {
             remain -= Time.unscaledDeltaTime;
+
             if (_descText != null)
             {
                 int s = Mathf.CeilToInt(remain);
                 _descText.text = $"{s}초";
             }
+
             yield return null;
         }
+
         HideImmediate();
     }
 
