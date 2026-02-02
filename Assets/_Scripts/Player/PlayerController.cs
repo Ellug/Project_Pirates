@@ -362,7 +362,7 @@ public class PlayerController : MonoBehaviourPun
     {
         Debug.Log("당신은 마피아입니다.");
         isMafia = true;
-        _model.attackPower *= 2.5f;
+        _model.SetMafia();
         _hud.ChangeRoleImage();
 
         // 마피아 텔레포터 버튼 활성화
