@@ -58,6 +58,15 @@ public class PlayerController : MonoBehaviourPun
     {
         _view = GetComponent<PhotonView>();
         _transformView = GetComponent<PhotonTransformView>();
+        _model = GetComponent<PlayerModel>();
+
+        // 상태 클래스 할당 (리모트 플레이어도 DeathState 필요)
+        StateIdle = new IdleState(this);
+        StateMove = new MoveState(this);
+        StateCrouch = new CrouchState(this);
+        StateAttack = new AttackState(this);
+        StateDeath = new DeathState(this);
+        StateMachine = new PlayerStateMachine(StateIdle);
 
         // 내 것이 아니면 컴포넌트를 아예 비활성화
         // 다른 사람의 Update, FixedUpdate 같은 것들이 호출 자체가 안됨
@@ -79,8 +88,6 @@ public class PlayerController : MonoBehaviourPun
         // 옵션/콘솔 열리면 InputManager가 ActionMap을 UI로 바꿔서 플레이어 입력 자동 차단
         if (InputManager.Instance != null && _playerInput != null)
             InputManager.Instance.RegisterLocalPlayer(_playerInput);
-
-        _model = GetComponent<PlayerModel>();
 
         // 내 아바타는 숨김 처리한다.
         // 다른 사람 아바타는 볼 수 있고 내 아바타도 남한테는 보인다.
@@ -124,15 +131,6 @@ public class PlayerController : MonoBehaviourPun
 
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.photonView.RPC("PlayerEnterCheck", RpcTarget.MasterClient);
-
-        // 상태 클래스 할당
-        StateIdle = new IdleState(this);
-        StateMove = new MoveState(this);
-        StateCrouch = new CrouchState(this);
-        StateAttack = new AttackState(this);
-        StateDeath = new DeathState(this);
-
-        StateMachine = new PlayerStateMachine(StateIdle);
 
         if (!_view.IsMine) return;
 
