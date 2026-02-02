@@ -46,13 +46,17 @@ public class SabotageManager : MonoBehaviour
     private double _startServerTime; // PhotonNetwork 기준 시작 시간
     private Coroutine _countdownCor;
 
-    private void Awake()
+    void Awake()
     {
         if (_pv == null) _pv = GetComponent<PhotonView>();
         SetCountdownUI(false);
 
+    }
+
+    void Start()
+    {
         if (_sabotageButton != null)
-            _sabotageButton.SetButtonsActive(false);
+            _sabotageButton.SetButtonsActive(false);        
     }
 
     // 마피아 전용 버튼 활성화 (PlayerController.IsMafia에서 호출)
@@ -268,6 +272,14 @@ public class SabotageManager : MonoBehaviour
     private void OnSabotageStart(SabotageId id)
     {
         Debug.Log($"[Sabotage] Start : {id}");
+
+        if(StatusNoticeUI.Instance != null)
+        {
+            if (id == SabotageId.Engine)
+                StatusNoticeUI.Instance.ShowMessage("사보타지 발생!", "엔진실을 수리하세요!");
+            else
+                StatusNoticeUI.Instance.ShowMessage("사보타지 발생!", id.ToString());
+        }
     }
 
     // Light 전용 RPC (타이머/승패 없음)
@@ -276,6 +288,14 @@ public class SabotageManager : MonoBehaviour
     {
         Debug.Log($"[Sabotage] Light : {(on ? "ON" : "OFF")}");
 
+        if (StatusNoticeUI.Instance != null)
+        {
+            StatusNoticeUI.Instance.ShowMessage(
+                on ? "정전 발생!" : "전력 복구!",
+                on ? "시야가 제한됩니다." : ""
+            );
+        }
+
         if (_blackoutBinder != null)
             _blackoutBinder.RequestBlackout(on);
     }
@@ -283,11 +303,17 @@ public class SabotageManager : MonoBehaviour
     private void OnSabotageResolved(SabotageId id)
     {
         Debug.Log($"[Sabotage] Resolved : {id}");
+
+        if (StatusNoticeUI.Instance != null)
+            StatusNoticeUI.Instance.ShowMessage("사보타지 해제!", id.ToString());
     }
 
     private void OnSabotageFailed(SabotageId id) // RPC_FailSabotage(All)로 실행
     {
         Debug.Log($"[Sabotage] Failed : {id}");
+        if (StatusNoticeUI.Instance != null)
+            StatusNoticeUI.Instance.ShowMessage("사보타지 실패", "시민 패배");
+
         PlayerManager.Instance.NoticeGameOverToAllPlayers(false);
     }
 }

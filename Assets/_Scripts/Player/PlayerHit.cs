@@ -57,6 +57,12 @@ public class PlayerHit : MonoBehaviour
     {
         if (!_view.IsMine) return;
 
+        // UI 표시 (당한 사람만)
+        if (StatusNoticeUI.Instance != null)
+        {
+            StatusNoticeUI.Instance.ShowCountdown("로프에 속박됨", duration);
+        }
+
         StartCoroutine(GetBondage(duration));
     }
 }
