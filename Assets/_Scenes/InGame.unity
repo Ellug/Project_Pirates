@@ -37536,9 +37536,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: BlackOutSwitch
       objectReference: {fileID: 0}
-    - target: {fileID: 147222, guid: 9e0840b02f6a992459b53f1a1378ed96, type: 3}
+    - target: {fileID: 113790, guid: 9e0840b02f6a992459b53f1a1378ed96, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 147222, guid: 9e0840b02f6a992459b53f1a1378ed96, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 147222, guid: 9e0840b02f6a992459b53f1a1378ed96, type: 3}
       propertyPath: m_StaticEditorFlags
@@ -37612,16 +37616,24 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 147222, guid: 9e0840b02f6a992459b53f1a1378ed96, type: 3}
+    - targetCorrespondingSourceObject: {fileID: 113790, guid: 9e0840b02f6a992459b53f1a1378ed96, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2960729748158291442}
+      addedObject: {fileID: 2960729748158291443}
+    - targetCorrespondingSourceObject: {fileID: 113790, guid: 9e0840b02f6a992459b53f1a1378ed96, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2960729748158291444}
   m_SourcePrefab: {fileID: 100100000, guid: 9e0840b02f6a992459b53f1a1378ed96, type: 3}
 --- !u!1 &2960729748158291441 stripped
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 147222, guid: 9e0840b02f6a992459b53f1a1378ed96, type: 3}
+  m_CorrespondingSourceObject: {fileID: 113790, guid: 9e0840b02f6a992459b53f1a1378ed96, type: 3}
   m_PrefabInstance: {fileID: 2960729748158291440}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2960729748158291442
+--- !u!4 &2960729748158291442 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 403564, guid: 9e0840b02f6a992459b53f1a1378ed96, type: 3}
+  m_PrefabInstance: {fileID: 2960729748158291440}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2960729748158291443
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -37637,6 +37649,28 @@ MonoBehaviour:
   _interactionDistance: 4
   _addInteractionDuration: 0
   blackoutBinder: {fileID: 847436566}
+  switchTransform: {fileID: 2960729748158291442}
+--- !u!65 &2960729748158291444
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2960729748158291441}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.3, y: 0.45, z: 0.2}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &4898715650663642341
 PrefabInstance:
   m_ObjectHideFlags: 0

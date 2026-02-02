@@ -66,6 +66,7 @@ public class LightCullingController : MonoBehaviour
         }
     }
 
+    // TODO: 업데이트 컬링 호출마다 배열 할당하는 거 메모리 낭비?? Plane[] 캐시로 재사용 하는게 낫지 않은지 확인 요망
     private void UpdateCulling()
     {
         if (_playerCamera == null || playerHead == null) return;

@@ -5,6 +5,9 @@ public class BlackoutSwitchObject : InteractionObject
     [Header("Blackout Network Binder")]
     [SerializeField] private BlackoutPropertyBinder blackoutBinder;
 
+    [Header("Switch Rotation")]
+    [SerializeField] private Transform switchTransform;
+
     private const string BLACKOUT_KEY = "BLACKOUT";
 
     public override void OnInteract(PlayerInteraction player, InteractionObjectRpcManager rpcManager)
@@ -26,10 +29,11 @@ public class BlackoutSwitchObject : InteractionObject
 
         // 토글
         bool next = !isBlackout;
+        Transform target = switchTransform != null ? switchTransform : transform;
         if (next)
-            transform.localRotation = Quaternion.Euler(30f, 0f, 0f);
+            target.localRotation = Quaternion.Euler(30f, 0f, 0f);
         else
-            transform.localRotation = Quaternion.Euler(-30f, 0f, 0f);
+            target.localRotation = Quaternion.Euler(-30f, 0f, 0f);
 
         Debug.Log($"[BlackoutSwitch] Toggle -> {next}");
 
