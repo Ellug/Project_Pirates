@@ -9,8 +9,11 @@ public class PlayerModel : MonoBehaviour
     public float baseSpeed;
     public float jumpPower;
     public float attackPower;
+    public float interactionDuration = 1f;
     [HideInInspector] public float runSpeed;
     [HideInInspector] public float crouchSpeed;
+    [HideInInspector] public bool isInteracting;
+    [HideInInspector] public bool isInteractSuccess;
 
     private float _maxHealthPoint;
     public float MaxHP => _maxHealthPoint;
@@ -60,6 +63,7 @@ public class PlayerModel : MonoBehaviour
     public event Action<float, float> OnHealthChanged;
     public event Action<float, float> OnStaminaChanged;
     public event Action<ItemData[]> OnItemSlotChanged;
+    public event Action<float, float> OnInteractionChanged;
 
     private ItemData[] _inventory;
     private ItemEffects _effects;
@@ -242,6 +246,28 @@ public class PlayerModel : MonoBehaviour
             }
         }
         return false;
+    }
+
+    // 오브젝트와 상호작용을 하기 위한 딜레이
+     public void StartInteraction(float addDuration = 0f)
+    {
+        StartCoroutine(InteractingCor(addDuration));
+    }
+
+    private IEnumerator InteractingCor(float addValue)
+    {
+        float elapsedTime = 0f;
+        float goalTime = interactionDuration + addValue;
+        while (isInteracting)
+        {
+            elapsedTime += Time.deltaTime;
+            OnInteractionChanged?.Invoke(elapsedTime, goalTime);
+            if (elapsedTime >= goalTime)
+            {
+                isInteractSuccess = true;
+            }
+            yield return null;
+        }
     }
 
     // 다른 플레이어와 상호작용을 위해 자신의 앞을 판정한다.

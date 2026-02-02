@@ -174,6 +174,8 @@ public class PlayerController : MonoBehaviourPun
             _actLook.canceled += OnLook;
 
             _actInteract.started += OnInteraction;
+            _actInteract.performed += OnInteraction;
+            _actInteract.canceled += OnInteraction;
             // _actJump.started += OnJump;
             _actJobSkill.started += OnJobSkill;
 
@@ -222,7 +224,11 @@ public class PlayerController : MonoBehaviourPun
         }
 
         if (_actInteract != null)
+        {
             _actInteract.started -= OnInteraction;
+            _actInteract.performed -= OnInteraction;
+            _actInteract.canceled -= OnInteraction;
+        }
 
         // if (_actJump != null)
         //     _actJump.started -= OnJump;
@@ -278,8 +284,31 @@ public class PlayerController : MonoBehaviourPun
 
     private void OnInteraction(InputAction.CallbackContext ctx)
     {
-        if (_playerInteraction.IsInteractable)
-            _playerInteraction.InteractObj();
+        if (ctx.started)
+        {
+            if (_playerInteraction.IsInteractable)
+            {
+                _model.isInteractSuccess = false;
+                _model.isInteracting = true;
+                _model.StartInteraction(_playerInteraction.GetAddDuration());
+            }
+        }
+        if (ctx.performed)
+        {
+            if (!_playerInteraction.IsInteractable)
+            {
+                // 딴데 보거나 키 떼면 상호작용 취소
+                _model.isInteracting = false;
+            }
+            if (_model.isInteractSuccess == true)
+            {
+                _playerInteraction.InteractObj();
+            }
+        }
+        if (ctx.canceled)
+        {
+            _model.isInteracting = false;
+        }
     }
 
     private void OnLook(InputAction.CallbackContext ctx)

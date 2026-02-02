@@ -85,4 +85,13 @@ public class PlayerInteraction : MonoBehaviour
             _curInteractable.OnInteract(this, _rpcManager);
         }
     }
+
+    public float GetAddDuration()
+    {
+        if (_curInteractable != null)
+        {
+            return _curInteractable.GetInteractionDuration();
+        }
+        return 0f;
+    }
 }

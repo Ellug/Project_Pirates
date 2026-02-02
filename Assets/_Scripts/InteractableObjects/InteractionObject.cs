@@ -9,6 +9,7 @@ public abstract class InteractionObject : MonoBehaviour
 
     [Header("Object Option")]
     [SerializeField] protected float _interactionDistance = 4f;
+    [SerializeField] protected float _addInteractionDuration = 0f;
 
     // 상호작용을 한 사람에게 일어날 로직
     // (오버라이드 안하면 로그만 출력)
@@ -29,6 +30,12 @@ public abstract class InteractionObject : MonoBehaviour
     public float GetInteractionDistance()
     {
         return _interactionDistance;
+    }
+
+    // 상호작용에 필요한 추가 시간 반환
+    public float GetInteractionDuration()
+    {
+        return _addInteractionDuration;
     }
 
 #if UNITY_EDITOR

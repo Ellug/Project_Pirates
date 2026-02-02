@@ -5,6 +5,7 @@ public class PlayerHUD : MonoBehaviour
 {
     [SerializeField] private Slider _hpBar;
     [SerializeField] private Slider _staminaBar;
+    [SerializeField] private Image _interactionCircle;
     [SerializeField] private Image _roleImage;
     [SerializeField] private Sprite _mafiaImage;
     [SerializeField] private Sprite _citizenImage;
@@ -20,6 +21,7 @@ public class PlayerHUD : MonoBehaviour
         _model.OnHealthChanged += UpdateHealth;
         _model.OnStaminaChanged += UpdateStamina;
         _model.OnItemSlotChanged += UpdatePlayerItem;
+        _model.OnInteractionChanged += UpdateInteraction;
 
         // 초기값 세팅
         UpdateHealth(model.CurHP, model.MaxHP);
@@ -56,6 +58,11 @@ public class PlayerHUD : MonoBehaviour
     private void UpdateStamina(float cur, float max)
     {
         _staminaBar.value = cur / max;
+    }
+
+    private void UpdateInteraction(float cur, float max)
+    {
+        _interactionCircle.fillAmount = cur / max;
     }
 
     private void UpdatePlayerItem(ItemData[] curSlots)
