@@ -218,22 +218,6 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         }
     }
 
-    // 시체 하나 제거 요청 -> 모든 클라이언트에서 제거
-    // public void RequestRemoveDeadBody(int deadBodyId)
-    // {
-    //     _view.RPC(nameof(RpcRemoveDeadBody), RpcTarget.All, deadBodyId);
-    // }
-
-    // [PunRPC]
-    // private void RpcRemoveDeadBody(int deadBodyId)
-    // {
-    //     if (InteractionObjectRpcManager.Instance != null)
-    //     {
-    //         InteractionObjectRpcManager.Instance.UnregisterAndDestroy(deadBodyId);
-    //         Debug.Log($"[DeadBody] 시체 제거 완료 - ID: {deadBodyId}");
-    //     }
-    // }
-
     // 모든 시체 제거 요청 -> 모든 클라이언트에서 제거
     public void RequestRemoveAllDeadBodies()
     {
