@@ -223,8 +223,6 @@ public class VoteManager : MonoBehaviourPunCallbacks
             case VotePhase.None:
                 if (_votePanel != null)
                     _votePanel.SetActive(false);
-                if (InputManager.Instance != null)
-                    InputManager.Instance.SetUIMode(false);
                 break;
 
             case VotePhase.Discussion:
@@ -232,8 +230,6 @@ public class VoteManager : MonoBehaviourPunCallbacks
             case VotePhase.Result:
                 if (_votePanel != null)
                     _votePanel.SetActive(true);
-                if (InputManager.Instance != null)
-                    InputManager.Instance.SetUIMode(true);
                 break;
         }
 
@@ -251,7 +247,14 @@ public class VoteManager : MonoBehaviourPunCallbacks
                 _postVoteCleanupCoroutine = null;
             }
 
-            _voteActive = true;
+            // 투표 시작 시 한 번만 UI 모드 활성화
+            if (!_voteActive)
+            {
+                _voteActive = true;
+                if (InputManager.Instance != null)
+                    InputManager.Instance.SetUIMode(true);
+            }
+
             if (_voteUI != null)
             {
                 _voteUI.ResetUI();
@@ -262,6 +265,9 @@ public class VoteManager : MonoBehaviourPunCallbacks
         if (phase == VotePhase.None && _voteActive)
         {
             _voteActive = false;
+            // 투표 종료 시 한 번만 UI 모드 비활성화
+            if (InputManager.Instance != null)
+                InputManager.Instance.SetUIMode(false);
             StartPostVoteCleanup();
             StartCenterCallCooldown();
         }
