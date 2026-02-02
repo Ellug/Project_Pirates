@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviourPun
     private PhotonView _view;
     private PlayerInteraction _playerInteraction;
     private PlayerModel _model;
+    private PlayerHUD _hud;
     private float _standingCameraY;
     private float _crouchingCameraY;
     Tween _camDOTween;
@@ -130,8 +131,8 @@ public class PlayerController : MonoBehaviourPun
 
         if (!_view.IsMine) return;
 
-        var hud = FindFirstObjectByType<PlayerHUD>();
-        hud.Bind(_model);
+        _hud = FindFirstObjectByType<PlayerHUD>();
+        _hud.Bind(_model);
 
         ItemEffects effects = new ItemEffects();
         effects.Initialize();
@@ -359,6 +360,7 @@ public class PlayerController : MonoBehaviourPun
         Debug.Log("당신은 마피아입니다.");
         isMafia = true;
         _model.attackPower *= 2.5f;
+        _hud.ChangeRoleImage();
     }
 
     [PunRPC]

@@ -5,6 +5,10 @@ public class PlayerHUD : MonoBehaviour
 {
     [SerializeField] private Slider _hpBar;
     [SerializeField] private Slider _staminaBar;
+    [SerializeField] private Image _roleImage;
+    [SerializeField] private Sprite _mafiaImage;
+    [SerializeField] private Sprite _citizenImage;
+
     [SerializeField] private Image[] _itemSlots;
 
     private PlayerModel _model;
@@ -20,6 +24,13 @@ public class PlayerHUD : MonoBehaviour
         // 초기값 세팅
         UpdateHealth(model.CurHP, model.MaxHP);
         UpdateStamina(model.CurStamina, model.MaxStamina);
+
+        _roleImage.sprite = _citizenImage;
+    }
+
+    public void ChangeRoleImage()
+    {
+        _roleImage.sprite = _mafiaImage;
     }
 
     private void OnDestroy()
