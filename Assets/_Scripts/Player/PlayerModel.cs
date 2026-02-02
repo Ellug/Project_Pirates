@@ -316,4 +316,9 @@ public class PlayerModel : MonoBehaviour
         _maxHealthPoint += 40f;
         _curHealthPoint += 40f;
     }
+
+    public ItemData[] GetInventory()
+    {
+        return _inventory;
+    }
 }
