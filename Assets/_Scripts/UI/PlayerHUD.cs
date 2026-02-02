@@ -24,8 +24,9 @@ public class PlayerHUD : MonoBehaviour
         _model.OnInteractionChanged += UpdateInteraction;
 
         // 초기값 세팅
-        UpdateHealth(model.CurHP, model.MaxHP);
-        UpdateStamina(model.CurStamina, model.MaxStamina);
+        UpdateHealth(_model.CurHP, _model.MaxHP);
+        UpdateStamina(_model.CurStamina, _model.MaxStamina);
+        UpdateInteraction(0f, _model.interactionDuration);
 
         _roleImage.sprite = _citizenImage;
     }
@@ -47,6 +48,7 @@ public class PlayerHUD : MonoBehaviour
         _model.OnHealthChanged -= UpdateHealth;
         _model.OnStaminaChanged -= UpdateStamina;
         _model.OnItemSlotChanged -= UpdatePlayerItem;
+        _model.OnInteractionChanged -= UpdateInteraction;
         _model = null;
     }
 
