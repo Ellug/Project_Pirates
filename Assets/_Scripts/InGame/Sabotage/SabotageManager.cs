@@ -46,13 +46,17 @@ public class SabotageManager : MonoBehaviour
     private double _startServerTime; // PhotonNetwork 기준 시작 시간
     private Coroutine _countdownCor;
 
-    private void Awake()
+    void Awake()
     {
         if (_pv == null) _pv = GetComponent<PhotonView>();
         SetCountdownUI(false);
 
+    }
+
+    void Start()
+    {
         if (_sabotageButton != null)
-            _sabotageButton.SetButtonsActive(false);
+            _sabotageButton.SetButtonsActive(false);        
     }
 
     // 마피아 전용 버튼 활성화 (PlayerController.IsMafia에서 호출)
