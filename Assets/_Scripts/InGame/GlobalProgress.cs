@@ -38,11 +38,11 @@ public class GlobalProgress : MonoBehaviourPunCallbacks
         }
     }
 
-    // 코루틴으로 10초에 1퍼센트씩 증가
-    // (이건 마스터만 돌려야함. 모두가 돌리면 10초마다 사람 수만큼 퍼센트가 증가할 것임.)
+    // 코루틴으로 30초에 1퍼센트씩 증가
+    // (이건 마스터만 돌려야함. 모두가 돌리면 30초마다 사람 수만큼 퍼센트가 증가할 것임.)
     private IEnumerator AutoProgress()
     {
-        WaitForSeconds interval = new WaitForSeconds(10f);
+        WaitForSeconds interval = new WaitForSeconds(30f);
 
         while (true)
         {
