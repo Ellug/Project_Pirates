@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PlayerManager : MonoBehaviourPunCallbacks
@@ -146,26 +147,19 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
         // ============ 직업도 무작위로 부여 ============
         List<JobId> jobDeck = new List<JobId>();
+        List<int> alreadyUsed = new List<int>();
 
-        // 플레이어 수가 5 미만이면 1명에게만 부여
-        // 이건 테스트용으로 실제 게임에선 최소 5명의 플레이어가 요구됨
-        if (players.Length < 5)
+        // 구현된 직업들 중 무작위로 5개를 뽑아 직업 배분 예정. 나머진 무직
+        while (jobDeck.Count < 5)
         {
-            jobDeck.Add(JobId.Delivery); // 테스트할 땐 여기 직업 바꿈
-            jobDeck.Add(JobId.FireFighter);
-            jobDeck.Add(JobId.SportMan);
+            int randJob = UnityEngine.Random.Range(1, (int)JobId.End);
+            if (alreadyUsed.Contains(randJob) == false)
+            {
+                jobDeck.Add((JobId)randJob);
+                alreadyUsed.Add(randJob);
+            }
         }
-        else // 5명 이상 이면 직업들 여기 넣음
-        {
-            jobDeck.Add(JobId.Delivery);
-            jobDeck.Add(JobId.SportMan);
-            jobDeck.Add(JobId.FireFighter);
-            jobDeck.Add(JobId.Reporter);
-            jobDeck.Add(JobId.Police);
-            jobDeck.Add(JobId.Wrestling);
-            jobDeck.Add(JobId.Thief);
-            jobDeck.Add(JobId.Citizen);
-        }
+
         // 나머지는 무직으로 채움
         while (jobDeck.Count < players.Length)
             jobDeck.Add(JobId.None);
