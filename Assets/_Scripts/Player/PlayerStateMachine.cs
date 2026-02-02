@@ -272,7 +272,7 @@ public class DeathState : IPlayerState
     public void Enter()
     {
         Debug.Log("사망 상태 진입");
-        _player.transform.position = new Vector3(-300f, 25f, 0f);
+        _player.transform.position = new Vector3(-300f, 22f, 0f);
         _player.StateMachine.ChangeState(_player.StateIdle);
     }
 

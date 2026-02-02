@@ -1,4 +1,4 @@
-using Photon.Pun;
+﻿using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -30,6 +30,10 @@ public class VoteManager : MonoBehaviourPunCallbacks
     [SerializeField] private float _votingTime = 20f;
     [SerializeField] private float _resultDisplayTime = 5f;
     [SerializeField] private float _postVoteCleanupDelay = 2f;
+
+    [Header("CallSound")]
+    [SerializeField] private AudioClip _callSound;
+    [SerializeField] private AudioSource _audioSource;
 
     // 디버그용 시간 오버라이드 (-1이면 기본값 사용)
     private float _debugDiscussionTime = -1f;
@@ -94,6 +98,9 @@ public class VoteManager : MonoBehaviourPunCallbacks
 
     private IEnumerator TeleportSequence(bool isDeadBody)
     {
+        // 알람 사운드 출력
+        _audioSource.PlayOneShot(_callSound);
+
         // 알림 패널 표시
         if (isDeadBody)
             _DeadBodyAlertPanel.SetActive(true);
