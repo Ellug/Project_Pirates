@@ -15,3 +15,4 @@ MonoBehaviour:
   itemId: 1
   itemName: "\uD68C\uBCF5\uC57D"
   icon: {fileID: 21300000, guid: 67d3f520e3fc27343a47e4099dd3b42f, type: 3}
+  itemInformation: "\uC989\uC2DC \uCCB4\uB825\uC744 \uD68C\uBCF5\uD55C\uB2E4. (\uC77C\uD68C\uC131)"
