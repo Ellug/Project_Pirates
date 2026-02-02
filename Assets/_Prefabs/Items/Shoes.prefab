@@ -372,7 +372,8 @@ GameObject:
   - component: {fileID: 4030545908783655237}
   - component: {fileID: 4819742188482358476}
   - component: {fileID: 3591283239328572522}
-  m_Layer: 0
+  - component: {fileID: 5285544879553557570}
+  m_Layer: 6
   m_Name: Shoes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -389,7 +390,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.33600596, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2701310882334705182}
@@ -476,6 +477,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5285544879553557570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7649449101531874506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff85b4f07537d5d4a8981298921cd0ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DropItem
+  uniqueID: -678612
+  _interactionDistance: 4
+  _itemData: {fileID: 11400000, guid: cb4ec3cc4c3f1454ea0455f04aaf822c, type: 2}
 --- !u!1 &8973771488352353486
 GameObject:
   m_ObjectHideFlags: 0

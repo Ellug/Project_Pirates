@@ -102,7 +102,8 @@ GameObject:
   - component: {fileID: 34760256312613549}
   - component: {fileID: 4497835636742969485}
   - component: {fileID: 106543582367867810}
-  m_Layer: 0
+  - component: {fileID: 1942094352277707207}
+  m_Layer: 6
   m_Name: Empowerment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -119,7 +120,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.33600596, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8321345997809327782}
@@ -206,6 +207,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1942094352277707207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4328095537619342960}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff85b4f07537d5d4a8981298921cd0ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DropItem
+  uniqueID: -678600
+  _interactionDistance: 4
+  _itemData: {fileID: 11400000, guid: f0549eae3b3aad04ba6065fa09223c7a, type: 2}
 --- !u!1 &4505512215607119888
 GameObject:
   m_ObjectHideFlags: 0

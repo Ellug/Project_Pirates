@@ -192,7 +192,8 @@ GameObject:
   - component: {fileID: 2971417440551990280}
   - component: {fileID: 3728906582250975612}
   - component: {fileID: 7394166916073472845}
-  m_Layer: 0
+  - component: {fileID: 1545971704385917156}
+  m_Layer: 6
   m_Name: Stamina
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -209,7 +210,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.33600596, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5201148790352222247}
@@ -296,6 +297,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1545971704385917156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5915561752983141127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff85b4f07537d5d4a8981298921cd0ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DropItem
+  uniqueID: -678616
+  _interactionDistance: 4
+  _itemData: {fileID: 11400000, guid: dab072ab71a183a40a88af6e67f9ba11, type: 2}
 --- !u!1 &6071455357825362549
 GameObject:
   m_ObjectHideFlags: 0
