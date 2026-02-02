@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using System.Collections;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using DG.Tweening;
@@ -23,6 +24,7 @@ public class PlayerController : MonoBehaviourPun
     Tween _camDOTween;
 
     private ExitGames.Client.Photon.Hashtable _table;
+    private PhotonTransformView _transformView;
 
     // 로컬 플레이어의 입력을 차단/복구하기 위해 PlayerInput.actions로 교체
     private PlayerInput _playerInput;
@@ -53,6 +55,7 @@ public class PlayerController : MonoBehaviourPun
     private void Awake()
     {
         _view = GetComponent<PhotonView>();
+        _transformView = GetComponent<PhotonTransformView>();
 
         // 내 것이 아니면 컴포넌트를 아예 비활성화
         // 다른 사람의 Update, FixedUpdate 같은 것들이 호출 자체가 안됨
@@ -388,8 +391,18 @@ public class PlayerController : MonoBehaviourPun
     {
         Debug.Log("당신은 마피아입니다.");
         isMafia = true;
-        _model.attackPower *= 2.5f;
+        _model.SetMafia();
         _hud.ChangeRoleImage();
+
+        // 마피아 텔레포터 버튼 활성화
+        var mafiaTeleporter = FindFirstObjectByType<MafiaTeleporter>();
+        if (mafiaTeleporter != null)
+            mafiaTeleporter.SetButtonsActive(true);
+
+        // 사보타지 버튼 활성화
+        var sabotageManager = FindFirstObjectByType<SabotageManager>();
+        if (sabotageManager != null)
+            sabotageManager.EnableMafiaButtons();
     }
 
     [PunRPC]
@@ -409,10 +422,47 @@ public class PlayerController : MonoBehaviourPun
         model.ExecuteByVote();
     }
 
+    public void TeleportRequest(Vector3 pos)
+    {
+        if (!photonView.IsMine) return;
+
+        pos.y += 1.5f;
+
+        // 로컬 즉시 적용
+        StartCoroutine(TeleportCoroutine(pos));
+
+        // 원격은 스냅 처리만
+        photonView.RPC(nameof(RpcTeleportPlayer), RpcTarget.Others, pos);
+    }
+
     [PunRPC]
     public void RpcTeleportPlayer(Vector3 pos)
     {
-        pos.y += 1.5f;
-        transform.position = pos;
+        // 원격도 TransformView 보간을 잠깐 끊고 스냅
+        StartCoroutine(TeleportCoroutine(pos));
+    }
+
+    private IEnumerator TeleportCoroutine(Vector3 pos)
+    {
+        if (_transformView != null) _transformView.enabled = false;
+
+        // Rigidbody/Agent/CC를 쓰면 여기서 같이 정리
+        var rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.position = pos;
+        }
+        else
+        {
+            transform.position = pos;
+        }
+
+        // 최소 1~2프레임 대기: TransformView 내부 보간/캐시가 한 번 갱신될 시간을 줌
+        yield return null;
+        yield return null;
+
+        if (_transformView != null) _transformView.enabled = true;
     }
 }

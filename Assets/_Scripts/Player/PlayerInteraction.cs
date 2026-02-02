@@ -10,6 +10,7 @@ public class PlayerInteraction : MonoBehaviour
     private GameObject _interactionBtn;
     private Camera _camera;
     private InteractionObject _curInteractable;
+    public InteractionObject CurrentInteractable => _curInteractable;
     private InteractionObjectRpcManager _rpcManager;
 
     private float _raycastInterval = 0.2f;
@@ -75,6 +76,7 @@ public class PlayerInteraction : MonoBehaviour
             }
         }
         IsInteractable = false;
+        _curInteractable = null;
     }
     // 오브젝트와 상호작용
     public void InteractObj()

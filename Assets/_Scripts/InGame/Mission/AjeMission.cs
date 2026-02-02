@@ -50,6 +50,10 @@ public class AjeMission : MissionBase
         ("한남에 자가 있는 가수는?", "김종국"),
         ("치아가 잘 보이는 사람은?", "이보영"),
         ("씨엘의 엉덩이를 영어로?", "class"),
+        ("사자가 빈 병 줍기 알바를 하면?", "라이언 일병 구하기"),
+        ("헬창이 물을 마시면?", "벌크업벌크업"),
+        ("돼지 4마리가 말하면?", "포세이돈"),
+        ("생선이 이빨이 없는 이유는?", "어이가없네"),
     };
     
     private static WaitForSeconds _waitForSeconds2 = new(2f);
@@ -77,7 +81,7 @@ public class AjeMission : MissionBase
 
     public void OnClickSubmit()
     {
-        if (_answerInput.text != _curAnswer)
+        if (_answerInput.text.Replace(" ", "") != _curAnswer)
         {
             _resultText.text = $"오답입니다ㅋ 정답은 {_curAnswer} 깔깔깔";
             StartCoroutine(DelayedClose());

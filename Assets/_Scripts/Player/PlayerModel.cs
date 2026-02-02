@@ -47,6 +47,7 @@ public class PlayerModel : MonoBehaviour
 
     private bool _isDead = false;
     public bool IsDead => _isDead;
+    public bool isMafia = false;
 
     public readonly string animNameOfMove = "MoveValue";
     public readonly string animNameOfRun = "Running";
@@ -295,5 +296,12 @@ public class PlayerModel : MonoBehaviour
             raycastHit = hit;
             return false;
         }
+    }
+
+    public void SetMafia()
+    {
+        isMafia = true;
+        _maxHealthPoint += 40f;
+        _curHealthPoint += 40f;
     }
 }

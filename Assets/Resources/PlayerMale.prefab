@@ -1402,6 +1402,7 @@ MonoBehaviour:
   runSpeed: 0
   crouchSpeed: 0
   _staminaRecoverPerSec: 20
+  isMafia: 0
 --- !u!114 &7816228282713603067
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1681,9 +1682,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerFootstepSfx
   _walkClips:
-  - {fileID: 8300000, guid: 32f0021c02e88ee48a5e16ea1962e6c8, type: 3}
+  - {fileID: 8300000, guid: b6b539cae5a5c5142b819bbee83f6c8d, type: 3}
+  - {fileID: 8300000, guid: 05a6d175c74b2cc4e9579a4ca5d0cad6, type: 3}
+  - {fileID: 8300000, guid: 40532fb7a43705649bf4a1d6ae78e98e, type: 3}
   _runClips:
-  - {fileID: 8300000, guid: 32f0021c02e88ee48a5e16ea1962e6c8, type: 3}
+  - {fileID: 8300000, guid: 05a6d175c74b2cc4e9579a4ca5d0cad6, type: 3}
+  - {fileID: 8300000, guid: 40532fb7a43705649bf4a1d6ae78e98e, type: 3}
+  - {fileID: 8300000, guid: 7832b72493532de4baf04f7911d7fefa, type: 3}
   _walkInterval: 0.5
   _runInterval: 0.32
   _sfxGroup: {fileID: 6842179151334961839, guid: 661a132940d2f6a4cb95dd8211a0d82c, type: 2}
