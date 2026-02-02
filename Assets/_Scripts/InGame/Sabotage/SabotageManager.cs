@@ -50,13 +50,6 @@ public class SabotageManager : MonoBehaviour
     {
         if (_pv == null) _pv = GetComponent<PhotonView>();
         SetCountdownUI(false);
-
-    }
-
-    void Start()
-    {
-        if (_sabotageButton != null)
-            _sabotageButton.SetButtonsActive(false);        
     }
 
     // 마피아 전용 버튼 활성화 (PlayerController.IsMafia에서 호출)
@@ -276,7 +269,7 @@ public class SabotageManager : MonoBehaviour
         if(StatusNoticeUI.Instance != null)
         {
             if (id == SabotageId.Engine)
-                StatusNoticeUI.Instance.ShowMessage("사보타지 발생!", "엔진실을 수리하세요!");
+                StatusNoticeUI.Instance.ShowMessage("엔진실 고장 발생!", "두 명이 좌우의 엔진을 동시에 수리해야합니다.");
             else
                 StatusNoticeUI.Instance.ShowMessage("사보타지 발생!", id.ToString());
         }

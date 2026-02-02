@@ -1,13 +1,16 @@
 ﻿using Photon.Pun;
 using UnityEngine;
 using System.Collections;
-using ExitGames.Client.Photon; 
+using UnityEngine.UI;
 
 public class GlobalDoorLockController : MonoBehaviour
 {
     [Header("Settings")]
     [SerializeField] private CustomPropertyManager _roomProps;
     [SerializeField] private float lockDuration = 10f;
+
+    [Header("UI")]
+    [SerializeField] private Button _doorLockButton;
 
     private const string LOCK_KEY = "world.door.locked";
 
@@ -17,6 +20,9 @@ public class GlobalDoorLockController : MonoBehaviour
     {
         if (_roomProps == null)
             _roomProps = FindFirstObjectByType<CustomPropertyManager>();
+
+        EnsureDoorLockButton();
+        SetDoorLockButtonActive(false);
     }
 
     private void Start()
@@ -33,6 +39,14 @@ public class GlobalDoorLockController : MonoBehaviour
     {
         if (_roomProps != null)
             _roomProps.OnRoomPropertyChanged -= OnRoomPropertyChanged;
+    }
+
+    // 마피아 여부에 따라 버튼 활성화 (PlayerController.IsMafia에서 호출)
+    public void SetDoorLockButtonActive(bool active)
+    {
+        EnsureDoorLockButton();
+        if (_doorLockButton != null)
+            _doorLockButton.gameObject.SetActive(active);
     }
 
     public void CloseAndLockAllDoors()
@@ -84,5 +98,27 @@ public class GlobalDoorLockController : MonoBehaviour
 
         Debug.Log("[GlobalDoorLock] 잠금 시간 만료 및 프로퍼티 갱신");
         _unlockTimerCoroutine = null;
+    }
+
+    private void EnsureDoorLockButton()
+    {
+        if (_doorLockButton != null) return;
+
+        // 비활성 오브젝트까지 찾기 위해 Resources API 사용
+        var buttons = Resources.FindObjectsOfTypeAll<Button>();
+        foreach (var button in buttons)
+        {
+            if (button == null) continue;
+            var scene = button.gameObject.scene;
+            if (!scene.IsValid() || !scene.isLoaded) continue;
+            if (button.gameObject.name == "Doorbtn")
+            {
+                _doorLockButton = button;
+                break;
+            }
+        }
+
+        if (_doorLockButton == null)
+            Debug.LogWarning("[GlobalDoorLock] Doorbtn 버튼 참조를 찾지 못했습니다.");
     }
 }

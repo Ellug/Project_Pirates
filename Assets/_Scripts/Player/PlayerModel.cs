@@ -282,6 +282,11 @@ public class PlayerModel : MonoBehaviour
         OnInteractionChanged?.Invoke(0f, goalTime);
     }
 
+    public void SetInteractionProgress(float cur, float max)
+    {
+        OnInteractionChanged?.Invoke(cur, max);
+    }
+
     // 다른 플레이어와 상호작용을 위해 자신의 앞을 판정한다.
     // 반환은 다른 플레이어가 감지되면 true 아니면 false, 기타 out으로 필요한 정보 할당.
     public bool OtherPlayerInteraction(out Vector3 direction, out RaycastHit raycastHit, float range = 1.5f)

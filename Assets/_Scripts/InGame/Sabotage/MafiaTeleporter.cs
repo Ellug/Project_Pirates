@@ -73,6 +73,7 @@ public class MafiaTeleporter : MonoBehaviour
         }
 
         var playerController = PlayerController.LocalInstancePlayer.GetComponent<PlayerController>();
+        if (playerController.Model.IsDead) return;
 
         // RPC로 모든 클라이언트에 위치 동기화 (PhotonTransformView 덮어쓰기 이슈 방지)
         playerController.photonView.RPC("RpcTeleportPlayer", RpcTarget.All, destination.position);

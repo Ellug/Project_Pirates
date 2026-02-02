@@ -68,6 +68,7 @@ public class EngineSabotageConsole : InteractionObject
         _engineManager.ReportHoldState(_consoleIndex, actorNumber, true);
 
         var interval = new WaitForSeconds(_holdCheckInterval);
+        var model = player != null ? player.GetComponentInParent<PlayerModel>() : null;
 
         while (true)
         {
@@ -92,12 +93,20 @@ public class EngineSabotageConsole : InteractionObject
                 break;
             }
 
+            if (model != null && _engineManager != null)
+            {
+                float progress = _engineManager.IsSimultaneousHold ? _engineManager.SimultaneousHoldProgress : 0f;
+                model.SetInteractionProgress(progress, 1f);
+            }
+
             yield return interval;
         }
 
         // 홀드 종료 보고
         Debug.Log($"[EngineSabotage] Console{_consoleIndex}: 홀드 종료 - Actor{actorNumber}");
         _engineManager.ReportHoldState(_consoleIndex, actorNumber, false);
+        if (model != null)
+            model.SetInteractionProgress(0f, 1f);
         _currentHoldingActor = -1;
         _isHolding = false;
         _holdCoroutine = null;

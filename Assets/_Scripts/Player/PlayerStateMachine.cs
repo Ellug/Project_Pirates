@@ -263,6 +263,7 @@ public class AttackState : IPlayerState
 public class DeathState : IPlayerState
 {
     PlayerController _player;
+    private static readonly Vector3 DeathPosition = new(-300f, 22f, 0f);
 
     public DeathState(PlayerController player)
     {
@@ -272,7 +273,7 @@ public class DeathState : IPlayerState
     public void Enter()
     {
         Debug.Log("사망 상태 진입");
-        _player.transform.position = new Vector3(-300f, 22f, 0f);
+        _player.TeleportRequest(DeathPosition);
         _player.StateMachine.ChangeState(_player.StateIdle);
     }
 
