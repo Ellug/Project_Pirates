@@ -205,7 +205,7 @@ public class PlayerModel : MonoBehaviour
         switch (job)
         {
             case JobId.None: MyJob = null; break;
-            case JobId.Sprinter: MyJob = new DeliveryJob(); break;
+            case JobId.Delivery: MyJob = new DeliveryJob(); break;
         }
         MyJob?.Initialize(this);
     }
