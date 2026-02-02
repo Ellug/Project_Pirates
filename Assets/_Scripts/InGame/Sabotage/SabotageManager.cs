@@ -269,7 +269,7 @@ public class SabotageManager : MonoBehaviour
         if(StatusNoticeUI.Instance != null)
         {
             if (id == SabotageId.Engine)
-                StatusNoticeUI.Instance.ShowMessage("사보타지 발생!", "엔진실을 수리하세요!");
+                StatusNoticeUI.Instance.ShowMessage("엔진실 고장 발생!", "두 명이 좌우의 엔진을 동시에 수리해야합니다.");
             else
                 StatusNoticeUI.Instance.ShowMessage("사보타지 발생!", id.ToString());
         }
