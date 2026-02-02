@@ -112,11 +112,11 @@ MonoBehaviour:
         hasOnlyBiggerBricks: 0
     - position: {x: -3, y: 0, z: 0}
       index: 25
-      probeCount: 35840
+      probeCount: 35776
       minSubdiv: 0
       indexChunkCount: 91
       shChunkCount: 5
-      bricksCount: 560
+      bricksCount: 559
       indirectionEntryInfo:
       - positionInBricks: {x: -81, y: 0, z: 0}
         minSubdiv: 0
@@ -312,7 +312,7 @@ MonoBehaviour:
     - LightOn
     - LightOff
     m_Values:
-    - sceneHash: -2130089157
+    - sceneHash: 921079003
       cellDataAsset:
         m_AssetGUID: 8424b81d497cb4349a60835a67db4b1d
         m_StreamableAssetPath: APVStreamingAssets\e0d15fd70ec223c449c3d8ee70a62e06\8424b81d497cb4349a60835a67db4b1d.bytes
@@ -433,7 +433,7 @@ MonoBehaviour:
           - offset: 1343488
             elementCount: 1
         m_Asset: {fileID: 4900000, guid: 3e892c5d8bfcda649976b88d7403b52f, type: 3}
-    - sceneHash: -2130089157
+    - sceneHash: 921079003
       cellDataAsset:
         m_AssetGUID: 142624a35830c0e4692b99fe3f42be14
         m_StreamableAssetPath: APVStreamingAssets\e0d15fd70ec223c449c3d8ee70a62e06\142624a35830c0e4692b99fe3f42be14.bytes
@@ -572,26 +572,26 @@ MonoBehaviour:
       - offset: 1920
         elementCount: 561
       - offset: 10896
-        elementCount: 560
-      - offset: 19856
+        elementCount: 559
+      - offset: 19840
         elementCount: 41
-      - offset: 20512
+      - offset: 20496
         elementCount: 19
-      - offset: 20816
+      - offset: 20800
         elementCount: 656
-      - offset: 31312
+      - offset: 31296
         elementCount: 671
-      - offset: 42048
+      - offset: 42032
         elementCount: 8
-      - offset: 42176
+      - offset: 42160
         elementCount: 18
-      - offset: 42464
+      - offset: 42448
         elementCount: 575
-      - offset: 51664
+      - offset: 51648
         elementCount: 573
-      - offset: 60832
+      - offset: 60816
         elementCount: 73
-      - offset: 62000
+      - offset: 61984
         elementCount: 73
     m_Asset: {fileID: 4900000, guid: f12dce84314f70841816f82bb7472d17, type: 3}
   cellSupportDataAsset:
