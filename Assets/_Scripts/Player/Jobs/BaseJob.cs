@@ -2,7 +2,17 @@
 // 직업 무작위 배정 및 new 할당 Switch문으로 사용
 public enum JobId
 {
-    None, Doctor, Delivery, End
+    None, 
+    Delivery,
+    SportMan,
+    FireFighter,
+    Reporter,
+    Police,
+    Wrestling,
+    Thief,
+    Citizen,
+
+    End
 }
 
 public abstract class BaseJob

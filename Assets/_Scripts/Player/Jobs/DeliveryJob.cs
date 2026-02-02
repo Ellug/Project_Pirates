@@ -5,9 +5,10 @@ public class DeliveryJob : BaseJob
 {
     public override void Initialize(PlayerModel model)
     {
-        _isActive = false;
         base.Initialize(model);
+
         name = "배달기사";
-        model.baseSpeed *= 1.15f;
+        jobInformation = "이동속도가 20% 빠릅니다.";
+        model.ApplyBaseSpeedMultiplier(1.2f);
     }
 }
