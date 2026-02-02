@@ -21,6 +21,10 @@ public class EngineSabotageManager : MonoBehaviour
     private void Awake()
     {
         if (_pv == null) _pv = GetComponent<PhotonView>();
+        if (_pv == null)
+        {
+            Debug.LogError("[EngineSabotageManager] PhotonView가 없습니다! 이 오브젝트에 PhotonView를 추가하세요.");
+        }
     }
 
     private void Update()
