@@ -52,6 +52,8 @@ public class PlayerController : MonoBehaviourPun
     public bool InputAttack { get; private set; }
     public JobId PlayerJob { get; private set; }
 
+    public PlayerModel Model => _model;
+
     private void Awake()
     {
         _view = GetComponent<PhotonView>();
@@ -376,20 +378,28 @@ public class PlayerController : MonoBehaviourPun
     [PunRPC]
     public void IsMafia()
     {
-        Debug.Log("당신은 마피아입니다.");
+        Debug.Log("[IsMafia] 당신은 마피아입니다.");
         isMafia = true;
         _model.SetMafia();
         _hud.ChangeRoleImage();
 
         // 마피아 텔레포터 버튼 활성화
         var mafiaTeleporter = FindFirstObjectByType<MafiaTeleporter>();
+        Debug.Log($"[IsMafia] MafiaTeleporter 찾음: {mafiaTeleporter != null}");
         if (mafiaTeleporter != null)
             mafiaTeleporter.SetButtonsActive(true);
 
         // 사보타지 버튼 활성화
         var sabotageManager = FindFirstObjectByType<SabotageManager>();
+        Debug.Log($"[IsMafia] SabotageManager 찾음: {sabotageManager != null}");
         if (sabotageManager != null)
             sabotageManager.EnableMafiaButtons();
+
+        // Door Lock 버튼 활성화
+        var doorLockController = FindFirstObjectByType<GlobalDoorLockController>();
+        Debug.Log($"[IsMafia] GlobalDoorLockController 찾음: {doorLockController != null}");
+        if (doorLockController != null)
+            doorLockController.SetDoorLockButtonActive(true);
     }
 
     [PunRPC]

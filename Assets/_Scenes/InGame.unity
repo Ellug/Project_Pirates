@@ -21006,7 +21006,7 @@ MonoBehaviour:
   _countdownText: {fileID: 779773036}
   _pv: {fileID: 1426808067}
   _blackoutBinder: {fileID: 847436566}
-  _sabotageButton: {fileID: 0}
+  _sabotageButton: {fileID: 1426808070}
 --- !u!4 &1426808069
 Transform:
   m_ObjectHideFlags: 0
@@ -21053,6 +21053,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GlobalDoorLockController
   _roomProps: {fileID: 0}
   lockDuration: 10
+  _doorLockButton: {fileID: 0}
 --- !u!114 &1426808072
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34270,7 +34271,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EngineSabotageConsole
   uniqueID: 20
   _interactionDistance: 4
-  _addInteractionDuration: 3
+  _addInteractionDuration: 0
   _sabotageManager: {fileID: 1426808068}
   _engineManager: {fileID: 1426808072}
   _consoleIndex: 0
@@ -34289,10 +34290,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EngineSabotageConsole
   uniqueID: 19
   _interactionDistance: 4
-  _addInteractionDuration: 3
+  _addInteractionDuration: 0
   _sabotageManager: {fileID: 1426808068}
   _engineManager: {fileID: 1426808072}
-  _consoleIndex: 0
+  _consoleIndex: 1
   _holdCheckInterval: 0.1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
