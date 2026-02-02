@@ -33,21 +33,23 @@ public class PlayerStateMachine
 public class IdleState : IPlayerState
 {
     PlayerController _player;
-    PlayerModel _model;
+    PlayerModel _model => _player.Model;
 
     public IdleState(PlayerController player)
     {
         _player = player;
-        _model = _player.GetComponent<PlayerModel>();
     }
 
-    public void Enter() 
+    public void Enter()
     {
         Debug.Log("Idle 상태 진입");
-        _model.Animator.SetFloat(_model.animNameOfMove, 0f); 
+        if (_model != null && _model.Animator != null)
+            _model.Animator.SetFloat(_model.animNameOfMove, 0f);
     }
-    public void FrameUpdate() 
+    public void FrameUpdate()
     {
+        if (_model == null) return;
+
         if (_player.InputMove != Vector2.zero)
             _player.StateMachine.ChangeState(_player.StateMove);
         else if (_model.IsCrouching == false &&
@@ -63,13 +65,12 @@ public class IdleState : IPlayerState
 public class MoveState : IPlayerState
 {
     PlayerController _player;
-    PlayerModel _model;
+    PlayerModel _model => _player.Model;
     Rigidbody _rb;
 
     public MoveState(PlayerController player)
     {
         _player = player;
-        _model = _player.GetComponent<PlayerModel>();
         _rb = _player.GetComponent<Rigidbody>();
     }
 
@@ -142,12 +143,11 @@ public class MoveState : IPlayerState
 public class CrouchState : IPlayerState
 {
     PlayerController _player;
-    PlayerModel _model;
+    PlayerModel _model => _player.Model;
 
     public CrouchState(PlayerController player)
     {
         _player = player;
-        _model = _player.GetComponent<PlayerModel>();
     }
 
     public void Enter()
@@ -175,13 +175,12 @@ public class CrouchState : IPlayerState
 public class AttackState : IPlayerState
 {
     PlayerController _player;
-    PlayerModel _model;
+    PlayerModel _model => _player.Model;
     bool _isAttack;
 
     public AttackState(PlayerController player)
     {
         _player = player;
-        _model = _player.GetComponent<PlayerModel>();
     }
 
     public void Enter() 
