@@ -10277,7 +10277,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uBBF8\uC158 \uC124\uBA85"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 5c4af6dbc7465fb41832e4c45a34b7af, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 4e86bdcf4d842a948868f99c1d0e47e3, type: 2}
   m_sharedMaterial: {fileID: 4390443915789521762, guid: 5c4af6dbc7465fb41832e4c45a34b7af, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -10343,7 +10343,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &737486624
@@ -11211,6 +11211,10 @@ PrefabInstance:
       propertyPath: _cctvCanvas
       value: 
       objectReference: {fileID: 245323573}
+    - target: {fileID: 3346630355216540922, guid: b4b4209d6b5c57f4a936cb160072a32a, type: 3}
+      propertyPath: _interactionDistance
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8146935510619999509, guid: b4b4209d6b5c57f4a936cb160072a32a, type: 3}
       propertyPath: m_LocalPosition.x
       value: -104.93836
