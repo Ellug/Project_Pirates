@@ -19949,6 +19949,7 @@ GameObject:
   - component: {fileID: 1426808067}
   - component: {fileID: 1426808070}
   - component: {fileID: 1426808071}
+  - component: {fileID: 1426808072}
   m_Layer: 0
   m_Name: SabotageManager
   m_TagString: Untagged
@@ -20042,6 +20043,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GlobalDoorLockController
   _roomProps: {fileID: 0}
   lockDuration: 10
+--- !u!114 &1426808072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1426808066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f69e31a82b85454eb24bf98055c5007, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EngineSabotageManager
+  _sabotageManager: {fileID: 1426808068}
+  _pv: {fileID: 1350306163}
+  _simultaneousHoldTime: 2
 --- !u!1 &1426918928
 GameObject:
   m_ObjectHideFlags: 0
@@ -32828,8 +32844,60 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3551332109351631325, guid: a8830789c786bd0438b54b59386657f2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5204335789661844919}
+    - targetCorrespondingSourceObject: {fileID: 5206583095860342930, guid: a8830789c786bd0438b54b59386657f2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5204335789661844918}
   m_SourcePrefab: {fileID: 100100000, guid: a8830789c786bd0438b54b59386657f2, type: 3}
+--- !u!1 &5204335789661844916 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5206583095860342930, guid: a8830789c786bd0438b54b59386657f2, type: 3}
+  m_PrefabInstance: {fileID: 5204335789661844915}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5204335789661844917 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3551332109351631325, guid: a8830789c786bd0438b54b59386657f2, type: 3}
+  m_PrefabInstance: {fileID: 5204335789661844915}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5204335789661844918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5204335789661844916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ebd7bb7b1a3e954d96159e93818ee22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EngineSabotageConsole
+  uniqueID: -1780666
+  _interactionDistance: 4
+  _sabotageManager: {fileID: 1426808068}
+  _engineManager: {fileID: 1426808072}
+  _consoleIndex: 0
+  _holdCheckInterval: 0.1
+--- !u!114 &5204335789661844919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5204335789661844917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ebd7bb7b1a3e954d96159e93818ee22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EngineSabotageConsole
+  uniqueID: -1780182
+  _interactionDistance: 4
+  _sabotageManager: {fileID: 1426808068}
+  _engineManager: {fileID: 1426808072}
+  _consoleIndex: 0
+  _holdCheckInterval: 0.1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
