@@ -22,7 +22,7 @@ public sealed class HazardObject : MonoBehaviour
         if (((1 << other.gameObject.layer) & _targetLayers.value) == 0) return;
 
         var player = other.GetComponentInParent<PlayerModel>();
-        if (player == null) return;
+        if (player == null || player.isMafia) return;
 
         int id = player.transform.root.GetInstanceID();
         if (!_hitWhileOverlapping.Add(id)) return; // 이미 이번 겹침에서 맞았음
