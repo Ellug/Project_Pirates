@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-// 최대 스테미너 20% 증가
+﻿// 최대 스테미너 20% 증가
 public class SportManJob : BaseJob
 {
     public override void Initialize(PlayerModel model)

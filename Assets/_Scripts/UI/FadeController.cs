@@ -51,7 +51,7 @@ public class FadeController : MonoBehaviour
         if (jopType != null)
             jobName = jopType.name;
         else
-            jobName = "무직";
+            jobName = "회사원";
 
         _subText.text = $"당신의 직업은 {jobName} 입니다.";//뒤에 jopType.infomation 등을 통해 내용도 출력하면 좋을듯?
 

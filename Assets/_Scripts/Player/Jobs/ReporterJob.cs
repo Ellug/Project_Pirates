@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-// 신고 시간 감소
+﻿// 신고 시간 감소
 public class ReporterJob : BaseJob
 {
     public override float ReportTime => 0.2f;

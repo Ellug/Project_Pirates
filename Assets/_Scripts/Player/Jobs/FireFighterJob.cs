@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-// 최대 체력 20% 증가
+﻿// 최대 체력 20% 증가
 public class FireFighterJob : BaseJob
 {
     public override void Initialize(PlayerModel model)

@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-// 공격력 20% 증가
+﻿// 공격력 50% 증가
 public class PoliceJob : BaseJob
 {
     public override void Initialize(PlayerModel model)

@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System;
 using UnityEngine;
-using Unity.VisualScripting;
 
 public class PlayerModel : MonoBehaviour
 {
@@ -33,7 +32,11 @@ public class PlayerModel : MonoBehaviour
     public float SprintStaminaDrainPerSec => _sprintStaminaDrainPerSec;
 
     [SerializeField] private float _staminaRecoverPerSec = 20f; // 회복
-    public float StaminaRecoverPerSec => _staminaRecoverPerSec;
+    public float StaminaRecoverPerSec 
+    {
+        get { return _staminaRecoverPerSec; } 
+        set { _staminaRecoverPerSec = value; } 
+    }
 
     private float _staminaReenableToRun = 25f;
     private bool _isSprintLock;
