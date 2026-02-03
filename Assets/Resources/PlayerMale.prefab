@@ -1572,7 +1572,7 @@ AudioSource:
   MinDistance: 1
   MaxDistance: 25
   Pan2D: 0
-  rolloffMode: 2
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -1746,6 +1746,10 @@ MonoBehaviour:
   horizontalFOVOffset: 40
   checkInterval: 0.1
   offDelay: 2
+  minHoldTime: 0.3
+  proximityHysteresis: 2
+  distanceHysteresis: 2
+  fovHysteresis: 5
   limitAdditionalLightShadows: 1
   maxShadowedLights: 12
   shadowDistance: 15
