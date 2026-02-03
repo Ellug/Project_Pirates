@@ -90,6 +90,10 @@ public class PlayerModel : MonoBehaviour
     // 체력의 회복과 감소 메서드
     public void TakeDamage(float damage)
     {
+        // 네트워크: 소유자만 체력 처리
+        var pv = GetComponent<Photon.Pun.PhotonView>();
+        if (pv != null && !pv.IsMine) return;
+
         if (_isDead) return;
 
         _curHealthPoint -= damage;
@@ -114,6 +118,10 @@ public class PlayerModel : MonoBehaviour
 
     public void ExecuteByVote()
     {
+        // 네트워크: 소유자만 처형 처리
+        var pv = GetComponent<Photon.Pun.PhotonView>();
+        if (pv != null && !pv.IsMine) return;
+
         if (_isDead) return;
 
         _curHealthPoint = 0f;

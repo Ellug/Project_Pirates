@@ -541,6 +541,8 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
             "SkipDiscussion",   // 토론 스킵
             "loaded",           // 로딩 완료 상태
             "UpperColor",       // 플레이어 색상
+            "RoleMafia",        // 역할(마피아 여부)
+            "IsDead",           // 사망 여부
         };
 
         var propsToRemove = new ExitGames.Client.Photon.Hashtable();

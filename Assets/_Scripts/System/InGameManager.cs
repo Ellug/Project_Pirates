@@ -20,6 +20,8 @@ public class InGameManager : MonoBehaviourPunCallbacks
     private PlayerController _player;
 
     private const string UPPER_COLOR_KEY = "UpperColor"; // [ADD] 상의 색상 키
+    private static WaitForSeconds _waitForSeconds0_2 = new(0.2f);
+    private static WaitForSeconds _waitForSeconds3 = new(3f);
 
     public override void OnEnable()
     {
@@ -48,7 +50,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
     {
         yield return new WaitUntil(() => PhotonNetwork.InRoom);
 
-        yield return new WaitForSeconds(3f);
+        yield return _waitForSeconds3;
 
         int maxPlayerCount = PhotonNetwork.CurrentRoom.MaxPlayers;
         int myPlayerNum = PhotonNetwork.LocalPlayer.ActorNumber;
@@ -71,7 +73,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
 
         yield return new WaitUntil(() => myPV.ViewID > 0);
 
-        yield return new WaitForSeconds(0.2f);
+        yield return _waitForSeconds0_2;
 
         yield return StartCoroutine(
             _createVoice.CreateVoicePV(myPV, PlayerController.LocalInstancePlayer.transform));

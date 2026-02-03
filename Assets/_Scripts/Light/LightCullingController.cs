@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Photon.Pun;
 
 public class LightCullingController : MonoBehaviour
 {
@@ -18,6 +19,16 @@ public class LightCullingController : MonoBehaviour
     [Tooltip("범위 밖으로 나간 후 불이 꺼질 때까지의 대기 시간")]
     public float offDelay = 2.0f;
 
+    [Header("Stabilization (Flicker Fix)")]
+    [Tooltip("offDelay보다 작은 값이면 무시됩니다. (최소 유지 시간)")]
+    public float minHoldTime = 0.3f;
+    [Tooltip("켜진 상태에서만 추가로 늘려주는 근접 반경")]
+    public float proximityHysteresis = 2.0f;
+    [Tooltip("켜진 상태에서만 추가로 늘려주는 거리 범위")]
+    public float distanceHysteresis = 2.0f;
+    [Tooltip("켜진 상태에서만 추가로 늘려주는 FOV 여유값")]
+    public float fovHysteresis = 5.0f;
+
     [Header("Shadow Culling")]
     public bool limitAdditionalLightShadows = true;
     public int maxShadowedLights = 12;
@@ -33,6 +44,7 @@ public class LightCullingController : MonoBehaviour
     private Dictionary<ProximityLight, Renderer> _lightRendererMap = new Dictionary<ProximityLight, Renderer>(64);
     private Dictionary<ProximityLight, float> _lightExpireTimers = new Dictionary<ProximityLight, float>(64);
     private readonly List<ShadowCandidate> _shadowCandidates = new List<ShadowCandidate>(128);
+    private float _lastUpdateTime;
 
     private struct ShadowCandidate
     {
@@ -47,6 +59,14 @@ public class LightCullingController : MonoBehaviour
 
     void Awake()
     {
+        // 플레이어 프리팹에 붙어있다면 로컬 플레이어만 실행
+        var pv = GetComponentInParent<PhotonView>();
+        if (pv != null && !pv.IsMine)
+        {
+            enabled = false;
+            return;
+        }
+
         allLights.AddRange(FindObjectsByType<ProximityLight>(FindObjectsSortMode.None));
 
         foreach (var light in allLights)
@@ -66,6 +86,7 @@ public class LightCullingController : MonoBehaviour
 
     void Start()
     {
+        _lastUpdateTime = Time.time;
         StartCoroutine(LightCullingLoop());
     }
 
@@ -82,14 +103,19 @@ public class LightCullingController : MonoBehaviour
     private void UpdateCulling()
     {
         // 플레이어 참조가 없으면 찾기 시도
-        if (_playerCamera == null || playerHead == null)
+        if (_playerCamera == null || !_playerCamera.isActiveAndEnabled || playerHead == null)
         {
             TryFindPlayer();
             if (_playerCamera == null || playerHead == null) return;
         }
 
+        float now = Time.time;
+        float delta = Mathf.Max(0f, now - _lastUpdateTime);
+        _lastUpdateTime = now;
+
+        float holdTime = Mathf.Max(offDelay, minHoldTime);
+
         GeometryUtility.CalculateFrustumPlanes(_playerCamera, _frustumPlanes);
-        float proximityRadiusSqr = proximityRadius * proximityRadius;
         float shadowDistanceSqr = shadowDistance * shadowDistance;
 
         if (limitAdditionalLightShadows)
@@ -99,14 +125,23 @@ public class LightCullingController : MonoBehaviour
         {
             if (light == null) continue;
 
+            bool currentlyOn = _lightExpireTimers.TryGetValue(light, out float remain) && remain > 0f;
+
+            float extraDist = currentlyOn ? Mathf.Max(0f, distanceHysteresis) : 0f;
+            float extraFov = currentlyOn ? Mathf.Max(0f, fovHysteresis) : 0f;
+            float extraProx = currentlyOn ? Mathf.Max(0f, proximityHysteresis) : 0f;
+
+            float maxDist = maxCameraDistance + extraDist;
+            float minDist = Mathf.Max(0f, minCameraDistance - extraDist);
+
             // 1. 카메라 시야/거리 체크
             float distance = Vector3.Distance(light.transform.position, _playerCamera.transform.position);
-            bool inDistance = distance >= minCameraDistance && distance <= maxCameraDistance;
+            bool inDistance = distance >= minDist && distance <= maxDist;
 
             Vector3 dirToLight = (light.transform.position - _playerCamera.transform.position).normalized;
             float angle = Vector3.Angle(_playerCamera.transform.forward, dirToLight);
             float cameraFOVHorizontal = CameraVerticalToHorizontalFOV(_playerCamera.fieldOfView, _playerCamera.aspect);
-            bool inHorizontalFOV = angle <= (cameraFOVHorizontal * 0.5f + horizontalFOVOffset);
+            bool inHorizontalFOV = angle <= (cameraFOVHorizontal * 0.5f + horizontalFOVOffset + extraFov);
 
             Renderer rend = null;
             _lightRendererMap.TryGetValue(light, out rend);
@@ -116,6 +151,7 @@ public class LightCullingController : MonoBehaviour
 
             // 2. 플레이어 근접 체크
             bool isProximityDetected;
+            float proximityRadiusSqr = (proximityRadius + extraProx) * (proximityRadius + extraProx);
             if (rend != null)
             {
                 float sqr = rend.bounds.SqrDistance(playerHead.position);
@@ -129,13 +165,13 @@ public class LightCullingController : MonoBehaviour
             // 3. 타이머 로직 적용
             if (isViewDetected || isProximityDetected)
             {
-                _lightExpireTimers[light] = offDelay;
+                _lightExpireTimers[light] = holdTime;
             }
             else
             {
                 // 범위 밖이라면 체크 간격만큼 시간 차감
                 if (_lightExpireTimers[light] > 0)
-                    _lightExpireTimers[light] -= checkInterval;
+                    _lightExpireTimers[light] = Mathf.Max(0f, _lightExpireTimers[light] - delta);
             }
 
             // 타이머가 0보다 크면 켜진 상태 유지
@@ -206,3 +242,6 @@ public class LightCullingController : MonoBehaviour
     }
 #endif
 }
+
+
+

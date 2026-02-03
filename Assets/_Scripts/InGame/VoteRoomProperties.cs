@@ -390,4 +390,29 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
         if (GetActorNumbersFromProperty() == null)
             InitializePlayerList();
     }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (!PhotonNetwork.InRoom || PhotonNetwork.CurrentRoom == null) return;
+
+        // 나간 플레이어를 리스트에서 제거
+        if (otherPlayer != null)
+            _deadPlayers.Remove(otherPlayer.ActorNumber);
+
+        int[] actorNumbers = new int[PhotonNetwork.CurrentRoom.PlayerCount];
+        int index = 0;
+        foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
+        {
+            actorNumbers[index++] = player.ActorNumber;
+        }
+
+        var props = new Hashtable
+        {
+            { KEY_PLAYER_LIST, actorNumbers },
+            { KEY_DEAD_PLAYERS, _deadPlayers.Count == 0 ? new int[0] : new List<int>(_deadPlayers).ToArray() }
+        };
+
+        PhotonNetwork.CurrentRoom.SetCustomProperties(props);
+    }
 }

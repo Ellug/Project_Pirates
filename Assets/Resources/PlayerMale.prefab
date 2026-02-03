@@ -1745,6 +1745,10 @@ MonoBehaviour:
   maxCameraDistance: 40
   horizontalFOVOffset: 40
   checkInterval: 0.1
+  offDelay: 2
+  limitAdditionalLightShadows: 1
+  maxShadowedLights: 12
+  shadowDistance: 15
   showProximityGizmo: 1
   gizmoColor: {r: 1, g: 0.5, b: 0.1, a: 0.7}
 --- !u!1 &3737917190972728268

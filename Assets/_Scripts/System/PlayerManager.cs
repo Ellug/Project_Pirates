@@ -1,4 +1,6 @@
 ﻿using Photon.Pun;
+using Photon.Realtime;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,6 +24,8 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
     private const string SCENE_INGAMELOADING = "InGameLoading";
     private const string LOADED_KEY = "OnLoaded";
+    private const string ROLE_MAFIA_KEY = "RoleMafia";
+    private const string DEAD_KEY = "IsDead";
 
     void Awake()
     {
@@ -133,19 +137,37 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         int firstEnemy = -1;
         int secondEnemy = -1;
         firstEnemy = UnityEngine.Random.Range(0, players.Length);
-        _mafiaNum++; // 마피아 수 기억
 
         if (players.Length > 7) // 플레이어 수 7 초과면 마피아 1명 더 선정
         {
-            _mafiaNum++;
             do // 중복 선정되지 않도록 do while 문 사용
             {
                 secondEnemy = UnityEngine.Random.Range(0, players.Length);
             } while (firstEnemy == secondEnemy);
 
         }
-        // 시민 수 기억
+
+        _mafiaNum = secondEnemy != -1 ? 2 : 1;
         _citizenNum = players.Length - _mafiaNum;
+
+        // 역할/사망 상태 초기화 (안정적인 카운트용)
+        foreach (var p in players)
+        {
+            var owner = p.photonView != null ? p.photonView.Owner : null;
+            if (owner == null) continue;
+
+            var baseProps = new Hashtable
+            {
+                { ROLE_MAFIA_KEY, false },
+                { DEAD_KEY, false }
+            };
+            owner.SetCustomProperties(baseProps);
+        }
+
+        // 마피아 역할 지정 (Custom Properties)
+        SetPlayerRole(players[firstEnemy]?.photonView?.Owner, true);
+        if (secondEnemy != -1)
+            SetPlayerRole(players[secondEnemy]?.photonView?.Owner, true);
 
         // 마피아를 알림
         players[firstEnemy].photonView.RPC("IsMafia", players[firstEnemy].photonView.Owner);
@@ -315,19 +337,20 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             return;
         }
 
-        if (target.isMafia)
-            _mafiaNum--;
-        else
-            _citizenNum--;
+        var owner = target.photonView != null ? target.photonView.Owner : null;
+        if (owner != null && IsPlayerDead(owner))
+            return; // 이미 처리된 사망
 
         // VoteRoomProperties에 사망 등록 (투표 UI에 반영)
         int actorNumber = target.photonView.OwnerActorNr;
         if (VoteRoomProperties.Instance != null)
             VoteRoomProperties.Instance.MarkPlayerDead(actorNumber);
 
-        // 마피아 승리
-        if (_citizenNum <= 0)
-            NoticeGameOverToAllPlayers(false);
+        // Custom Properties에 사망 저장 (카운트 안정화)
+        if (owner != null)
+            SetPlayerDead(owner, true);
+
+        EvaluateWinConditions();
     }
 
     [PunRPC]
@@ -372,6 +395,9 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             int loaded = CountLoadedPlayers();
             StartGameInit(count, loaded);
         }
+
+        // 마스터 전환 직후 승패 체크
+        EvaluateWinConditions();
     }
 
     private void RebuildPlayerCache()
@@ -407,6 +433,93 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         return loaded;
     }
 
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        // 인게임 중 이탈자는 사망 처리로 간주
+        string scene = SceneManager.GetActiveScene().name;
+        if (scene != "InGame") return;
+
+        if (otherPlayer != null && VoteRoomProperties.Instance != null)
+            VoteRoomProperties.Instance.MarkPlayerDead(otherPlayer.ActorNumber);
+
+        EvaluateWinConditions();
+    }
+
+    private void SetPlayerRole(Player player, bool isMafia)
+    {
+        if (player == null) return;
+        var props = new Hashtable { { ROLE_MAFIA_KEY, isMafia } };
+        player.SetCustomProperties(props);
+    }
+
+    private void SetPlayerDead(Player player, bool isDead)
+    {
+        if (player == null) return;
+        var props = new Hashtable { { DEAD_KEY, isDead } };
+        player.SetCustomProperties(props);
+    }
+
+    private bool IsPlayerDead(Player player)
+    {
+        if (player == null) return false;
+        if (player.CustomProperties != null &&
+            player.CustomProperties.TryGetValue(DEAD_KEY, out var v) &&
+            v is bool b)
+            return b;
+
+        return VoteRoomProperties.Instance != null &&
+               VoteRoomProperties.Instance.IsPlayerDead(player.ActorNumber);
+    }
+
+    private bool IsPlayerMafia(Player player)
+    {
+        if (player == null) return false;
+        if (player.CustomProperties != null &&
+            player.CustomProperties.TryGetValue(ROLE_MAFIA_KEY, out var v) &&
+            v is bool b)
+            return b;
+        return false;
+    }
+
+    private void EvaluateWinConditions()
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (PhotonNetwork.CurrentRoom == null) return;
+        if (SceneManager.GetActiveScene().name != "InGame") return;
+
+        int aliveMafia = 0;
+        int aliveCitizen = 0;
+        bool hasRoleInfo = false;
+
+        var list = PhotonNetwork.PlayerList;
+        for (int i = 0; i < list.Length; i++)
+        {
+            var p = list[i];
+            if (p == null) continue;
+            if (p.CustomProperties != null && p.CustomProperties.ContainsKey(ROLE_MAFIA_KEY))
+                hasRoleInfo = true;
+            if (IsPlayerDead(p)) continue;
+
+            if (IsPlayerMafia(p))
+                aliveMafia++;
+            else
+                aliveCitizen++;
+        }
+
+        if (!hasRoleInfo)
+            return;
+
+        _mafiaNum = aliveMafia;
+        _citizenNum = aliveCitizen;
+
+        if (aliveMafia <= 0 && aliveCitizen > 0)
+            NoticeGameOverToAllPlayers(true);  // 시민 승리
+        else if (aliveCitizen <= 0 && aliveMafia > 0)
+            NoticeGameOverToAllPlayers(false); // 마피아 승리
+    }
+
     // Room 씬으로 돌아갈 때 인게임 상태 초기화
     public void ResetForRoom()
     {
@@ -430,3 +543,5 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         Debug.Log("[PlayerManager] Room 복귀를 위한 상태 초기화 완료");
     }
 }
+
+
