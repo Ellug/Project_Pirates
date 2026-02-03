@@ -262,7 +262,7 @@ public class AttackState : IPlayerState
 public class DeathState : IPlayerState
 {
     PlayerController _player;
-    private static readonly Vector3 DeathPosition = new(-300f, 22f, 0f);
+    private static readonly Vector3 DeathPosition = new(-300f, 21f, 0f);
 
     public DeathState(PlayerController player)
     {

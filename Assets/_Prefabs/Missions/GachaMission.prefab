@@ -1840,7 +1840,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GachaMission
   _missionTitle: "\uC5B4\uB514\uC11C \uBCF8\uB4EF\uD55C \uBF51\uAE30?"
   _missionDescription: "5\uC131\uC744 \uBF51\uC544\uB77C!"
-  _missionScore: 5
+  _missionScore: 14
   _gainCoinButton: {fileID: 7992541032692166119}
   _roll10Button: {fileID: 6418170978997721075}
   _coinText: {fileID: 8671843812187390156}

@@ -290,7 +290,7 @@ MonoBehaviour:
   _missionTitle: "\uD14C\uD2B8\uB9AC\uC2A4"
   _missionDescription: "\uD654\uC0B4\uD45C\uD0A4\uB85C \uC870\uC791 / Spacebar \uD558\uB4DC\uB4DC\uB78D
     / 20\uC904\uC744 \uC81C\uAC70\uD558\uBA74 \uD074\uB9AC\uC5B4."
-  _missionScore: 10
+  _missionScore: 16
   _resultText: {fileID: 175650557311751304}
   _cellRoot: {fileID: 4027855483549652890}
   _emptyCellColor: {r: 0, g: 0, b: 0, a: 0.4}

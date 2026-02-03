@@ -1189,7 +1189,7 @@ MonoBehaviour:
   _missionTitle: "\uC22B\uC790 \uC57C\uAD6C"
   _missionDescription: "\"\u25CB : \uC815\uB2F5 | \u25B3 : \uC22B\uC790\uC758 \uC704\uCE58
     \uBCC0\uACBD | X : \uC624\uB2F5\""
-  _missionScore: 15
+  _missionScore: 9
   _resultText: {fileID: 2983708297922843748}
   _roundText: {fileID: 5692182548720604356}
   _numInput:
