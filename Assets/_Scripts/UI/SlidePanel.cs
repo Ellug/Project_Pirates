@@ -62,7 +62,7 @@ public class SlidePanel : MonoBehaviour
         else
         {
             // job이 null(무직)일 때 표시될 내용
-            _jobName.text = "[무직]";
+            _jobName.text = "[회사원]";
             _jobInfo.text = "아무런 능력이 없습니다.";
         }
 
