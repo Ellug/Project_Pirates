@@ -7,7 +7,7 @@ using UnityEditor;
 #endif
 
 // 인게임에서 오브젝트들이 플레이어와 상호작용할 때 RPC를 쏴주는 클래스
-public class InteractionObjectRpcManager : MonoBehaviourPun
+public class InteractionObjectRpcManager : MonoBehaviourPunCallbacks
 {
     public static InteractionObjectRpcManager Instance { get; private set; }
 
@@ -39,11 +39,24 @@ public class InteractionObjectRpcManager : MonoBehaviourPun
 
     void Start()
     {
-        InvokeRepeating("RemoveRPCMeth", 10f, 2f);
+        // Master Client만 RPC 버퍼 정리 수행 (씬 오브젝트는 Master가 소유)
+        if (PhotonNetwork.IsMasterClient)
+            InvokeRepeating(nameof(RemoveRPCMeth), 10f, 2f);
+    }
+
+    public override void OnMasterClientSwitched(Photon.Realtime.Player newMasterClient)
+    {
+        // Master가 바뀌면 새 Master가 정리 시작
+        if (PhotonNetwork.IsMasterClient)
+        {
+            CancelInvoke(nameof(RemoveRPCMeth));
+            InvokeRepeating(nameof(RemoveRPCMeth), 10f, 2f);
+        }
     }
 
     private void RemoveRPCMeth()
     {
+        if (!PhotonNetwork.IsMasterClient) return;
         PhotonNetwork.RemoveRPCs(_view);
     }
 
