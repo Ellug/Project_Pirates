@@ -16,7 +16,7 @@ public enum SabotageId
     Light
 }
 
-public class SabotageManager : MonoBehaviour
+public class SabotageManager : MonoBehaviourPunCallbacks
 {
     [Header("State")]
     public bool IsActive => _isActive;
@@ -308,5 +308,13 @@ public class SabotageManager : MonoBehaviour
             StatusNoticeUI.Instance.ShowMessage("사보타지 실패", "시민 패배");
 
         PlayerManager.Instance.NoticeGameOverToAllPlayers(false);
+    }
+
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        if (_isActive && _countdownCor == null)
+            StartCountdownCoroutine();
     }
 }

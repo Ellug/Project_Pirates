@@ -1,8 +1,9 @@
 using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 
 // 엔진 사보타지: 2개의 콘솔을 2명이 동시에 2초간 홀드해야 해제
-public class EngineSabotageManager : MonoBehaviour
+public class EngineSabotageManager : MonoBehaviourPunCallbacks
 {
     [Header("References")]
     [SerializeField] private SabotageManager _sabotageManager;
@@ -126,5 +127,16 @@ public class EngineSabotageManager : MonoBehaviour
         _console1HoldingActor = -1;
         _console2HoldingActor = -1;
         _simultaneousStartTime = -1;
+    }
+
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        ResetHoldState();
+        _lastSentProgress = -1f;
+
+        if (_pv != null)
+            _pv.RPC(nameof(RPC_SetSimultaneousHold), RpcTarget.All, false, 0f);
     }
 }

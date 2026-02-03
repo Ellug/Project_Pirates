@@ -102,8 +102,8 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
 
         var props = new Hashtable { { KEY_VOTE_PHASE, (int)phase } };
 
-        // 투표 시작 시 모든 플레이어의 투표 데이터 초기화
-        if (phase == VotePhase.Discussion)
+        // 토론/투표 시작 시 모든 플레이어의 투표 데이터 초기화
+        if (phase == VotePhase.Discussion || phase == VotePhase.Voting)
         {
             // 모든 플레이어의 MyVote를 -1로 초기화
             foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
@@ -184,6 +184,13 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
             OnPlayerListUpdated?.Invoke(_playerInfoList);
 
             Debug.Log($"[VoteRoomProperties] {targetPlayer.NickName}이 {targetActorNumber}에게 투표함");
+
+            // 토론 스킵: 모든 생존자가 스킵(-2)하면 바로 투표 단계로 전환
+            if (_currentPhase == VotePhase.Discussion && PhotonNetwork.IsMasterClient)
+            {
+                if (AllAlivePlayersSkippedDiscussion())
+                    SetVotePhase(VotePhase.Voting);
+            }
         }
     }
 
@@ -286,6 +293,19 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
         return true;
     }
 
+    public bool AllAlivePlayersSkippedDiscussion()
+    {
+        bool hasAlive = false;
+        foreach (var info in _playerInfoList)
+        {
+            if (info.IsDead) continue;
+            hasAlive = true;
+            if (info.VotedFor != -2)
+                return false;
+        }
+        return hasAlive;
+    }
+
     // 투표 결과 계산 (가장 많은 표를 받은 플레이어)
     public VotePlayerInfo GetVoteResult()
     {
@@ -324,5 +344,15 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
 
         // 동점이거나 0표면 null 반환 (아무도 처형 안 됨)
         return isTie ? null : topVoted;
+    }
+
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (!PhotonNetwork.InRoom) return;
+
+        // 플레이어 리스트가 없으면 재초기화
+        if (GetActorNumbersFromProperty() == null)
+            InitializePlayerList();
     }
 }

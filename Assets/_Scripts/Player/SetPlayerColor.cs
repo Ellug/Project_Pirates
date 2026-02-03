@@ -62,4 +62,7 @@ public class SetPlayerColor : MonoBehaviourPunCallbacks
 
         AssignColor(newPlayer);
     }
+
+    // InGame 시작 시 마스터가 AssignColorsToAll 호출.
+    // 인게임 중 마스터 전환 시 색상 변경 금지.
 }

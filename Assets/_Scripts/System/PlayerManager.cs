@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerManager : MonoBehaviourPunCallbacks
 {
@@ -17,6 +18,10 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     private int _mafiaNum = 0;
     private int _citizenNum = 0;
     public int onLoadedPlayer = 0;
+    private Coroutine _gameInitCoroutine;
+
+    private const string SCENE_INGAMELOADING = "InGameLoading";
+    private const string LOADED_KEY = "OnLoaded";
 
     void Awake()
     {
@@ -34,12 +39,14 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     }
 
     // 게임 시작시 세팅은 마스터 클라이언트만 실행
-    public void StartGameInit(int playerNumber)
+    public void StartGameInit(int playerNumber, int initialLoaded = 0)
     {
         if (!PhotonNetwork.IsMasterClient) return;
 
-        onLoadedPlayer = 0;
-        StartCoroutine(GameInitLogic(playerNumber));
+        if (_gameInitCoroutine != null) return;
+
+        onLoadedPlayer = Mathf.Max(0, initialLoaded);
+        _gameInitCoroutine = StartCoroutine(GameInitLogic(playerNumber));
     }
 
     private IEnumerator GameInitLogic(int playerNumber)
@@ -77,6 +84,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         if (players.Length != PhotonNetwork.CurrentRoom.PlayerCount)
         {
             Debug.LogError("Can't found all players");
+            _gameInitCoroutine = null;
             yield break;
         }
 
@@ -180,6 +188,8 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
         // ============ 게임 시작을 모두에게 선언! ============
         _view.RPC(nameof(ChangeInGameScene), RpcTarget.All);
+
+        _gameInitCoroutine = null;
     }
 
     public void SetSpawnPointList(Transform[] spawnPointList)
@@ -290,18 +300,30 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     public void PlayerDeathCheck(int viewId)
     {
         // 죽은 놈을 찾아서 걔가 마피아인지 알아야하고 죽음 처리한다.
-        if (_playersId[viewId].isMafia)
+        if (!_playersId.TryGetValue(viewId, out var target))
+        {
+            var pv = PhotonView.Find(viewId);
+            if (pv != null)
+                target = pv.GetComponent<PlayerController>();
+            if (target != null)
+                _playersId[viewId] = target;
+        }
+
+        if (target == null)
+        {
+            Debug.LogWarning($"[PlayerManager] PlayerDeathCheck 실패: viewId={viewId}");
+            return;
+        }
+
+        if (target.isMafia)
             _mafiaNum--;
         else
             _citizenNum--;
 
         // VoteRoomProperties에 사망 등록 (투표 UI에 반영)
-        if (_playersId.TryGetValue(viewId, out var player))
-        {
-            int actorNumber = player.photonView.OwnerActorNr;
-            if (VoteRoomProperties.Instance != null)
-                VoteRoomProperties.Instance.MarkPlayerDead(actorNumber);
-        }
+        int actorNumber = target.photonView.OwnerActorNr;
+        if (VoteRoomProperties.Instance != null)
+            VoteRoomProperties.Instance.MarkPlayerDead(actorNumber);
 
         // 마피아 승리
         if (_citizenNum <= 0)
@@ -334,5 +356,54 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     public void GameOver()
     {
         Destroy(gameObject);
+    }
+
+    public override void OnMasterClientSwitched(Photon.Realtime.Player newMasterClient)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        RebuildPlayerCache();
+
+        // 로딩 중 마스터가 바뀌면 새 마스터가 초기화 로직을 이어서 수행
+        string scene = SceneManager.GetActiveScene().name;
+        if (scene == SCENE_INGAMELOADING)
+        {
+            int count = PhotonNetwork.CurrentRoom != null ? PhotonNetwork.CurrentRoom.PlayerCount : 0;
+            int loaded = CountLoadedPlayers();
+            StartGameInit(count, loaded);
+        }
+    }
+
+    private void RebuildPlayerCache()
+    {
+        _playersId.Clear();
+
+        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        foreach (var p in players)
+        {
+            var pv = p.GetComponent<PhotonView>();
+            if (pv == null) continue;
+            _playersId[pv.ViewID] = p;
+        }
+    }
+
+    private static int CountLoadedPlayers()
+    {
+        int loaded = 0;
+        var list = PhotonNetwork.PlayerList;
+        if (list == null) return loaded;
+
+        for (int i = 0; i < list.Length; i++)
+        {
+            var p = list[i];
+            if (p != null && p.CustomProperties != null &&
+                p.CustomProperties.TryGetValue(LOADED_KEY, out var v) &&
+                v is bool b && b)
+            {
+                loaded++;
+            }
+        }
+
+        return loaded;
     }
 }

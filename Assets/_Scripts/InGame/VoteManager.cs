@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+using Photon.Pun;
+using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -151,10 +152,20 @@ public class VoteManager : MonoBehaviourPunCallbacks
     {
         // 1. 토론 시간
         _voteProps.SetVotePhase(VotePhase.Discussion);
-        yield return new WaitForSeconds(GetDiscussionTime());
+        float discussionElapsed = 0f;
+        float discussionDuration = GetDiscussionTime();
+        while (discussionElapsed < discussionDuration)
+        {
+            if (_voteProps.CurrentPhase != VotePhase.Discussion)
+                break;
+
+            discussionElapsed += Time.deltaTime;
+            yield return null;
+        }
 
         // 2. 투표 시간
-        _voteProps.SetVotePhase(VotePhase.Voting);
+        if (_voteProps.CurrentPhase == VotePhase.Discussion)
+            _voteProps.SetVotePhase(VotePhase.Voting);
 
         float elapsed = 0f;
         float votingDuration = GetVotingTime();
@@ -308,7 +319,10 @@ public class VoteManager : MonoBehaviourPunCallbacks
     // 스킵 투표
     public void SubmitSkipVote()
     {
-        SubmitVote(-2); // -2 = 스킵
+        if (_voteProps == null) return;
+        if (_voteProps.CurrentPhase != VotePhase.Voting && _voteProps.CurrentPhase != VotePhase.Discussion) return;
+
+        _voteProps.SubmitVote(-2); // -2 = 스킵 (토론/투표 공통)
     }
 
     private void TeleportLocalPlayer()
@@ -335,9 +349,18 @@ public class VoteManager : MonoBehaviourPunCallbacks
         }
 
         Vector3 randomPos = GetRandomNonOverlappingPosition();
-        localPlayer.transform.position = randomPos;
 
-        Debug.Log($"[VoteManager] 플레이어 텔레포트 완료: {randomPos}");
+        // PlayerController의 안정적인 텔레포트 사용
+        PlayerController playerController = localPlayer.GetComponent<PlayerController>();
+        if (playerController != null)
+        {
+            playerController.TeleportRequest(randomPos);
+            Debug.Log($"[VoteManager] 플레이어 텔레포트 완료: {randomPos}");
+        }
+        else
+        {
+            Debug.LogWarning("[VoteManager] PlayerController를 찾을 수 없음");
+        }
     }
 
     private void StartPhaseTimer(VotePhase phase)
@@ -509,4 +532,78 @@ public class VoteManager : MonoBehaviourPunCallbacks
     private float GetDiscussionTime() => _debugDiscussionTime > 0 ? _debugDiscussionTime : _discussionTime;
     private float GetVotingTime() => _debugVotingTime > 0 ? _debugVotingTime : _votingTime;
     private float GetResultTime() => _debugResultTime > 0 ? _debugResultTime : _resultDisplayTime;
+
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        if (_voteProps == null)
+            _voteProps = FindFirstObjectByType<VoteRoomProperties>();
+
+        if (_voteProps == null) return;
+        if (_voteProps.CurrentPhase == VotePhase.None) return;
+
+        if (_voteCoroutine != null)
+            StopCoroutine(_voteCoroutine);
+
+        _voteCoroutine = StartCoroutine(ResumeVoteSequence(_voteProps.CurrentPhase));
+    }
+
+    private IEnumerator ResumeVoteSequence(VotePhase phase)
+    {
+        switch (phase)
+        {
+            case VotePhase.Discussion:
+                float discussionElapsed = 0f;
+                float discussionDuration = GetDiscussionTime();
+                while (discussionElapsed < discussionDuration)
+                {
+                    if (_voteProps.CurrentPhase != VotePhase.Discussion)
+                        break;
+
+                    discussionElapsed += Time.deltaTime;
+                    yield return null;
+                }
+
+                if (_voteProps.CurrentPhase == VotePhase.Discussion)
+                    _voteProps.SetVotePhase(VotePhase.Voting);
+
+                if (_voteProps.CurrentPhase != VotePhase.Voting)
+                    break;
+
+                goto case VotePhase.Voting;
+
+            case VotePhase.Voting:
+                if (_voteProps.CurrentPhase != VotePhase.Voting)
+                    break;
+
+                float elapsed = 0f;
+                float votingDuration = GetVotingTime();
+                while (elapsed < votingDuration)
+                {
+                    if (_voteProps.AllAlivePlayersVoted())
+                        break;
+
+                    elapsed += Time.deltaTime;
+                    yield return null;
+                }
+
+                if (_voteProps.CurrentPhase == VotePhase.Voting)
+                    _voteProps.SetVotePhase(VotePhase.Result);
+
+                if (_voteProps.CurrentPhase != VotePhase.Result)
+                    break;
+
+                goto case VotePhase.Result;
+
+            case VotePhase.Result:
+                if (_voteProps.CurrentPhase != VotePhase.Result)
+                    break;
+
+                yield return new WaitForSeconds(GetResultTime());
+                ProcessVoteResult();
+                _voteProps.SetVotePhase(VotePhase.None);
+                break;
+        }
+    }
 }

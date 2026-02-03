@@ -89,4 +89,19 @@ public class GlobalProgress : MonoBehaviourPunCallbacks
             }
         }
     }
+
+    public override void OnMasterClientSwitched(Photon.Realtime.Player newMasterClient)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        if (_roomProps == null && PhotonNetwork.CurrentRoom != null)
+            _roomProps = PhotonNetwork.CurrentRoom.CustomProperties;
+
+        if (_roomProps != null && _roomProps.ContainsKey(_roomPropKey))
+        {
+            float progress = (float)_roomProps[_roomPropKey];
+            if (progress >= 100f)
+                PlayerManager.Instance.NoticeGameOverToAllPlayers(true);
+        }
+    }
 }

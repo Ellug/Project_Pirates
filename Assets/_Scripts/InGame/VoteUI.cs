@@ -72,8 +72,8 @@ public class VoteUI : MonoBehaviour
     {
         _currentPhase = phase;
 
-        // 투표 시작 시 투표 상태 초기화
-        if (phase == VotePhase.Discussion)
+        // 토론/투표 시작 시 투표 상태 초기화
+        if (phase == VotePhase.Discussion || phase == VotePhase.Voting || phase == VotePhase.None)
             _hasVoted = false;
 
         UpdatePhaseUI();
@@ -92,10 +92,6 @@ public class VoteUI : MonoBehaviour
                 _ => ""
             };
         }
-
-        // 스킵 버튼 활성화 (투표 단계에서만)
-        if (_skipButton != null)
-            _skipButton.interactable = _currentPhase == VotePhase.Voting && !_hasVoted;
     }
 
     // 플레이어 리스트 업데이트
@@ -139,6 +135,7 @@ public class VoteUI : MonoBehaviour
             VoteRoomProperties.Instance.IsPlayerDead(PhotonNetwork.LocalPlayer.ActorNumber);
 
         bool canVote = _currentPhase == VotePhase.Voting && !_hasVoted && !isLocalPlayerDead;
+        bool canSkip = (_currentPhase == VotePhase.Voting || _currentPhase == VotePhase.Discussion) && !_hasVoted && !isLocalPlayerDead;
 
         foreach (var slot in _playerSlots)
         {
@@ -148,7 +145,7 @@ public class VoteUI : MonoBehaviour
 
         // 스킵 버튼도 죽은 플레이어는 비활성화
         if (_skipButton != null)
-            _skipButton.interactable = canVote;
+            _skipButton.interactable = canSkip;
     }
 
     // 플레이어 슬롯 클릭 (투표)
@@ -180,7 +177,7 @@ public class VoteUI : MonoBehaviour
     // 스킵 버튼 클릭
     private void OnSkipButtonClicked()
     {
-        if (_currentPhase != VotePhase.Voting) return;
+        if (_currentPhase != VotePhase.Voting && _currentPhase != VotePhase.Discussion) return;
         if (_hasVoted) return;
 
         // 죽은 플레이어는 투표 불가
@@ -199,7 +196,7 @@ public class VoteUI : MonoBehaviour
         UpdateSlotInteractivity();
         UpdatePhaseUI();
 
-        Debug.Log("[VoteUI] 투표 스킵");
+        Debug.Log(_currentPhase == VotePhase.Discussion ? "[VoteUI] 토론 스킵" : "[VoteUI] 투표 스킵");
     }
 
     // 타이머 텍스트 업데이트 (외부에서 호출)
