@@ -14,7 +14,7 @@ public class MafiaTeleporter : MonoBehaviour
     [SerializeField] private Transform _destination1;
     [SerializeField] private Transform _destination2;
 
-    private void Start()
+    void Start()
     {
         // 버튼 초기 비활성화
         SetButtonsActive(false);
@@ -28,7 +28,7 @@ public class MafiaTeleporter : MonoBehaviour
             _teleportButton2.onClick.AddListener(() => TeleportLocalPlayer(2));
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (_teleportButton0 != null)
             _teleportButton0.onClick.RemoveAllListeners();

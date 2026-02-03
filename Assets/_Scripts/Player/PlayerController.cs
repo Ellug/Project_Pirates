@@ -54,7 +54,7 @@ public class PlayerController : MonoBehaviourPun
 
     public PlayerModel Model => _model;
 
-    private void Awake()
+    void Awake()
     {
         _view = GetComponent<PhotonView>();
         _transformView = GetComponent<PhotonTransformView>();
@@ -110,7 +110,7 @@ public class PlayerController : MonoBehaviourPun
         InputMove = Vector2.zero;
     }
 
-    private void Start()
+    void Start()
     {
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.RegistLocalPlayer(this);
@@ -243,7 +243,7 @@ public class PlayerController : MonoBehaviourPun
         _model.MyJob.UniqueSkill();
     }
 
-    private void Update()
+    void Update()
     {
         StateMachine?.CurrentState?.FrameUpdate();
     }

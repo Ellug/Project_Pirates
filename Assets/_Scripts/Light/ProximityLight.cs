@@ -12,7 +12,7 @@ public class ProximityLight : MonoBehaviour
     private bool _byOcclusion = false;
     private bool _byPower = true;
 
-    private void Awake()
+    void Awake()
     {
         _light = GetComponent<Light>();
         _lightRenderer = GetComponent<Renderer>();

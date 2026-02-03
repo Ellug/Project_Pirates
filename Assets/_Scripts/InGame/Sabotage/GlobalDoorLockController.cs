@@ -16,7 +16,7 @@ public class GlobalDoorLockController : MonoBehaviour
 
     private Coroutine _unlockTimerCoroutine;
 
-    private void Awake()
+    void Awake()
     {
         if (_roomProps == null)
             _roomProps = FindFirstObjectByType<CustomPropertyManager>();
@@ -25,7 +25,7 @@ public class GlobalDoorLockController : MonoBehaviour
         SetDoorLockButtonActive(false);
     }
 
-    private void Start()
+    void Start()
     {
         _roomProps.OnRoomPropertyChanged += OnRoomPropertyChanged;
 
@@ -35,7 +35,7 @@ public class GlobalDoorLockController : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (_roomProps != null)
             _roomProps.OnRoomPropertyChanged -= OnRoomPropertyChanged;

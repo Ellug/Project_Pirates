@@ -37,7 +37,7 @@ public class DoorController : InteractionObject
     private string DoorAngleKey => $"world.door.{doorId}.angle";
     private const string LOCK_KEY = "world.door.locked";
 
-    private void Awake()
+    void Awake()
     {
         if (_roomProps == null)
             _roomProps = FindFirstObjectByType<CustomPropertyManager>();
@@ -55,7 +55,7 @@ public class DoorController : InteractionObject
         _audio.maxDistance = 15f;
     }
 
-    private void Start()
+    void Start()
     {
         _closedRotation = _doorPivot.localRotation;
 
@@ -83,7 +83,7 @@ public class DoorController : InteractionObject
         ApplyDoor(_isOpen, _currentAngle, true);
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (_roomProps != null)
             _roomProps.OnRoomPropertyChanged -= OnRoomPropertyChanged;

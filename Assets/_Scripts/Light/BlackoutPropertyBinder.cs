@@ -11,17 +11,17 @@ public class BlackoutPropertyBinder : MonoBehaviour
     [SerializeField] private CustomPropertyManager propertyManager;
     [SerializeField] private PowerSystem powerSystem;
 
-    private void OnEnable()
+    void OnEnable()
     {
         propertyManager.OnRoomPropertyChanged += OnRoomPropertyChanged;
     }
 
-    private void OnDisable()
+    void OnDisable()
     {
         propertyManager.OnRoomPropertyChanged -= OnRoomPropertyChanged;
     }
 
-    private void Start()
+    void Start()
     {
         if (propertyManager.TryGet(BLACKOUT_KEY, out bool isBlackout))
         {

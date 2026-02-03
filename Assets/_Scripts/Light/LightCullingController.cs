@@ -27,7 +27,7 @@ public class LightCullingController : MonoBehaviour
     private Camera _playerCamera;
     private List<ProximityLight> allLights = new List<ProximityLight>();
 
-    private void Awake()
+    void Awake()
     {
         // 씬 시작 시 라이트 수집
         allLights.AddRange(FindObjectsByType<ProximityLight>(FindObjectsSortMode.None));
@@ -50,7 +50,7 @@ public class LightCullingController : MonoBehaviour
             Debug.LogError("[LightCullingController] PlayerHead를 찾지 못했습니다!");
     }
 
-    private void Start()
+    void Start()
     {
         StartCoroutine(LightCullingLoop());
     }

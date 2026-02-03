@@ -22,7 +22,7 @@ public class PlayerInteraction : MonoBehaviour
         IsInteractable = false;
     }
 
-    private void Start()
+    void Start()
     {
         _interactionBtn = GameObject.Find("InteractionKey");
         _rpcManager = FindFirstObjectByType<InteractionObjectRpcManager>();
@@ -33,7 +33,7 @@ public class PlayerInteraction : MonoBehaviour
         _raycastRoutine = StartCoroutine(RaycastRoutine());
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (_raycastRoutine != null)
             StopCoroutine(_raycastRoutine);

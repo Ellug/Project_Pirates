@@ -24,7 +24,7 @@ public sealed class RemotePlayerRow : MonoBehaviour
         _muteToggle.onValueChanged.AddListener(OnMuteChanged);
     }
 
-    private void OnDisable()
+    void OnDisable()
     {
         _volSlider.onValueChanged.RemoveListener(OnVolumeChanged);
         _muteToggle.onValueChanged.RemoveListener(OnMuteChanged);

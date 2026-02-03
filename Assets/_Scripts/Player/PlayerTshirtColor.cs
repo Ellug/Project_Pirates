@@ -15,7 +15,7 @@ public class PlayerTshirtColor : MonoBehaviourPunCallbacks
 
     private PhotonView _pv;
 
-    private void Awake()
+    void Awake()
     {
         _pv = GetComponent<PhotonView>();
 
@@ -23,7 +23,7 @@ public class PlayerTshirtColor : MonoBehaviourPunCallbacks
             Debug.LogError("[PlayerTshirtColor] PhotonView not found.");
     }
 
-    private void Start()
+    void Start()
     {
         // 스폰 직후, 이미 값이 들어와 있는 경우 대비
         ApplyFromProperty(_pv.Owner);

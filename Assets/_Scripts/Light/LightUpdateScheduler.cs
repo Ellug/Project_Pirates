@@ -11,7 +11,7 @@ public class LightUpdateScheduler : MonoBehaviour
     private readonly List<ProximityLight> lightList = new List<ProximityLight>();
     private int cursor;
 
-    private void Awake()
+    void Awake()
     {
         if (Instance != null)
         {

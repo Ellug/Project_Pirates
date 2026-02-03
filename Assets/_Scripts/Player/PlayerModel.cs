@@ -73,7 +73,7 @@ public class PlayerModel : MonoBehaviour
     private ItemData[] _inventory;
     private ItemEffects _effects;
 
-    private void Awake()
+    void Awake()
     {
         _maxHealthPoint = 100f;
         _curHealthPoint = _maxHealthPoint;

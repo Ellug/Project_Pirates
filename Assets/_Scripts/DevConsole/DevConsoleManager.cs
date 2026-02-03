@@ -126,13 +126,13 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
         Application.logMessageReceivedThreaded += OnUnityLogThreaded; // 유니티 로그 수신 콜백 등록
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (Instance == this)
             Application.logMessageReceivedThreaded -= OnUnityLogThreaded;
     }
 
-    private void Update()
+    void Update()
     {
         // 콘솔이 닫혀있으면 UI 작업은 안 하고 로그가 pending에 쌓임
         if (!_isOpen) return;

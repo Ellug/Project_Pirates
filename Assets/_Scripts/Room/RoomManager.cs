@@ -83,7 +83,7 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
         StartCoroutine(CoWaitRoomThenRefresh());
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (_roomUI != null)
             _roomUI.RoomSettingsApplyRequested -= HandleRoomSettingsApplyRequested;
