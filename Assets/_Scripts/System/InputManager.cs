@@ -295,9 +295,15 @@ public class InputManager : Singleton<InputManager>
 
     private void ApplyCursor(bool uiMode)
     {
-        // Title/Lobby/Room 등: 커서 건드리지 않음
-        if (!_isInGameScene) return;
+        // Title/Lobby/Room 등: 커서 항상 해제
+        if (!_isInGameScene)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            return;
+        }
 
+        // InGame: UI 모드에 따라 전환
         if (uiMode)
         {
             Cursor.lockState = CursorLockMode.None;

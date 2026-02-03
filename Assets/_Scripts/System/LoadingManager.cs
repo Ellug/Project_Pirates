@@ -9,6 +9,8 @@ using UnityEngine.UI;
 
 public class LoadingManager : MonoBehaviourPunCallbacks
 {
+    private const string LOADED_KEY = "OnLoaded";
+
     [Header("Loading")]
     [SerializeField] private TextMeshProUGUI _loadingStatusText;
     [SerializeField] private TextMeshProUGUI _progressText;
@@ -23,24 +25,27 @@ public class LoadingManager : MonoBehaviourPunCallbacks
     [SerializeField] private float _tipChangeInterval = 5f;
     [SerializeField] private string[] _tips = { };
 
-    private ExitGames.Client.Photon.Hashtable _table = 
-        new ExitGames.Client.Photon.Hashtable 
-    {
-        { "OnLoaded", true }
-    };
+    private readonly ExitGames.Client.Photon.Hashtable _loadedTrue =
+        new ExitGames.Client.Photon.Hashtable { { LOADED_KEY, true } };
+    private readonly ExitGames.Client.Photon.Hashtable _loadedFalse =
+        new ExitGames.Client.Photon.Hashtable { { LOADED_KEY, false } };
 
     private bool _isAllReady = false;
 
     void Start()
     {
-        PlayerManager.Instance.allReadyComplete += TriggerIsAllReady;
+        ResetLoadedFlag();
+
+        if (PlayerManager.Instance != null)
+            PlayerManager.Instance.allReadyComplete += TriggerIsAllReady;
         StartCoroutine(LoadingScene());
         StartCoroutine(StartTips());
     }
 
     void OnDestroy()
     {
-        PlayerManager.Instance.allReadyComplete -= TriggerIsAllReady;
+        if (PlayerManager.Instance != null)
+            PlayerManager.Instance.allReadyComplete -= TriggerIsAllReady;
     }
 
     IEnumerator StartTips()
@@ -99,7 +104,7 @@ public class LoadingManager : MonoBehaviourPunCallbacks
         // 이걸 마스터 클라이언트가 감지할 것이다.
         yield return null;
 
-        PhotonNetwork.LocalPlayer.SetCustomProperties(_table);
+        PhotonNetwork.LocalPlayer.SetCustomProperties(_loadedTrue);
 
         // 그리고 누군가 게임씬을 전환하라고 신호를 줄 때까지 기다린다.
         yield return new WaitUntil(() => _isAllReady);
@@ -119,7 +124,7 @@ public class LoadingManager : MonoBehaviourPunCallbacks
     {
         if (!PhotonNetwork.IsMasterClient) return;
 
-        if (changedProps.TryGetValue("OnLoaded", out object value))
+        if (changedProps.TryGetValue(LOADED_KEY, out object value))
         {
             if ((bool)value == true) 
                 PlayerManager.Instance.onLoadedPlayer++;
@@ -129,5 +134,11 @@ public class LoadingManager : MonoBehaviourPunCallbacks
     public void TriggerIsAllReady()
     {
         _isAllReady = true;
+    }
+
+    private void ResetLoadedFlag()
+    {
+        if (PhotonNetwork.LocalPlayer == null) return;
+        PhotonNetwork.LocalPlayer.SetCustomProperties(_loadedFalse);
     }
 }

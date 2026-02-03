@@ -38,6 +38,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     {
         if (!PhotonNetwork.IsMasterClient) return;
 
+        onLoadedPlayer = 0;
         StartCoroutine(GameInitLogic(playerNumber));
     }
 
