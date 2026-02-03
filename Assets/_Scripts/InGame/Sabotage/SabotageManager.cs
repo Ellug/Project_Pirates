@@ -221,8 +221,9 @@ public class SabotageManager : MonoBehaviourPunCallbacks
         _countdownText.text = $"{m:00} : {s:00}";
     }
 
-    private void OnDisable()
+    public override void OnDisable()
     {
+        base.OnDisable();
         StopCountdownCoroutine();
         SetCountdownUI(false);
     }

@@ -11,8 +11,8 @@ public class SetPlayerColor : MonoBehaviourPunCallbacks
     // 방에서 현재 사용 중인 색 추적
     private static readonly HashSet<PlayerColorType> usedColors = new();
 
-    // 마스터가 호출
-    public static void AssignColorsToAll()
+    // 마스터가 호출 (forceReassign=true면 기존 색상 무시하고 재할당)
+    public static void AssignColorsToAll(bool forceReassign = false)
     {
         if (!PhotonNetwork.IsMasterClient) return;
 
@@ -20,14 +20,16 @@ public class SetPlayerColor : MonoBehaviourPunCallbacks
 
         foreach (var p in PhotonNetwork.PlayerList)
         {
-            AssignColor(p);
+            AssignColor(p, forceReassign);
         }
     }
 
-    private static void AssignColor(Player player)
+    private static void AssignColor(Player player, bool forceReassign)
     {
+        if (player == null) return;
+
         // 이미 있으면 재사용
-        if (player.CustomProperties.ContainsKey(UPPER_COLOR_KEY))
+        if (!forceReassign && player.CustomProperties.ContainsKey(UPPER_COLOR_KEY))
         {
             var c = (PlayerColorType)(int)player.CustomProperties[UPPER_COLOR_KEY];
             usedColors.Add(c);
@@ -36,8 +38,10 @@ public class SetPlayerColor : MonoBehaviourPunCallbacks
 
         PlayerColorType color = GetNextColor();
 
-        var hash = new Hashtable();
-        hash[UPPER_COLOR_KEY] = (int)color;
+        var hash = new Hashtable
+        {
+            [UPPER_COLOR_KEY] = (int)color
+        };
         player.SetCustomProperties(hash);
 
         usedColors.Add(color);
@@ -60,7 +64,7 @@ public class SetPlayerColor : MonoBehaviourPunCallbacks
     {
         if (!PhotonNetwork.IsMasterClient) return;
 
-        AssignColor(newPlayer);
+        AssignColor(newPlayer, false);
     }
 
     // InGame 시작 시 마스터가 AssignColorsToAll 호출.

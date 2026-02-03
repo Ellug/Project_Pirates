@@ -79,7 +79,8 @@ public class InGameManager : MonoBehaviourPunCallbacks
         // ✅ 스폰이 끝난 뒤, 마스터가 색 배정
         if (PhotonNetwork.IsMasterClient)
         {
-            SetPlayerColor.AssignColorsToAll();
+            // 매 게임 시작 시 색상 중복 방지 위해 강제 재할당
+            SetPlayerColor.AssignColorsToAll(true);
         }
     }
 
@@ -96,37 +97,21 @@ public class InGameManager : MonoBehaviourPunCallbacks
         _player = player;
     }
 
-    // Todo : 종료 후에 방으로 가는데, 이거 일반적인 게임 플로우처럼 처리해야함.
-    // 전원 종료
-    private void EndGameForAll()
+    // 전원 로비로 이동
+    public static void ExitForLocal()
     {
-        if (_ended) return;
-
         if (!PhotonNetwork.IsMasterClient)
         {
-            Debug.LogWarning("[InGame] EndGameForAll ignored: not master");
+            Debug.LogWarning("[InGame] ExitForLocal ignored: not master");
             return;
         }
 
-        _ended = true;
+        Debug.Log("[InGame] ExitForLocal -> LoadLevel(Room)");
 
         if (PlayerController.LocalInstancePlayer != null)
             PhotonNetwork.DestroyPlayerObjects(PhotonNetwork.LocalPlayer);
 
-        Debug.Log("[InGame] EndGameForAll -> LoadLevel(Room)");
+        // LoadLevel로 모든 클라이언트가 동기화되어 Room 씬으로 이동
         PhotonNetwork.LoadLevel("Room");
-    }
-
-    // 나만 종료
-    public static void ExitForLocal()
-    {
-        Debug.Log("[InGame] ExitForLocal -> LoadScene(Room)");
-
-        // Photon 룸은 유지한 채, 로컬 씬만 이동
-        // PN 뭔가 해줘야한다 -> 플레이어를 명시적으로 파괴해야함.
-        if (PlayerController.LocalInstancePlayer != null)
-            PhotonNetwork.DestroyPlayerObjects(PhotonNetwork.LocalPlayer);
-
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Room");
     }
 }

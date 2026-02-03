@@ -23210,7 +23210,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01fed38febd0bd244ae68a5335d9c2d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SabotageManager
-  _defaultDuration: 120
+  _defaultDuration: 100
   _countdownPanel: {fileID: 1730300301}
   _countdownText: {fileID: 779773036}
   _pv: {fileID: 1426808067}
@@ -23246,7 +23246,7 @@ MonoBehaviour:
   _sabotageManager: {fileID: 1426808068}
   _engineButton: {fileID: 254489341}
   _blackoutButton: {fileID: 862555143}
-  _cooldownTime: 60
+  _cooldownTime: 100
   _cooldownText: {fileID: 1346406256}
 --- !u!114 &1426808071
 MonoBehaviour:

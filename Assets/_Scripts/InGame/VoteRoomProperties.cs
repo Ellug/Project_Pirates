@@ -114,8 +114,8 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
             foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
             {
                 var voteProps = new Hashtable { { KEY_MY_VOTE, -1 } };
-                if (phase == VotePhase.Discussion)
-                    voteProps[KEY_SKIP_DISCUSSION] = false;
+                // 토론 스킵 상태도 항상 초기화 (토론→투표 전환 시 중요)
+                voteProps[KEY_SKIP_DISCUSSION] = false;
                 player.SetCustomProperties(voteProps);
             }
         }

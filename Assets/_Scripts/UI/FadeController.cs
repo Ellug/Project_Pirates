@@ -75,6 +75,7 @@ public class FadeController : MonoBehaviour
             InGameManager.ExitForLocal();
             }));
     }
+    
     IEnumerator Fading(Action onEndGame = null)
     {
         float alpha = 0f;

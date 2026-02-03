@@ -58,26 +58,11 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
         if (PhotonNetwork.IsMasterClient)
         {
-            var prop = PhotonNetwork.CurrentRoom.CustomProperties;
-
-            if (prop != null)
-            {
-                if (prop.TryGetValue(ROOM_TITLE_KEY, out var title))
-                {
-                    if (prop.TryGetValue(ROOM_PW_KEY, out var roomPW))
-                    {
-                        PhotonNetwork.CurrentRoom.CustomProperties.Clear();
-
-                        var props = new ExitGames.Client.Photon.Hashtable
-                    {
-                        { ROOM_TITLE_KEY, title },
-                        { ROOM_PW_KEY, roomPW }
-                    };
-                        PhotonNetwork.CurrentRoom.SetCustomProperties(props);
-                    }
-                }
-            }
+            ResetRoomProperties();
         }
+
+        // 모든 클라이언트: 로컬 플레이어의 인게임 관련 프로퍼티 초기화
+        ResetLocalPlayerProperties();
 
         // 방 진입 후 내 상태 출력
         StartCoroutine(CoWaitRoomThenRefresh());
@@ -490,5 +475,82 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
             return str;
         }
         return room.Name ?? "";
+    }
+
+    // Room CustomProperties 초기화 (마스터 클라이언트만 호출)
+    // 보존할 키: title, pw, maxPlayers 관련
+    private void ResetRoomProperties()
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        var room = PhotonNetwork.CurrentRoom;
+        if (room == null) return;
+
+        var currentProps = room.CustomProperties;
+        if (currentProps == null) return;
+
+        // 보존할 값들 저장
+        currentProps.TryGetValue(ROOM_TITLE_KEY, out var title);
+        currentProps.TryGetValue(ROOM_PW_KEY, out var roomPW);
+
+        // 기존 프로퍼티의 모든 키를 null로 설정 (삭제)
+        var propsToRemove = new ExitGames.Client.Photon.Hashtable();
+        foreach (var key in currentProps.Keys)
+        {
+            string keyStr = key as string;
+            if (keyStr == ROOM_TITLE_KEY || keyStr == ROOM_PW_KEY)
+                continue;
+
+            propsToRemove[key] = null;
+        }
+
+        // null로 설정하여 네트워크에서 삭제
+        if (propsToRemove.Count > 0)
+            room.SetCustomProperties(propsToRemove);
+
+        // 보존할 값들 다시 설정
+        var preservedProps = new ExitGames.Client.Photon.Hashtable();
+        if (title != null) preservedProps[ROOM_TITLE_KEY] = title;
+        if (roomPW != null) preservedProps[ROOM_PW_KEY] = roomPW;
+
+        if (preservedProps.Count > 0)
+            room.SetCustomProperties(preservedProps);
+
+        Debug.Log("[RoomManager] Room CustomProperties 초기화 완료");
+    }
+
+    // 로컬 플레이어의 인게임 관련 프로퍼티 초기화
+    // 보존할 키: 없음 (모든 인게임 프로퍼티 초기화)
+    private void ResetLocalPlayerProperties()
+    {
+        var localPlayer = PhotonNetwork.LocalPlayer;
+        if (localPlayer == null) return;
+
+        var currentProps = localPlayer.CustomProperties;
+        if (currentProps == null || currentProps.Count == 0) return;
+
+        // 인게임 관련 프로퍼티 키들 (삭제 대상)
+        var inGameKeys = new string[]
+        {
+            "MyVote",           // 투표 대상
+            "SkipDiscussion",   // 토론 스킵
+            "loaded",           // 로딩 완료 상태
+            "UpperColor",       // 플레이어 색상
+            "v_vol",            // 음성 볼륨
+            "v_mute"            // 음소거 상태
+        };
+
+        var propsToRemove = new ExitGames.Client.Photon.Hashtable();
+        foreach (var key in inGameKeys)
+        {
+            if (currentProps.ContainsKey(key))
+                propsToRemove[key] = null;
+        }
+
+        if (propsToRemove.Count > 0)
+        {
+            localPlayer.SetCustomProperties(propsToRemove);
+            Debug.Log($"[RoomManager] 로컬 플레이어 프로퍼티 초기화 완료 ({propsToRemove.Count}개)");
+        }
     }
 }
