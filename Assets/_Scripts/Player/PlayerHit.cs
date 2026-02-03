@@ -25,11 +25,10 @@ public class PlayerHit : MonoBehaviour
     private IEnumerator GetBondage(float duration)
     {
         float elapsedTime = 0f;
-        Vector3 fixedPos = _model.transform.position;
 
-        while (elapsedTime < duration) 
+        while (elapsedTime < duration)
         {
-            _model.transform.position = fixedPos;
+            _rigidbody.linearVelocity = Vector3.zero;
             elapsedTime += Time.deltaTime;
             yield return null;
         }

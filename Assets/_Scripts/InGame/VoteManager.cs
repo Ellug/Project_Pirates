@@ -320,9 +320,15 @@ public class VoteManager : MonoBehaviourPunCallbacks
     public void SubmitSkipVote()
     {
         if (_voteProps == null) return;
-        if (_voteProps.CurrentPhase != VotePhase.Voting && _voteProps.CurrentPhase != VotePhase.Discussion) return;
+        if (_voteProps.CurrentPhase == VotePhase.Discussion)
+        {
+            _voteProps.SubmitDiscussionSkip();
+            return;
+        }
 
-        _voteProps.SubmitVote(-2); // -2 = 스킵 (토론/투표 공통)
+        if (_voteProps.CurrentPhase != VotePhase.Voting) return;
+
+        _voteProps.SubmitVote(-2); // -2 = 투표 스킵
     }
 
     private void TeleportLocalPlayer()

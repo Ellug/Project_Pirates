@@ -274,7 +274,7 @@ MonoBehaviour:
         elementCount: 1
       - offset: 319488
         elementCount: 1
-    m_Asset: {fileID: 4900000, guid: 9fff166bc2c59d64e9d55700db7393b3, type: 3}
+    m_Asset: {fileID: 0}
   scenarios:
     m_Keys:
     - LightOn
@@ -316,7 +316,7 @@ MonoBehaviour:
             elementCount: 1
           - offset: 5111808
             elementCount: 1
-        m_Asset: {fileID: 4900000, guid: b4b9aacd7d604a0408db467b2cd9a88a, type: 3}
+        m_Asset: {fileID: 0}
       cellOptionalDataAsset:
         m_AssetGUID: 4364f850fad27124c99dbfa28876c859
         m_StreamableAssetPath: APVStreamingAssets\da24279f14ab3dd41b60acdc0f72ef57\4364f850fad27124c99dbfa28876c859.bytes
@@ -352,7 +352,7 @@ MonoBehaviour:
             elementCount: 1
           - offset: 5111808
             elementCount: 1
-        m_Asset: {fileID: 4900000, guid: 4364f850fad27124c99dbfa28876c859, type: 3}
+        m_Asset: {fileID: 0}
       cellProbeOcclusionDataAsset:
         m_AssetGUID: 2ea9f5d42e4c9854991342f681962148
         m_StreamableAssetPath: APVStreamingAssets\da24279f14ab3dd41b60acdc0f72ef57\2ea9f5d42e4c9854991342f681962148.bytes
@@ -425,7 +425,7 @@ MonoBehaviour:
             elementCount: 1
           - offset: 5111808
             elementCount: 1
-        m_Asset: {fileID: 4900000, guid: 19bffb4df8e44964a8715d26041136b9, type: 3}
+        m_Asset: {fileID: 0}
       cellOptionalDataAsset:
         m_AssetGUID: 3a27353c6e2e48749999009bddaa6ba1
         m_StreamableAssetPath: APVStreamingAssets\da24279f14ab3dd41b60acdc0f72ef57\3a27353c6e2e48749999009bddaa6ba1.bytes
@@ -461,7 +461,7 @@ MonoBehaviour:
             elementCount: 1
           - offset: 5111808
             elementCount: 1
-        m_Asset: {fileID: 4900000, guid: 3a27353c6e2e48749999009bddaa6ba1, type: 3}
+        m_Asset: {fileID: 0}
       cellProbeOcclusionDataAsset:
         m_AssetGUID: 
         m_StreamableAssetPath: APVStreamingAssets\da24279f14ab3dd41b60acdc0f72ef57\.bytes
@@ -533,7 +533,7 @@ MonoBehaviour:
         elementCount: 64
       - offset: 59008
         elementCount: 64
-    m_Asset: {fileID: 4900000, guid: f12dce84314f70841816f82bb7472d17, type: 3}
+    m_Asset: {fileID: 0}
   cellSupportDataAsset:
     m_AssetGUID: aeeb5ad6ef764df428df0aeecda39452
     m_StreamableAssetPath: APVStreamingAssets\da24279f14ab3dd41b60acdc0f72ef57\aeeb5ad6ef764df428df0aeecda39452.bytes
@@ -569,7 +569,7 @@ MonoBehaviour:
         elementCount: 1
       - offset: 10223616
         elementCount: 1
-    m_Asset: {fileID: 4900000, guid: aeeb5ad6ef764df428df0aeecda39452, type: 3}
+    m_Asset: {fileID: 0}
   chunkSizeInBricks: 128
   maxCellPosition: {x: 1, y: 1, z: 1}
   minCellPosition: {x: -3, y: -1, z: -1}

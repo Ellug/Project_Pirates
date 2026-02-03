@@ -19,6 +19,7 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
 
     // Player Property Keys (각 플레이어가 자신의 투표를 저장)
     private const string KEY_MY_VOTE = "MyVote";                  // int 내가 투표한 대상 ActorNumber
+    private const string KEY_SKIP_DISCUSSION = "SkipDiscussion";  // bool 토론 스킵 의사
 
     // 이벤트
     public event Action<VotePhase> OnVotePhaseChanged;
@@ -75,7 +76,11 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
         // 모든 플레이어의 MyVote 초기화
         foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
         {
-            var voteProps = new Hashtable { { KEY_MY_VOTE, -1 } };
+            var voteProps = new Hashtable
+            {
+                { KEY_MY_VOTE, -1 },
+                { KEY_SKIP_DISCUSSION, false }
+            };
             player.SetCustomProperties(voteProps);
         }
 
@@ -109,6 +114,8 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
             foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
             {
                 var voteProps = new Hashtable { { KEY_MY_VOTE, -1 } };
+                if (phase == VotePhase.Discussion)
+                    voteProps[KEY_SKIP_DISCUSSION] = false;
                 player.SetCustomProperties(voteProps);
             }
         }
@@ -131,6 +138,20 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
 
         Debug.Log($"[VoteRoomProperties] 투표 제출: {targetActorNumber}");
+    }
+
+    // 토론 스킵 제출 (토론 단계에서만 사용)
+    public void SubmitDiscussionSkip()
+    {
+        // 죽은 플레이어는 스킵 불가
+        if (IsPlayerDead(PhotonNetwork.LocalPlayer.ActorNumber))
+        {
+            Debug.Log("[VoteRoomProperties] 죽은 플레이어는 스킵할 수 없음");
+            return;
+        }
+
+        var props = new Hashtable { { KEY_SKIP_DISCUSSION, true } };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(props);
     }
 
     // Room Property 변경 콜백
@@ -184,8 +205,12 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
             OnPlayerListUpdated?.Invoke(_playerInfoList);
 
             Debug.Log($"[VoteRoomProperties] {targetPlayer.NickName}이 {targetActorNumber}에게 투표함");
+        }
 
-            // 토론 스킵: 모든 생존자가 스킵(-2)하면 바로 투표 단계로 전환
+        if (changedProps.TryGetValue(KEY_SKIP_DISCUSSION, out var skipObj))
+        {
+            Debug.Log($"[VoteRoomProperties] {targetPlayer.NickName} 토론 스킵 의사: {skipObj}");
+
             if (_currentPhase == VotePhase.Discussion && PhotonNetwork.IsMasterClient)
             {
                 if (AllAlivePlayersSkippedDiscussion())
@@ -295,14 +320,24 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
 
     public bool AllAlivePlayersSkippedDiscussion()
     {
+        if (!PhotonNetwork.InRoom || PhotonNetwork.CurrentRoom == null)
+            return false;
+
         bool hasAlive = false;
-        foreach (var info in _playerInfoList)
+        foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
         {
-            if (info.IsDead) continue;
+            if (player == null) continue;
+            int actor = player.ActorNumber;
+            if (_deadPlayers.Contains(actor)) continue;
             hasAlive = true;
-            if (info.VotedFor != -2)
+
+            if (!player.CustomProperties.TryGetValue(KEY_SKIP_DISCUSSION, out var v) ||
+                v is not bool b || !b)
+            {
                 return false;
+            }
         }
+
         return hasAlive;
     }
 
