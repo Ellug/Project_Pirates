@@ -50,19 +50,8 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
 
         _ready.SetLocalReady(false);
 
-        if (PhotonNetwork.IsMasterClient)
-            PhotonNetwork.CurrentRoom.IsOpen = true;
-
         if (_roomUI != null)
             _roomUI.RoomSettingsApplyRequested += HandleRoomSettingsApplyRequested;
-
-        if (PhotonNetwork.IsMasterClient)
-        {
-            ResetRoomProperties();
-        }
-
-        // 모든 클라이언트: 로컬 플레이어의 인게임 관련 프로퍼티 초기화
-        ResetLocalPlayerProperties();
 
         // 방 진입 후 내 상태 출력
         StartCoroutine(CoWaitRoomThenRefresh());
@@ -77,8 +66,17 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
     private IEnumerator CoWaitRoomThenRefresh()
     {
         // 룸 진입 완료까지 기다렸다가 1회 강제 갱신
-        while (!PhotonNetwork.InRoom || PhotonNetwork.CurrentRoom == null)
+        while (!PhotonNetwork.InRoom || PhotonNetwork.CurrentRoom == null || !PhotonNetwork.IsConnectedAndReady)
             yield return null;
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.CurrentRoom.IsOpen = true;
+            ResetRoomProperties();
+        }
+
+        // 모든 클라이언트: 로컬 플레이어의 인게임 관련 프로퍼티 초기화
+        ResetLocalPlayerProperties();
 
         string roomName = PhotonNetwork.CurrentRoom?.Name ?? "Unknown";
         LogRoom($"[Room] {roomName} 방에 참여 했습니다. [MasterClient] : {PhotonNetwork.MasterClient?.NickName}");
