@@ -8,7 +8,7 @@ public class PoliceJob : BaseJob
         base.Initialize(model);
 
         name = "경찰관";
-        jobInformation = "공격력이 20% 증가합니다.";
-        model.ApplyAttackMultiplier(1.2f);
+        jobInformation = "공격력이 50% 증가합니다.";
+        model.ApplyAttackMultiplier(1.5f);
     }
 }

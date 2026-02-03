@@ -213,7 +213,6 @@ public class PlayerModel : MonoBehaviour
             case JobId.Police: MyJob = new PoliceJob(); break;
             case JobId.Wrestling: MyJob = new WrestlingJob(); break;
             case JobId.Thief: MyJob = new ThiefJob(); break;
-            case JobId.Citizen: MyJob = new CitizenJob(); break;
         }
         MyJob?.Initialize(this);
     }

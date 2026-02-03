@@ -10,7 +10,6 @@ public enum JobId
     Police,
     Wrestling,
     Thief,
-    Citizen,
 
     End
 }

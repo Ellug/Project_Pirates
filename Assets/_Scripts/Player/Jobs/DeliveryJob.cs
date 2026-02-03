@@ -8,7 +8,7 @@ public class DeliveryJob : BaseJob
         base.Initialize(model);
 
         name = "배달기사";
-        jobInformation = "이동속도가 20% 빠릅니다.";
-        model.ApplyBaseSpeedMultiplier(1.2f);
+        jobInformation = "이동속도가 10% 빠릅니다.";
+        model.ApplyBaseSpeedMultiplier(1.1f);
     }
 }
