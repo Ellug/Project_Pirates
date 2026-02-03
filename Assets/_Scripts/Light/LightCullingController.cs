@@ -43,18 +43,8 @@ public class LightCullingController : MonoBehaviour
             _lightExpireTimers[light] = 0f;
         }
 
-        // 플레이어 검색 로직
-        var localPlayer = FindObjectsByType<PlayerController>(FindObjectsSortMode.None)
-                          .FirstOrDefault(p => p.photonView != null && p.photonView.IsMine);
-
-        if (localPlayer != null)
-        {
-            _playerCamera = localPlayer.GetComponentInChildren<Camera>();
-            if (playerHead == null && _playerCamera != null)
-                playerHead = _playerCamera.transform;
-        }
-
-        if (_playerCamera == null) _playerCamera = Camera.main;
+        // Awake 시점에는 플레이어가 아직 스폰되지 않았을 수 있음
+        // UpdateCulling에서 lazy 초기화
     }
 
     void Start()
@@ -74,7 +64,12 @@ public class LightCullingController : MonoBehaviour
 
     private void UpdateCulling()
     {
-        if (_playerCamera == null || playerHead == null) return;
+        // 플레이어 참조가 없으면 찾기 시도
+        if (_playerCamera == null || playerHead == null)
+        {
+            TryFindPlayer();
+            if (_playerCamera == null || playerHead == null) return;
+        }
 
         GeometryUtility.CalculateFrustumPlanes(_playerCamera, _frustumPlanes);
         float proximityRadiusSqr = proximityRadius * proximityRadius;
@@ -136,6 +131,24 @@ public class LightCullingController : MonoBehaviour
         float radV = verticalFOV * Mathf.Deg2Rad;
         float radH = 2f * Mathf.Atan(Mathf.Tan(radV / 2f) * aspect);
         return radH * Mathf.Rad2Deg;
+    }
+
+    private void TryFindPlayer()
+    {
+        // LocalInstancePlayer가 있으면 사용
+        if (PlayerController.LocalInstancePlayer != null)
+        {
+            _playerCamera = PlayerController.LocalInstancePlayer.GetComponentInChildren<Camera>();
+            if (_playerCamera != null)
+                playerHead = _playerCamera.transform;
+        }
+
+        // 그래도 없으면 Camera.main 폴백
+        if (_playerCamera == null)
+            _playerCamera = Camera.main;
+
+        if (_playerCamera != null && playerHead == null)
+            playerHead = _playerCamera.transform;
     }
 
 #if UNITY_EDITOR

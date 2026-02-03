@@ -335,12 +335,24 @@ public class PlayerController : MonoBehaviourPun
     // 2. 앉아 있을 때
     private void OnAttack(InputAction.CallbackContext ctx)
     {
+        if (!CanUseCombatInput()) return;
+
         InputAttack = true;
     }
 
     private void OnKnockBack(InputAction.CallbackContext ctx)
     {
+        if (!CanUseCombatInput()) return;
+
         InputKnockBack = true;
+    }
+
+    private bool CanUseCombatInput()
+    {
+        if (_model == null) return false;
+        if (_model.IsDead) return false;
+        if (_model.IsCrouching) return false; // 앉은 상태에서 공격/밀치기 금지
+        return true;
     }
 
     // 아이템 사용 키

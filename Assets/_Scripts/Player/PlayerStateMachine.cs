@@ -177,6 +177,8 @@ public class AttackState : IPlayerState
     PlayerController _player;
     PlayerModel _model => _player.Model;
     bool _isAttack;
+    private float _enterTime;
+    private const float MaxAttackStateSeconds = 1.5f;
 
     public AttackState(PlayerController player)
     {
@@ -186,6 +188,14 @@ public class AttackState : IPlayerState
     public void Enter() 
     {
         Debug.Log("Attack 상태 진입");
+        _enterTime = Time.time;
+
+        if (_model == null || _model.Animator == null)
+        {
+            _player.StateMachine.ChangeState(_player.StateIdle);
+            return;
+        }
+
         // _isAttack의 값을 들어오자마자 고정하여
         // 어택 또는 밀치기 둘 중 하나만 수행하도록 함
         if (_player.InputAttack == true)
@@ -240,6 +250,18 @@ public class AttackState : IPlayerState
     
     public void FrameUpdate() 
     {
+        if (_model == null || _model.Animator == null)
+        {
+            _player.StateMachine.ChangeState(_player.StateIdle);
+            return;
+        }
+
+        if (Time.time - _enterTime >= MaxAttackStateSeconds)
+        {
+            _player.StateMachine.ChangeState(_player.StateIdle);
+            return;
+        }
+
         AnimatorStateInfo info = 
             _model.Animator.GetCurrentAnimatorStateInfo(0);
 
