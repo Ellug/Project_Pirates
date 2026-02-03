@@ -52,10 +52,20 @@ public class VoteManager : MonoBehaviourPunCallbacks
     private bool _voteActive;
     private int _currentReporterActorNumber = -1;
 
+    // 캐시된 WaitForSeconds (GC 할당 방지)
+    private WaitForSeconds _waitTeleportDelay;
+    private WaitForSeconds _waitPanelFadeOut;
+    private WaitForSeconds _waitPostVoteCleanup;
+
     void Awake()
     {
         Instance = this;
         _view = GetComponent<PhotonView>();
+
+        // WaitForSeconds 캐시 초기화
+        _waitTeleportDelay = new WaitForSeconds(_teleportDelay);
+        _waitPanelFadeOut = new WaitForSeconds(_panelFadeOutDelay);
+        _waitPostVoteCleanup = new WaitForSeconds(_postVoteCleanupDelay);
     }
 
     void Start()
@@ -110,13 +120,13 @@ public class VoteManager : MonoBehaviourPunCallbacks
         Debug.Log("[VoteManager] 시체 발견! 알림 패널 표시");
 
         // 1초 대기
-        yield return new WaitForSeconds(_teleportDelay);
+        yield return _waitTeleportDelay;
 
         // 로컬 플레이어 텔레포트
         TeleportLocalPlayer();
 
         // 2초 뒤 패널 비활성화
-        yield return new WaitForSeconds(_panelFadeOutDelay);
+        yield return _waitPanelFadeOut;
 
         HideAllAlertPanel();
 
@@ -381,7 +391,7 @@ public class VoteManager : MonoBehaviourPunCallbacks
     private IEnumerator PostVoteCleanupCoroutine()
     {
         if (_postVoteCleanupDelay > 0f)
-            yield return new WaitForSeconds(_postVoteCleanupDelay);
+            yield return _waitPostVoteCleanup;
 
         if (PhotonNetwork.IsMasterClient && PlayerManager.Instance != null)
             PlayerManager.Instance.RequestRemoveAllDeadBodies();
