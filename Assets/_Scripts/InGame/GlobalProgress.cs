@@ -34,7 +34,7 @@ public class GlobalProgress : MonoBehaviourPunCallbacks
             yield return new WaitForSeconds(2f);
 
             PhotonNetwork.CurrentRoom.SetCustomProperties(_roomProps);
-            StartCoroutine(AutoProgress());
+            // StartCoroutine(AutoProgress());
         }
     }
 

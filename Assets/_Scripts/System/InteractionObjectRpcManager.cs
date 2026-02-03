@@ -37,6 +37,18 @@ public class InteractionObjectRpcManager : MonoBehaviourPun
         _view = GetComponent<PhotonView>();
     }
 
+    void Start()
+    {
+        InvokeRepeating("RemoveRPCMeth", 10f, 2f);
+    }
+
+    private void RemoveRPCMeth()
+    {
+        PhotonNetwork.RemoveRPCs(_view);
+    }
+
+
+
     // 동적 생성된 오브젝트 등록 - 지정된 ID로 (네트워크 동기화용)
     public void RegisterWithId(InteractionObject obj, int id)
     {

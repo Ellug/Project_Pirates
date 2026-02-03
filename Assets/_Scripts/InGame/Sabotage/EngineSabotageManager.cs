@@ -22,6 +22,10 @@ public class EngineSabotageManager : MonoBehaviour
     // 동시 홀드 시작 시간
     private double _simultaneousStartTime = -1;
 
+    // RPC 스로틀링용 (이전에 보낸 progress 값)
+    private float _lastSentProgress = -1f;
+    private const float ProgressSendThreshold = 0.02f; // 2% 이상 변할 때만 전송
+
     void Awake()
     {
         if (_pv == null) _pv = GetComponent<PhotonView>();
@@ -64,13 +68,19 @@ public class EngineSabotageManager : MonoBehaviour
             double elapsed = PhotonNetwork.Time - _simultaneousStartTime;
             float progress = Mathf.Clamp01((float)elapsed / _simultaneousHoldTime);
 
-            _pv.RPC(nameof(RPC_SetSimultaneousHold), RpcTarget.All, true, progress);
+            // progress가 의미 있게 변했을 때만 RPC 전송 (매 프레임 호출 방지)
+            if (Mathf.Abs(progress - _lastSentProgress) >= ProgressSendThreshold || progress >= 1f)
+            {
+                _lastSentProgress = progress;
+                _pv.RPC(nameof(RPC_SetSimultaneousHold), RpcTarget.All, true, progress);
+            }
 
             if (elapsed >= _simultaneousHoldTime)
             {
                 Debug.Log("[EngineSabotage] 동시 홀드 성공! 사보타지 해제!");
                 _sabotageManager.RequestResolveSabotage(SabotageId.Engine);
                 ResetHoldState();
+                _lastSentProgress = -1f;
                 _pv.RPC(nameof(RPC_SetSimultaneousHold), RpcTarget.All, false, 0f);
             }
         }

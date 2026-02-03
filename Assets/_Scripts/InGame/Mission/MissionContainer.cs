@@ -21,7 +21,7 @@ public class MissionContainer : MonoBehaviour
     private Coroutine _distanceCheckCor;
     private float _validDistance = 3.2f;
 
-    private void Awake()
+    void Awake()
     {
         Instance = this;
     }

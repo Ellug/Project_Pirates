@@ -26,6 +26,7 @@ public class LightCullingController : MonoBehaviour
 
     private Camera _playerCamera;
     private List<ProximityLight> allLights = new List<ProximityLight>();
+    private Plane[] _frustumPlanes = new Plane[6]; // 캐시된 프러스텀 평면 배열
 
     void Awake()
     {
@@ -66,12 +67,12 @@ public class LightCullingController : MonoBehaviour
         }
     }
 
-    // TODO: 업데이트 컬링 호출마다 배열 할당하는 거 메모리 낭비?? Plane[] 캐시로 재사용 하는게 낫지 않은지 확인 요망
     private void UpdateCulling()
     {
         if (_playerCamera == null || playerHead == null) return;
 
-        Plane[] planes = GeometryUtility.CalculateFrustumPlanes(_playerCamera);
+        // 캐시된 배열에 프러스텀 평면 계산 (GC 할당 방지)
+        GeometryUtility.CalculateFrustumPlanes(_playerCamera, _frustumPlanes);
 
         foreach (var light in allLights)
         {
@@ -85,7 +86,7 @@ public class LightCullingController : MonoBehaviour
             bool inDistance = distance >= minCameraDistance && distance <= maxCameraDistance;
 
             // 카메라 프러스텀 컬링
-            bool inCameraView = GeometryUtility.TestPlanesAABB(planes, light.GetComponent<Renderer>().bounds);
+            bool inCameraView = GeometryUtility.TestPlanesAABB(_frustumPlanes, light.GetComponent<Renderer>().bounds);
 
             // 좌우 시야 각도 조정 (기본 FOV + horizontalFOVOffset)
             Vector3 dirToLight = (light.transform.position - _playerCamera.transform.position).normalized;
