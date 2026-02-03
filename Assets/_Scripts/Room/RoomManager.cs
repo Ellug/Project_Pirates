@@ -45,13 +45,20 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
     void Start()
     {
         Debug.Log($"[Room] Start. startButtonAssigned={_startButton != null}");
-        
+
         GameManager.Instance.SetSceneState(SceneState.Room);
 
         _ready.SetLocalReady(false);
 
         if (_roomUI != null)
             _roomUI.RoomSettingsApplyRequested += HandleRoomSettingsApplyRequested;
+
+        // DontDestroyOnLoad 싱글톤들의 인게임 상태 초기화
+        if (PlayerManager.Instance != null)
+            PlayerManager.Instance.ResetForRoom();
+
+        // static 참조 초기화 (인게임에서 복귀 시)
+        PlayerController.LocalInstancePlayer = null;
 
         // 방 진입 후 내 상태 출력
         StartCoroutine(CoWaitRoomThenRefresh());
@@ -441,12 +448,12 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
             PhotonNetwork.CurrentRoom.MaxPlayers = newMax;
             LogRoom($"[Room] MaxPlayers 변경: {room.MaxPlayers}");
         }
-        roomCapacitySafe("ApplyRoomSettings");
+        RoomCapacitySafe();
 
         RefreshRoomUI("ApplyRoomSettings(local)");
     }
 
-    private void roomCapacitySafe(string reason)
+    private void RoomCapacitySafe()
     {
         if (!PhotonNetwork.InRoom || PhotonNetwork.CurrentRoom == null) return;
 
@@ -534,8 +541,6 @@ public sealed class RoomManager : MonoBehaviourPunCallbacks, IOnEventCallback
             "SkipDiscussion",   // 토론 스킵
             "loaded",           // 로딩 완료 상태
             "UpperColor",       // 플레이어 색상
-            "v_vol",            // 음성 볼륨
-            "v_mute"            // 음소거 상태
         };
 
         var propsToRemove = new ExitGames.Client.Photon.Hashtable();

@@ -406,4 +406,27 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
         return loaded;
     }
+
+    // Room 씬으로 돌아갈 때 인게임 상태 초기화
+    public void ResetForRoom()
+    {
+        // 실행 중인 코루틴 중지
+        if (_gameInitCoroutine != null)
+        {
+            StopCoroutine(_gameInitCoroutine);
+            _gameInitCoroutine = null;
+        }
+
+        // 플레이어 캐시 초기화
+        _playersId.Clear();
+        _localPlayer = null;
+
+        // 게임 상태 초기화
+        _mafiaNum = 0;
+        _citizenNum = 0;
+        onLoadedPlayer = 0;
+        _spawnPointList = null;
+
+        Debug.Log("[PlayerManager] Room 복귀를 위한 상태 초기화 완료");
+    }
 }

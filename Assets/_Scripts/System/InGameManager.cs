@@ -108,8 +108,14 @@ public class InGameManager : MonoBehaviourPunCallbacks
 
         Debug.Log("[InGame] ExitForLocal -> LoadLevel(Room)");
 
-        if (PlayerController.LocalInstancePlayer != null)
-            PhotonNetwork.DestroyPlayerObjects(PhotonNetwork.LocalPlayer);
+        // 모든 플레이어의 네트워크 오브젝트 파괴 (버퍼 정리)
+        // LoadLevel 전에 파괴해야 나중에 입장하는 플레이어에게 이전 오브젝트가 생성되지 않음
+        foreach (var player in PhotonNetwork.PlayerList)
+        {
+            PhotonNetwork.DestroyPlayerObjects(player);
+        }
+
+        PlayerController.LocalInstancePlayer = null;
 
         // LoadLevel로 모든 클라이언트가 동기화되어 Room 씬으로 이동
         PhotonNetwork.LoadLevel("Room");
