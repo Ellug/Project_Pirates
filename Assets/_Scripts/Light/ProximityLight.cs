@@ -7,6 +7,11 @@ public class ProximityLight : MonoBehaviour
     private Light _light;
     private Renderer _lightRenderer;
     private bool _currentEnabled = false;
+    private LightShadows _defaultShadows;
+    private bool _shadowEnabled;
+
+    [Header("Shadow Options")]
+    [SerializeField] private bool allowShadows = true;
 
     public bool IsActiveByPlayer { get; private set; }
     private bool _byOcclusion = false;
@@ -16,6 +21,8 @@ public class ProximityLight : MonoBehaviour
     {
         _light = GetComponent<Light>();
         _lightRenderer = GetComponent<Renderer>();
+        _defaultShadows = _light.shadows;
+        _shadowEnabled = _defaultShadows != LightShadows.None;
 
         // 시작 시 모든 라이트 OFF
         _light.enabled = false;
@@ -38,6 +45,21 @@ public class ProximityLight : MonoBehaviour
     {
         _byPower = on;
         ApplyFinalState();
+    }
+
+    public bool CanCastShadows => allowShadows && _defaultShadows != LightShadows.None;
+
+    public void SetShadowEnabled(bool enabled)
+    {
+        if (_light == null) return;
+
+        if (!allowShadows || _defaultShadows == LightShadows.None)
+            enabled = false;
+
+        if (_shadowEnabled == enabled) return;
+
+        _shadowEnabled = enabled;
+        _light.shadows = _shadowEnabled ? _defaultShadows : LightShadows.None;
     }
 
     // ON/OFF 호출 최소화

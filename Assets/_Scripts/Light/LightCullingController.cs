@@ -18,6 +18,11 @@ public class LightCullingController : MonoBehaviour
     [Tooltip("범위 밖으로 나간 후 불이 꺼질 때까지의 대기 시간")]
     public float offDelay = 2.0f;
 
+    [Header("Shadow Culling")]
+    public bool limitAdditionalLightShadows = true;
+    public int maxShadowedLights = 12;
+    public float shadowDistance = 15f;
+
     [Header("Gizmo (Editor only)")]
     public bool showProximityGizmo = true;
     public Color gizmoColor = new Color(1f, 0.5f, 0.1f, 0.7f);
@@ -27,6 +32,18 @@ public class LightCullingController : MonoBehaviour
     private Plane[] _frustumPlanes = new Plane[6];
     private Dictionary<ProximityLight, Renderer> _lightRendererMap = new Dictionary<ProximityLight, Renderer>(64);
     private Dictionary<ProximityLight, float> _lightExpireTimers = new Dictionary<ProximityLight, float>(64);
+    private readonly List<ShadowCandidate> _shadowCandidates = new List<ShadowCandidate>(128);
+
+    private struct ShadowCandidate
+    {
+        public ProximityLight light;
+        public float distSqr;
+        public ShadowCandidate(ProximityLight light, float distSqr)
+        {
+            this.light = light;
+            this.distSqr = distSqr;
+        }
+    }
 
     void Awake()
     {
@@ -73,6 +90,10 @@ public class LightCullingController : MonoBehaviour
 
         GeometryUtility.CalculateFrustumPlanes(_playerCamera, _frustumPlanes);
         float proximityRadiusSqr = proximityRadius * proximityRadius;
+        float shadowDistanceSqr = shadowDistance * shadowDistance;
+
+        if (limitAdditionalLightShadows)
+            _shadowCandidates.Clear();
 
         foreach (var light in allLights)
         {
@@ -123,6 +144,31 @@ public class LightCullingController : MonoBehaviour
             light.SetByOcclusion(isViewDetected && finalState);
             light.SetByPlayer(isProximityDetected || (finalState && !isViewDetected));
             light.ApplyFinalState();
+
+            if (limitAdditionalLightShadows)
+            {
+                light.SetShadowEnabled(false);
+
+                if (finalState && light.CanCastShadows)
+                {
+                    float distSqr = (light.transform.position - _playerCamera.transform.position).sqrMagnitude;
+                    if (distSqr <= shadowDistanceSqr)
+                        _shadowCandidates.Add(new ShadowCandidate(light, distSqr));
+                }
+            }
+            else
+            {
+                light.SetShadowEnabled(finalState);
+            }
+        }
+
+        if (limitAdditionalLightShadows && _shadowCandidates.Count > 0)
+        {
+            _shadowCandidates.Sort((a, b) => a.distSqr.CompareTo(b.distSqr));
+
+            int count = Mathf.Min(maxShadowedLights, _shadowCandidates.Count);
+            for (int i = 0; i < count; i++)
+                _shadowCandidates[i].light.SetShadowEnabled(true);
         }
     }
 
