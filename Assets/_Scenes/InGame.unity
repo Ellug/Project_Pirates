@@ -11226,6 +11226,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2750704969348737947, guid: b218240ca19689d4280aa6967421987a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3505199949182763589, guid: b218240ca19689d4280aa6967421987a, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -13331,6 +13335,10 @@ PrefabInstance:
     - target: {fileID: 9052584835861603371, guid: b4b4209d6b5c57f4a936cb160072a32a, type: 3}
       propertyPath: m_Name
       value: CCTV Objects
+      objectReference: {fileID: 0}
+    - target: {fileID: 9052584835861603371, guid: b4b4209d6b5c57f4a936cb160072a32a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
