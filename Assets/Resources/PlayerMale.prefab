@@ -1740,11 +1740,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LightCullingController
   playerHead: {fileID: 697893731915319955}
-  proximityRadius: 12
+  proximityRadius: 10
   minCameraDistance: 0
   maxCameraDistance: 40
   horizontalFOVOffset: 40
   checkInterval: 0.1
+  showProximityGizmo: 1
+  gizmoColor: {r: 1, g: 0.5, b: 0.1, a: 0.7}
 --- !u!1 &3737917190972728268
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,7 +9,7 @@ public class LightCullingController : MonoBehaviour
     public Transform playerHead;
 
     [Header("컬링 옵션")]
-    [Tooltip("플레이어 머리 기준 근접 반경")]
+    [Tooltip("플레이어 머리 기준 근접 반경 (인스펙터에서만 조절)")]
     public float proximityRadius = 12f;
 
     [Tooltip("카메라 시야 컬링 최소 거리")]
@@ -24,16 +24,28 @@ public class LightCullingController : MonoBehaviour
     [Tooltip("컬링 체크 간격 (초)")]
     public float checkInterval = 0.1f;
 
+    [Header("Gizmo (Editor only)")]
+    public bool showProximityGizmo = true;
+    public Color gizmoColor = new Color(1f, 0.5f, 0.1f, 0.7f);
+
     private Camera _playerCamera;
     private List<ProximityLight> allLights = new List<ProximityLight>();
-    private Plane[] _frustumPlanes = new Plane[6]; // 캐시된 프러스텀 평면 배열
+    private Plane[] _frustumPlanes = new Plane[6];
+
+    private Dictionary<ProximityLight, Renderer> _lightRendererMap = new Dictionary<ProximityLight, Renderer>(64);
 
     void Awake()
     {
-        // 씬 시작 시 라이트 수집
         allLights.AddRange(FindObjectsByType<ProximityLight>(FindObjectsSortMode.None));
 
-        // 자신에게 할당된 플레이어 캐릭터 카메라만 가져오기
+        foreach (var light in allLights)
+        {
+            if (light == null) continue;
+            var rend = light.GetComponent<Renderer>();
+            if (!_lightRendererMap.ContainsKey(light))
+                _lightRendererMap.Add(light, rend);
+        }
+
         var localPlayer = FindObjectsByType<PlayerController>(FindObjectsSortMode.None)
                           .FirstOrDefault(p => p.photonView != null && p.photonView.IsMine);
 
@@ -59,7 +71,6 @@ public class LightCullingController : MonoBehaviour
     private IEnumerator LightCullingLoop()
     {
         var wait = new WaitForSeconds(checkInterval);
-
         while (true)
         {
             UpdateCulling();
@@ -71,44 +82,58 @@ public class LightCullingController : MonoBehaviour
     {
         if (_playerCamera == null || playerHead == null) return;
 
-        // 캐시된 배열에 프러스텀 평면 계산 (GC 할당 방지)
         GeometryUtility.CalculateFrustumPlanes(_playerCamera, _frustumPlanes);
+        float proximityRadiusSqr = proximityRadius * proximityRadius;
 
         foreach (var light in allLights)
         {
             if (light == null) continue;
 
-            // 플레이어 근접 Sphere 체크
-            bool inProximity = Vector3.Distance(light.transform.position, playerHead.position) <= proximityRadius;
-
-            // 카메라 거리 체크
             float distance = Vector3.Distance(light.transform.position, _playerCamera.transform.position);
             bool inDistance = distance >= minCameraDistance && distance <= maxCameraDistance;
 
-            // 카메라 프러스텀 컬링
-            bool inCameraView = GeometryUtility.TestPlanesAABB(_frustumPlanes, light.GetComponent<Renderer>().bounds);
-
-            // 좌우 시야 각도 조정 (기본 FOV + horizontalFOVOffset)
             Vector3 dirToLight = (light.transform.position - _playerCamera.transform.position).normalized;
             float angle = Vector3.Angle(_playerCamera.transform.forward, dirToLight);
-
             float cameraFOVHorizontal = CameraVerticalToHorizontalFOV(_playerCamera.fieldOfView, _playerCamera.aspect);
             bool inHorizontalFOV = angle <= (cameraFOVHorizontal * 0.5f + horizontalFOVOffset);
 
-            // 최종 컬링 적용
-            bool shouldBeActive = inDistance && inCameraView && inHorizontalFOV;
+            Renderer rend = null;
+            _lightRendererMap.TryGetValue(light, out rend);
+            bool inCameraView = (rend != null) && GeometryUtility.TestPlanesAABB(_frustumPlanes, rend.bounds);
 
-            light.SetByOcclusion(shouldBeActive);
-            light.SetByPlayer(inProximity);
+            bool shouldBeActiveByOcclusion = inDistance && inCameraView && inHorizontalFOV;
+            bool inPlayerProximity;
+            if (rend != null)
+            {
+                float sqr = rend.bounds.SqrDistance(playerHead.position);
+                inPlayerProximity = sqr <= proximityRadiusSqr;
+            }
+            else
+            {
+                inPlayerProximity = (light.transform.position - playerHead.position).sqrMagnitude <= proximityRadiusSqr;
+            }
+
+            light.SetByOcclusion(shouldBeActiveByOcclusion);
+            light.SetByPlayer(inPlayerProximity);
             light.ApplyFinalState();
         }
     }
 
-    // 유니티 카메라 수직 FOV를 수평 FOV로 변환
     private float CameraVerticalToHorizontalFOV(float verticalFOV, float aspect)
     {
         float radV = verticalFOV * Mathf.Deg2Rad;
         float radH = 2f * Mathf.Atan(Mathf.Tan(radV / 2f) * aspect);
         return radH * Mathf.Rad2Deg;
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        if (!showProximityGizmo) return;
+        if (playerHead == null) return;
+
+        Gizmos.color = gizmoColor;
+        Gizmos.DrawWireSphere(playerHead.position, proximityRadius);
+    }
+#endif
 }
