@@ -32,7 +32,11 @@ public class PlayerModel : MonoBehaviour
     public float SprintStaminaDrainPerSec => _sprintStaminaDrainPerSec;
 
     [SerializeField] private float _staminaRecoverPerSec = 20f; // 회복
-    public float StaminaRecoverPerSec => _staminaRecoverPerSec;
+    public float StaminaRecoverPerSec 
+    {
+        get { return _staminaRecoverPerSec; } 
+        set { _staminaRecoverPerSec = value; } 
+    }
 
     private float _staminaReenableToRun = 25f;
     private bool _isSprintLock;
@@ -69,7 +73,7 @@ public class PlayerModel : MonoBehaviour
     private ItemData[] _inventory;
     private ItemEffects _effects;
 
-    private void Awake()
+    void Awake()
     {
         _maxHealthPoint = 100f;
         _curHealthPoint = _maxHealthPoint;
@@ -93,7 +97,7 @@ public class PlayerModel : MonoBehaviour
         OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
         PostProcessingController.Instance.HitEffect();
 
-        if (_curHealthPoint <= 0f)
+        if (_curHealthPoint < 1f)
         {
             _curHealthPoint = 0f;
             _isDead = true;
@@ -205,7 +209,13 @@ public class PlayerModel : MonoBehaviour
         switch (job)
         {
             case JobId.None: MyJob = null; break;
-            case JobId.Sprinter: MyJob = new DeliveryJob(); break;
+            case JobId.Delivery: MyJob = new DeliveryJob(); break;
+            case JobId.SportMan: MyJob = new SportManJob(); break;
+            case JobId.FireFighter: MyJob = new FireFighterJob(); break;
+            case JobId.Reporter: MyJob = new ReporterJob(); break;
+            case JobId.Police: MyJob = new PoliceJob(); break;
+            case JobId.Wrestling: MyJob = new WrestlingJob(); break;
+            case JobId.Thief: MyJob = new ThiefJob(); break;
         }
         MyJob?.Initialize(this);
     }
@@ -324,5 +334,51 @@ public class PlayerModel : MonoBehaviour
     public ItemData[] GetInventory()
     {
         return _inventory;
+    }
+
+    // 최대 체력 배율
+    public void ApplyMaxHPMultiplier(float multiplier)
+    {
+        multiplier = Mathf.Max(0.1f, multiplier);
+
+        _maxHealthPoint *= multiplier;
+        _curHealthPoint = _maxHealthPoint;
+
+        OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
+    }
+
+    // 최대 스테미나 배율
+    public void ApplyMaxStaminaMultiplier(float multiplier)
+    {
+        multiplier = Mathf.Max(0.1f, multiplier);
+
+        _maxStamina *= multiplier;
+        _curStamina = _maxStamina;
+
+        OnStaminaChanged?.Invoke(_curStamina, _maxStamina);
+    }
+
+    // 이동속도 배율
+    public void ApplyBaseSpeedMultiplier(float multiplier)
+    {
+        multiplier = Mathf.Max(0.1f, multiplier);
+
+        baseSpeed *= multiplier;
+        runSpeed = baseSpeed * 1.6f;
+        crouchSpeed = baseSpeed * 0.4f;
+    }
+
+    // 공격력 배율
+    public void ApplyAttackMultiplier(float multiplier)
+    {
+        multiplier = Mathf.Max(0.1f, multiplier);
+        attackPower *= multiplier;
+    }
+
+    // 스테미나 회복 속도 배율
+    public void ApplyStaminaRecoverMultiplier(float multiplier)
+    {
+        multiplier = Mathf.Max(0.1f, multiplier);
+        _staminaRecoverPerSec *= multiplier;
     }
 }

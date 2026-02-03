@@ -22,7 +22,7 @@ public class EngineSabotageManager : MonoBehaviour
     // 동시 홀드 시작 시간
     private double _simultaneousStartTime = -1;
 
-    private void Awake()
+    void Awake()
     {
         if (_pv == null) _pv = GetComponent<PhotonView>();
         if (_pv == null)
@@ -31,7 +31,7 @@ public class EngineSabotageManager : MonoBehaviour
         }
     }
 
-    private void Update()
+    void Update()
     {
         if (!PhotonNetwork.IsMasterClient) return;
         if (_sabotageManager == null) return;

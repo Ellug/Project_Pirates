@@ -112,7 +112,7 @@ public class EngineSabotageConsole : InteractionObject
         _holdCoroutine = null;
     }
 
-    private void OnDisable()
+    void OnDisable()
     {
         if (_holdCoroutine != null)
         {

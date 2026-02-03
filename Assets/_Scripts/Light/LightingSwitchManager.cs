@@ -11,7 +11,7 @@ public class LightingSwitchManager : MonoBehaviour
     public string lightOnScenario = "LightOn";
     public string lightOffScenario = "LightOff";
 
-    private void Start()
+    void Start()
     {
         ApplyLightOnImmediate();
     }

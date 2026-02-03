@@ -38,7 +38,7 @@ public class LoadingManager : MonoBehaviourPunCallbacks
         StartCoroutine(StartTips());
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         PlayerManager.Instance.allReadyComplete -= TriggerIsAllReady;
     }

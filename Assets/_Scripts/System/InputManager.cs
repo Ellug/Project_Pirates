@@ -87,7 +87,7 @@ public class InputManager : Singleton<InputManager>
         ApplyState();
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (_toggleConsole != null) _toggleConsole.performed -= OnToggleConsole;
         if (_toggleOptions != null) _toggleOptions.performed -= OnToggleOptions;

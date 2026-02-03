@@ -27,7 +27,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
         StartCoroutine(SpawnPlayer());
     }
 
-    private void Start()
+    void Start()
     {
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.allReadyComplete += PopUpPlayersRole;
@@ -38,7 +38,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
             );
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.allReadyComplete -= PopUpPlayersRole;

@@ -13,12 +13,12 @@ public class RaiseEventManager : MonoBehaviour, IOnEventCallback
     // ReceiverGroup.Others 나 제외 전원
     // ReceiverGroup.MasterClient 마스터만
 
-    private void OnEnable()
+    void OnEnable()
     {
         PhotonNetwork.AddCallbackTarget(this);
     }
 
-    private void OnDisable()
+    void OnDisable()
     {
         PhotonNetwork.RemoveCallbackTarget(this);
     }
