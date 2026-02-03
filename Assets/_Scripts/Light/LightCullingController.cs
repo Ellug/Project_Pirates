@@ -9,20 +9,14 @@ public class LightCullingController : MonoBehaviour
     public Transform playerHead;
 
     [Header("컬링 옵션")]
-    [Tooltip("플레이어 머리 기준 근접 반경 (인스펙터에서만 조절)")]
     public float proximityRadius = 12f;
-
-    [Tooltip("카메라 시야 컬링 최소 거리")]
     public float minCameraDistance = 0f;
-
-    [Tooltip("카메라 시야 컬링 최대 거리")]
     public float maxCameraDistance = 30f;
-
-    [Tooltip("프러스텀 기준 좌우 시야를 추가로 늘리거나 줄이는 각도 (±n도)")]
-    public float horizontalFOVOffset = 0f; // 0이면 카메라 기본 시야, 30이면 좌우 30도 더 넓음
-
-    [Tooltip("컬링 체크 간격 (초)")]
+    public float horizontalFOVOffset = 0f;
     public float checkInterval = 0.1f;
+
+    [Tooltip("범위 밖으로 나간 후 불이 꺼질 때까지의 대기 시간")]
+    public float offDelay = 2.0f;
 
     [Header("Gizmo (Editor only)")]
     public bool showProximityGizmo = true;
@@ -31,8 +25,8 @@ public class LightCullingController : MonoBehaviour
     private Camera _playerCamera;
     private List<ProximityLight> allLights = new List<ProximityLight>();
     private Plane[] _frustumPlanes = new Plane[6];
-
     private Dictionary<ProximityLight, Renderer> _lightRendererMap = new Dictionary<ProximityLight, Renderer>(64);
+    private Dictionary<ProximityLight, float> _lightExpireTimers = new Dictionary<ProximityLight, float>(64);
 
     void Awake()
     {
@@ -44,8 +38,12 @@ public class LightCullingController : MonoBehaviour
             var rend = light.GetComponent<Renderer>();
             if (!_lightRendererMap.ContainsKey(light))
                 _lightRendererMap.Add(light, rend);
+
+            // 타이머 초기화
+            _lightExpireTimers[light] = 0f;
         }
 
+        // 플레이어 검색 로직
         var localPlayer = FindObjectsByType<PlayerController>(FindObjectsSortMode.None)
                           .FirstOrDefault(p => p.photonView != null && p.photonView.IsMine);
 
@@ -56,11 +54,7 @@ public class LightCullingController : MonoBehaviour
                 playerHead = _playerCamera.transform;
         }
 
-        if (_playerCamera == null)
-            _playerCamera = Camera.main;
-
-        if (playerHead == null)
-            Debug.LogError("[LightCullingController] PlayerHead를 찾지 못했습니다!");
+        if (_playerCamera == null) _playerCamera = Camera.main;
     }
 
     void Start()
@@ -89,6 +83,7 @@ public class LightCullingController : MonoBehaviour
         {
             if (light == null) continue;
 
+            // 1. 카메라 시야/거리 체크
             float distance = Vector3.Distance(light.transform.position, _playerCamera.transform.position);
             bool inDistance = distance >= minCameraDistance && distance <= maxCameraDistance;
 
@@ -101,20 +96,37 @@ public class LightCullingController : MonoBehaviour
             _lightRendererMap.TryGetValue(light, out rend);
             bool inCameraView = (rend != null) && GeometryUtility.TestPlanesAABB(_frustumPlanes, rend.bounds);
 
-            bool shouldBeActiveByOcclusion = inDistance && inCameraView && inHorizontalFOV;
-            bool inPlayerProximity;
+            bool isViewDetected = inDistance && inCameraView && inHorizontalFOV;
+
+            // 2. 플레이어 근접 체크
+            bool isProximityDetected;
             if (rend != null)
             {
                 float sqr = rend.bounds.SqrDistance(playerHead.position);
-                inPlayerProximity = sqr <= proximityRadiusSqr;
+                isProximityDetected = sqr <= proximityRadiusSqr;
             }
             else
             {
-                inPlayerProximity = (light.transform.position - playerHead.position).sqrMagnitude <= proximityRadiusSqr;
+                isProximityDetected = (light.transform.position - playerHead.position).sqrMagnitude <= proximityRadiusSqr;
             }
 
-            light.SetByOcclusion(shouldBeActiveByOcclusion);
-            light.SetByPlayer(inPlayerProximity);
+            // 3. 타이머 로직 적용
+            if (isViewDetected || isProximityDetected)
+            {
+                _lightExpireTimers[light] = offDelay;
+            }
+            else
+            {
+                // 범위 밖이라면 체크 간격만큼 시간 차감
+                if (_lightExpireTimers[light] > 0)
+                    _lightExpireTimers[light] -= checkInterval;
+            }
+
+            // 타이머가 0보다 크면 켜진 상태 유지
+            bool finalState = _lightExpireTimers[light] > 0;
+
+            light.SetByOcclusion(isViewDetected && finalState);
+            light.SetByPlayer(isProximityDetected || (finalState && !isViewDetected));
             light.ApplyFinalState();
         }
     }
@@ -129,9 +141,7 @@ public class LightCullingController : MonoBehaviour
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
-        if (!showProximityGizmo) return;
-        if (playerHead == null) return;
-
+        if (!showProximityGizmo || playerHead == null) return;
         Gizmos.color = gizmoColor;
         Gizmos.DrawWireSphere(playerHead.position, proximityRadius);
     }
