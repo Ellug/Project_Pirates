@@ -73,6 +73,7 @@ MonoBehaviour:
   - RpcTeleportPlayer
   - RPC_ReportHoldState
   - RPC_SetSimultaneousHold
+  - RpcReportDeath
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

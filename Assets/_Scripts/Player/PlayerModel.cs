@@ -1,6 +1,8 @@
-﻿using System.Collections;
+using System.Collections;
 using System;
 using UnityEngine;
+using Photon.Pun;
+using ExitGames.Client.Photon;
 
 public class PlayerModel : MonoBehaviour
 {
@@ -94,7 +96,7 @@ public class PlayerModel : MonoBehaviour
     public void TakeDamage(float damage)
     {
         // 네트워크: 소유자만 체력 처리
-        var pv = GetComponent<Photon.Pun.PhotonView>();
+        var pv = GetComponent<PhotonView>();
         if (pv != null && !pv.IsMine) return;
 
         if (_isDead) return;
@@ -108,6 +110,7 @@ public class PlayerModel : MonoBehaviour
         {
             _curHealthPoint = 0f;
             _isDead = true;
+            MarkLocalDeadProperty();
             Debug.Log("사망하였습니다.");
             StartCoroutine(DeathCor());
         }
@@ -122,13 +125,14 @@ public class PlayerModel : MonoBehaviour
     public void ExecuteByVote()
     {
         // 네트워크: 소유자만 처형 처리
-        var pv = GetComponent<Photon.Pun.PhotonView>();
+        var pv = GetComponent<PhotonView>();
         if (pv != null && !pv.IsMine) return;
 
         if (_isDead) return;
 
         _curHealthPoint = 0f;
         _isDead = true;
+        MarkLocalDeadProperty();
         OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
 
         Debug.Log("투표로 처형되었습니다.");
@@ -154,6 +158,21 @@ public class PlayerModel : MonoBehaviour
 
         // RPC로 모든 클라이언트에서 로컬 생성
         PlayerManager.Instance.RequestSpawnDeadBody(spawnPos, spawnRot);
+    }
+
+    private void MarkLocalDeadProperty()
+    {
+        if (!PhotonNetwork.InRoom) return;
+
+        var pv = GetComponent<PhotonView>();
+        if (pv != null && !pv.IsMine) return;
+
+        var props = PhotonNetwork.LocalPlayer.CustomProperties;
+        if (props != null && props.TryGetValue("IsDead", out var v) && v is bool b && b)
+            return;
+
+        var set = new ExitGames.Client.Photon.Hashtable { { "IsDead", true } };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(set);
     }
 
     public void ChangeSpeedStatus(float amount)
@@ -393,3 +412,4 @@ public class PlayerModel : MonoBehaviour
         _staminaRecoverPerSec *= multiplier;
     }
 }
+

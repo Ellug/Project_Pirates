@@ -429,6 +429,15 @@ public class PlayerController : MonoBehaviourPun
         model.ExecuteByVote();
     }
 
+    [PunRPC]
+    public void RpcReportDeath(int viewId)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (PlayerManager.Instance == null) return;
+
+        PlayerManager.Instance.PlayerDeathCheck(viewId);
+    }
+
     public void TeleportRequest(Vector3 pos)
     {
         if (!photonView.IsMine) return;

@@ -223,9 +223,21 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
     public void NoticeDeathPlayer(PlayerController player)
     {
-        // 마스터 클라이언트에게 내 죽음을 알림.
-        _view.RPC(nameof(PlayerDeathCheck), RpcTarget.MasterClient,
-            player.GetComponent<PhotonView>().ViewID);
+        if (player == null) return;
+        var pv = player.GetComponent<PhotonView>();
+        if (pv == null) return;
+
+        int viewId = pv.ViewID;
+
+        // 마스터는 즉시 처리
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PlayerDeathCheck(viewId);
+            return;
+        }
+
+        // 비마스터는 자신의 PhotonView로 마스터에게 사망 보고 RPC 전송
+        pv.RPC(nameof(PlayerController.RpcReportDeath), RpcTarget.MasterClient, viewId);
     }
 
     // 마스터 클라이언트에서 직접 호출용 (RPC 없이)
@@ -234,6 +246,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         if (!PhotonNetwork.IsMasterClient) return;
         PlayerDeathCheck(viewId);
     }
+
 
     // 시체 생성 요청 -> 모든 클라이언트에서 로컬 생성
     private int _deadBodyIdCounter = 10000; // 시체 고유 ID 카운터
@@ -407,6 +420,27 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
         // 마스터 전환 직후 승패 체크
         EvaluateWinConditions();
+    }
+
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (changedProps == null || targetPlayer == null) return;
+        if (!IsInGameContext()) return;
+
+        if (changedProps.TryGetValue(DEAD_KEY, out var v) && v is bool b && b)
+        {
+            int actorNumber = targetPlayer.ActorNumber;
+
+            if (VoteRoomProperties.Instance != null &&
+                !VoteRoomProperties.Instance.IsPlayerDead(actorNumber))
+            {
+                VoteRoomProperties.Instance.MarkPlayerDead(actorNumber);
+            }
+
+            Debug.Log($"[PlayerManager] PlayerPropertiesUpdate death: ActorNumber={actorNumber}");
+            EvaluateWinConditions();
+        }
     }
 
     private void RebuildPlayerCache()
