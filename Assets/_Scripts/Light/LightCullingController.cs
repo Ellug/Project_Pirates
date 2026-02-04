@@ -10,18 +10,18 @@ public class LightCullingController : MonoBehaviour
     public Transform playerHead;
 
     [Header("컬링 옵션")]
-    public float proximityRadius = 12f;
+    public float proximityRadius = 14f;
     public float minCameraDistance = 0f;
-    public float maxCameraDistance = 30f;
+    public float maxCameraDistance = 32f;
     public float horizontalFOVOffset = 0f;
     public float checkInterval = 0.1f;
 
     [Tooltip("범위 밖으로 나간 후 불이 꺼질 때까지의 대기 시간")]
-    public float offDelay = 2.0f;
+    public float offDelay = 2.5f;
 
     [Header("Stabilization (Flicker Fix)")]
     [Tooltip("offDelay보다 작은 값이면 무시됩니다. (최소 유지 시간)")]
-    public float minHoldTime = 0.3f;
+    public float minHoldTime = 0.5f;
     [Tooltip("켜진 상태에서만 추가로 늘려주는 근접 반경")]
     public float proximityHysteresis = 2.0f;
     [Tooltip("켜진 상태에서만 추가로 늘려주는 거리 범위")]

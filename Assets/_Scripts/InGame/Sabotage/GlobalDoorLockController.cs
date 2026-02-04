@@ -8,11 +8,13 @@ public class GlobalDoorLockController : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private CustomPropertyManager _roomProps;
     [SerializeField] private float lockDuration = 10f;
+    [SerializeField] private float lockCooldown = 20f;
 
     [Header("UI")]
     [SerializeField] private Button _doorLockButton;
 
     private const string LOCK_KEY = "world.door.locked";
+    private const string LOCK_COOLDOWN_KEY = "world.door.locked.cooldown";
 
     private Coroutine _unlockTimerCoroutine;
 
@@ -53,9 +55,20 @@ public class GlobalDoorLockController : MonoBehaviour
     {
         if (PhotonNetwork.CurrentRoom == null) return;
 
+        if (_roomProps.TryGet(LOCK_COOLDOWN_KEY, out object cdValue))
+        {
+            if (cdValue is double cdEnd && PhotonNetwork.Time < cdEnd)
+            {
+                Debug.Log("[GlobalDoorLock] 쿨타임 중이라 요청 무시");
+                return;
+            }
+        }
+
         double unlockTime = PhotonNetwork.Time + lockDuration;
+        double cooldownEnd = PhotonNetwork.Time + lockCooldown;
 
         _roomProps.Set(LOCK_KEY, unlockTime);
+        _roomProps.Set(LOCK_COOLDOWN_KEY, cooldownEnd);
 
         Debug.Log($"[GlobalDoorLock] 모든 문 잠금 요청 (해제 시간: {unlockTime})");
     }
