@@ -226,6 +226,10 @@ public class VoteManager : MonoBehaviourPunCallbacks
         }
 
         target.photonView.RPC(nameof(PlayerController.RpcExecuteByVote), target.photonView.Owner);
+
+        // 투표 처형 후 즉시 사망 알림 (승패 체크 트리거)
+        if (PlayerManager.Instance != null)
+            PlayerManager.Instance.NoticeDeathPlayer(target);
     }
 
     private PlayerController FindPlayerControllerByActorNumber(int actorNumber)
