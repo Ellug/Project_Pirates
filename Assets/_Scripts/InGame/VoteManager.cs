@@ -57,6 +57,7 @@ public class VoteManager : MonoBehaviourPunCallbacks
     private WaitForSeconds _waitTeleportDelay;
     private WaitForSeconds _waitPanelFadeOut;
     private WaitForSeconds _waitPostVoteCleanup;
+    private readonly WaitForSeconds _waitPhaseSync = new(2.5f);
 
     void Awake()
     {
@@ -167,10 +168,17 @@ public class VoteManager : MonoBehaviourPunCallbacks
         if (_voteProps.CurrentPhase == VotePhase.Discussion)
             _voteProps.SetVotePhase(VotePhase.Voting);
 
+        // Phase 전환 후 Custom Properties 네트워크 동기화 대기
+        yield return _waitPhaseSync;
+
         float elapsed = 0f;
         float votingDuration = GetVotingTime();
         while (elapsed < votingDuration)
         {
+            // Phase가 Voting이 아니면 종료 (외부에서 변경된 경우)
+            if (_voteProps.CurrentPhase != VotePhase.Voting)
+                break;
+
             // 모든 생존자가 투표하면 조기 종료
             if (_voteProps.AllAlivePlayersVoted())
                 break;
@@ -587,10 +595,16 @@ public class VoteManager : MonoBehaviourPunCallbacks
                 if (_voteProps.CurrentPhase != VotePhase.Voting)
                     break;
 
+                // Phase 전환 후 Custom Properties 네트워크 동기화 대기
+                yield return _waitPhaseSync;
+
                 float elapsed = 0f;
                 float votingDuration = GetVotingTime();
                 while (elapsed < votingDuration)
                 {
+                    if (_voteProps.CurrentPhase != VotePhase.Voting)
+                        break;
+
                     if (_voteProps.AllAlivePlayersVoted())
                         break;
 
