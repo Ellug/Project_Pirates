@@ -36,7 +36,7 @@ public class PlayerHUD : MonoBehaviour
         _roleImage.sprite = _mafiaImage;
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         UnBind();
     }

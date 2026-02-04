@@ -339,7 +339,11 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
         var owner = target.photonView != null ? target.photonView.Owner : null;
         if (owner != null && IsPlayerDead(owner))
-            return; // 이미 처리된 사망
+        {
+            // 투표 등으로 이미 사망 처리된 경우에도 승패 체크는 필요함
+            EvaluateWinConditions();
+            return;
+        }
 
         // VoteRoomProperties에 사망 등록 (투표 UI에 반영)
         int actorNumber = target.photonView.OwnerActorNr;

@@ -50,6 +50,9 @@ public class IdleState : IPlayerState
     {
         if (_model == null) return;
 
+        // 속박 상태면 상태 전환 불가
+        if (_model.IsBondage) return;
+
         if (_player.InputMove != Vector2.zero)
             _player.StateMachine.ChangeState(_player.StateMove);
         else if (_model.IsCrouching == false &&
@@ -95,6 +98,13 @@ public class MoveState : IPlayerState
 
     public void PhysicsUpdate()
     {
+        // 속박 상태면 이동 불가
+        if (_model.IsBondage)
+        {
+            _rb.linearVelocity = Vector3.zero;
+            return;
+        }
+
         Vector2 input = _player.InputMove;
         Vector3 localDir = new Vector3(input.x, 0f, input.y).normalized;
         Vector3 worldDir = _player.transform.TransformDirection(localDir);

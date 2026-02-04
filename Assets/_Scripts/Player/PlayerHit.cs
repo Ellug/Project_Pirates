@@ -24,14 +24,12 @@ public class PlayerHit : MonoBehaviour
 
     private IEnumerator GetBondage(float duration)
     {
-        float elapsedTime = 0f;
+        _model.IsBondage = true;
+        _rigidbody.linearVelocity = Vector3.zero;
 
-        while (elapsedTime < duration)
-        {
-            _rigidbody.linearVelocity = Vector3.zero;
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
+        yield return new WaitForSeconds(duration);
+
+        _model.IsBondage = false;
     }
 
     [PunRPC]

@@ -53,6 +53,9 @@ public class PlayerModel : MonoBehaviour
     public bool IsDead => _isDead;
     public bool isMafia = false;
 
+    // 속박 상태 (로프 등에 의해 움직임 제한)
+    public bool IsBondage { get; set; }
+
     public readonly string animNameOfMove = "MoveValue";
     public readonly string animNameOfRun = "Running";
     public readonly string animNameOfCrouch = "Crouching";

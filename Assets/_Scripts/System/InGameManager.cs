@@ -78,7 +78,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
         yield return StartCoroutine(
             _createVoice.CreateVoicePV(myPV, PlayerController.LocalInstancePlayer.transform));
 
-        // ✅ 스폰이 끝난 뒤, 마스터가 색 배정
+        // 스폰이 끝난 뒤, 마스터가 색 배정
         if (PhotonNetwork.IsMasterClient)
         {
             // 매 게임 시작 시 색상 중복 방지 위해 강제 재할당
