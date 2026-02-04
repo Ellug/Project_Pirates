@@ -2547,7 +2547,7 @@ Transform:
   m_GameObject: {fileID: 132205585}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -166.87007, y: 1, z: -0.04956}
+  m_LocalPosition: {x: -157.82, y: 1, z: -0.04956}
   m_LocalScale: {x: 0, y: 1, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -24767,7 +24767,7 @@ MonoBehaviour:
   _teleportArea: {fileID: 132205586}
   _areaRangeX: 5
   _areaRangeZ: 5
-  _minDistance: 1.5
+  _minDistance: 2.5
   _teleportDelay: 1
   _panelFadeOutDelay: 3
   _discussionTime: 120

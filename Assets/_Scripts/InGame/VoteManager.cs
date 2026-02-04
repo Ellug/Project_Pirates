@@ -52,12 +52,12 @@ public class VoteManager : MonoBehaviourPunCallbacks
     private Coroutine _postVoteCleanupCoroutine;
     private bool _voteActive;
     private int _currentReporterActorNumber = -1;
+    private const float PhaseSyncTimeout = 2.5f;
 
     // 캐시된 WaitForSeconds (GC 할당 방지)
     private WaitForSeconds _waitTeleportDelay;
     private WaitForSeconds _waitPanelFadeOut;
     private WaitForSeconds _waitPostVoteCleanup;
-    private readonly WaitForSeconds _waitPhaseSync = new(2.5f);
 
     void Awake()
     {
@@ -151,13 +151,17 @@ public class VoteManager : MonoBehaviourPunCallbacks
 
     private IEnumerator VoteSequenceCoroutine()
     {
+        if (!PhotonNetwork.IsMasterClient) yield break;
+        if (_voteProps == null) yield break;
+
         // 1. 토론 시간
-        _voteProps.SetVotePhase(VotePhase.Discussion);
+        yield return SetPhaseAndWait(VotePhase.Discussion);
         float discussionElapsed = 0f;
         float discussionDuration = GetDiscussionTime();
         while (discussionElapsed < discussionDuration)
         {
-            if (_voteProps.CurrentPhase != VotePhase.Discussion)
+            // 모두 스킵 시 투표 단계로 넘어감
+            if (_voteProps.CurrentPhase == VotePhase.Voting || _voteProps.CurrentPhase == VotePhase.Result)
                 break;
 
             discussionElapsed += Time.deltaTime;
@@ -165,18 +169,14 @@ public class VoteManager : MonoBehaviourPunCallbacks
         }
 
         // 2. 투표 시간
-        if (_voteProps.CurrentPhase == VotePhase.Discussion)
-            _voteProps.SetVotePhase(VotePhase.Voting);
-
-        // Phase 전환 후 Custom Properties 네트워크 동기화 대기
-        yield return _waitPhaseSync;
+        if (_voteProps.CurrentPhase != VotePhase.Voting && _voteProps.CurrentPhase != VotePhase.Result)
+            yield return SetPhaseAndWait(VotePhase.Voting);
 
         float elapsed = 0f;
         float votingDuration = GetVotingTime();
         while (elapsed < votingDuration)
         {
-            // Phase가 Voting이 아니면 종료 (외부에서 변경된 경우)
-            if (_voteProps.CurrentPhase != VotePhase.Voting)
+            if (_voteProps.CurrentPhase == VotePhase.Result)
                 break;
 
             // 모든 생존자가 투표하면 조기 종료
@@ -188,7 +188,7 @@ public class VoteManager : MonoBehaviourPunCallbacks
         }
 
         // 3. 결과 표시
-        _voteProps.SetVotePhase(VotePhase.Result);
+        yield return SetPhaseAndWait(VotePhase.Result);
         yield return new WaitForSeconds(GetResultTime());
 
         // 4. 투표 결과 처리
@@ -235,9 +235,11 @@ public class VoteManager : MonoBehaviourPunCallbacks
 
         target.photonView.RPC(nameof(PlayerController.RpcExecuteByVote), target.photonView.Owner);
 
-        // 투표 처형 후 즉시 사망 알림 (승패 체크 트리거)
+        // 투표 처형 후 즉시 사망 처리 (마스터에서 직접 호출)
+        // NoticeDeathPlayer는 RPC를 통해 마스터에게 전송하지만, 여기는 이미 마스터이므로 직접 처리
+        int viewId = target.photonView.ViewID;
         if (PlayerManager.Instance != null)
-            PlayerManager.Instance.NoticeDeathPlayer(target);
+            PlayerManager.Instance.PlayerDeathCheckDirect(viewId);
     }
 
     private PlayerController FindPlayerControllerByActorNumber(int actorNumber)
@@ -576,15 +578,15 @@ public class VoteManager : MonoBehaviourPunCallbacks
                 float discussionDuration = GetDiscussionTime();
                 while (discussionElapsed < discussionDuration)
                 {
-                    if (_voteProps.CurrentPhase != VotePhase.Discussion)
+                    if (_voteProps.CurrentPhase == VotePhase.Voting || _voteProps.CurrentPhase == VotePhase.Result)
                         break;
 
                     discussionElapsed += Time.deltaTime;
                     yield return null;
                 }
 
-                if (_voteProps.CurrentPhase == VotePhase.Discussion)
-                    _voteProps.SetVotePhase(VotePhase.Voting);
+                if (_voteProps.CurrentPhase != VotePhase.Voting && _voteProps.CurrentPhase != VotePhase.Result)
+                    yield return SetPhaseAndWait(VotePhase.Voting);
 
                 if (_voteProps.CurrentPhase != VotePhase.Voting)
                     break;
@@ -595,14 +597,11 @@ public class VoteManager : MonoBehaviourPunCallbacks
                 if (_voteProps.CurrentPhase != VotePhase.Voting)
                     break;
 
-                // Phase 전환 후 Custom Properties 네트워크 동기화 대기
-                yield return _waitPhaseSync;
-
                 float elapsed = 0f;
                 float votingDuration = GetVotingTime();
                 while (elapsed < votingDuration)
                 {
-                    if (_voteProps.CurrentPhase != VotePhase.Voting)
+                    if (_voteProps.CurrentPhase == VotePhase.Result)
                         break;
 
                     if (_voteProps.AllAlivePlayersVoted())
@@ -613,7 +612,7 @@ public class VoteManager : MonoBehaviourPunCallbacks
                 }
 
                 if (_voteProps.CurrentPhase == VotePhase.Voting)
-                    _voteProps.SetVotePhase(VotePhase.Result);
+                    yield return SetPhaseAndWait(VotePhase.Result);
 
                 if (_voteProps.CurrentPhase != VotePhase.Result)
                     break;
@@ -629,5 +628,22 @@ public class VoteManager : MonoBehaviourPunCallbacks
                 _voteProps.SetVotePhase(VotePhase.None);
                 break;
         }
+    }
+
+    private IEnumerator SetPhaseAndWait(VotePhase phase)
+    {
+        if (_voteProps == null) yield break;
+
+        _voteProps.SetVotePhase(phase);
+
+        float elapsed = 0f;
+        while (_voteProps.CurrentPhase != phase && elapsed < PhaseSyncTimeout)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (_voteProps.CurrentPhase != phase)
+            Debug.LogWarning($"[VoteManager] Phase sync timeout. expected={phase}, current={_voteProps.CurrentPhase}");
     }
 }

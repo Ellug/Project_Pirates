@@ -224,8 +224,15 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     public void NoticeDeathPlayer(PlayerController player)
     {
         // 마스터 클라이언트에게 내 죽음을 알림.
-        _view.RPC(nameof(PlayerDeathCheck), RpcTarget.MasterClient, 
+        _view.RPC(nameof(PlayerDeathCheck), RpcTarget.MasterClient,
             player.GetComponent<PhotonView>().ViewID);
+    }
+
+    // 마스터 클라이언트에서 직접 호출용 (RPC 없이)
+    public void PlayerDeathCheckDirect(int viewId)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        PlayerDeathCheck(viewId);
     }
 
     // 시체 생성 요청 -> 모든 클라이언트에서 로컬 생성
@@ -340,21 +347,17 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         }
 
         var owner = target.photonView != null ? target.photonView.Owner : null;
-        if (owner != null && IsPlayerDead(owner))
-        {
-            // 투표 등으로 이미 사망 처리된 경우에도 승패 체크는 필요함
-            EvaluateWinConditions();
-            return;
-        }
 
         // VoteRoomProperties에 사망 등록 (투표 UI에 반영)
         int actorNumber = target.photonView.OwnerActorNr;
         if (VoteRoomProperties.Instance != null)
             VoteRoomProperties.Instance.MarkPlayerDead(actorNumber);
 
-        // Custom Properties에 사망 저장 (카운트 안정화)
+        // Custom Properties에 사망 저장 (항상 설정하여 승패 체크 안정화)
         if (owner != null)
             SetPlayerDead(owner, true);
+
+        Debug.Log($"[PlayerManager] 플레이어 사망 처리 완료: ActorNumber={actorNumber}, IsMafia={IsPlayerMafia(owner)}");
 
         EvaluateWinConditions();
     }
@@ -515,18 +518,25 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         }
 
         if (!hasRoleInfo)
+        {
+            Debug.Log("[PlayerManager] EvaluateWinConditions: 역할 정보 없음, 승패 판정 스킵");
             return;
+        }
 
         _mafiaNum = aliveMafia;
         _citizenNum = aliveCitizen;
 
+        Debug.Log($"[PlayerManager] 승패 체크 - 생존 마피아: {aliveMafia}, 생존 시민: {aliveCitizen}");
+
         if (aliveMafia <= 0)
         {
+            Debug.Log("[PlayerManager] 마피아 전멸! 시민 승리!");
             _gameOverIssued = true;
             NoticeGameOverToAllPlayers(true);  // 시민 승리
         }
         else if (aliveCitizen <= 0)
         {
+            Debug.Log("[PlayerManager] 시민 전멸! 마피아 승리!");
             _gameOverIssued = true;
             NoticeGameOverToAllPlayers(false); // 마피아 승리
         }
