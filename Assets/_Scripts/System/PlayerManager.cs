@@ -21,6 +21,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     private int _citizenNum = 0;
     public int onLoadedPlayer = 0;
     private Coroutine _gameInitCoroutine;
+    private bool _gameOverIssued;
 
     private const string SCENE_INGAMELOADING = "InGameLoading";
     private const string LOADED_KEY = "OnLoaded";
@@ -49,6 +50,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
         if (_gameInitCoroutine != null) return;
 
+        _gameOverIssued = false;
         onLoadedPlayer = Mathf.Max(0, initialLoaded);
         _gameInitCoroutine = StartCoroutine(GameInitLogic(playerNumber));
     }
@@ -442,8 +444,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         if (!PhotonNetwork.IsMasterClient) return;
 
         // 인게임 중 이탈자는 사망 처리로 간주
-        string scene = SceneManager.GetActiveScene().name;
-        if (scene != "InGame") return;
+        if (!IsInGameContext()) return;
 
         if (otherPlayer != null && VoteRoomProperties.Instance != null)
             VoteRoomProperties.Instance.MarkPlayerDead(otherPlayer.ActorNumber);
@@ -491,7 +492,8 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     {
         if (!PhotonNetwork.IsMasterClient) return;
         if (PhotonNetwork.CurrentRoom == null) return;
-        if (SceneManager.GetActiveScene().name != "InGame") return;
+        if (_gameOverIssued) return;
+        if (!IsInGameContext()) return;
 
         int aliveMafia = 0;
         int aliveCitizen = 0;
@@ -518,10 +520,26 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         _mafiaNum = aliveMafia;
         _citizenNum = aliveCitizen;
 
-        if (aliveMafia <= 0 && aliveCitizen > 0)
+        if (aliveMafia <= 0)
+        {
+            _gameOverIssued = true;
             NoticeGameOverToAllPlayers(true);  // 시민 승리
-        else if (aliveCitizen <= 0 && aliveMafia > 0)
+        }
+        else if (aliveCitizen <= 0)
+        {
+            _gameOverIssued = true;
             NoticeGameOverToAllPlayers(false); // 마피아 승리
+        }
+    }
+
+    private bool IsInGameContext()
+    {
+        if (GameManager.Instance != null && GameManager.Instance.FlowState == SceneState.InGame)
+            return true;
+
+        string scene = SceneManager.GetActiveScene().name;
+        if (scene == SCENE_INGAMELOADING) return false;
+        return scene.StartsWith("InGame", StringComparison.OrdinalIgnoreCase);
     }
 
     // Room 씬으로 돌아갈 때 인게임 상태 초기화
@@ -543,6 +561,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         _citizenNum = 0;
         onLoadedPlayer = 0;
         _spawnPointList = null;
+        _gameOverIssued = false;
 
         Debug.Log("[PlayerManager] Room 복귀를 위한 상태 초기화 완료");
     }
