@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class PlayerInteraction : MonoBehaviour
 {
@@ -9,7 +10,11 @@ public class PlayerInteraction : MonoBehaviour
     private GameObject _interactionBtn;
     private Camera _camera;
     private InteractionObject _curInteractable;
+    public InteractionObject CurrentInteractable => _curInteractable;
     private InteractionObjectRpcManager _rpcManager;
+
+    private float _raycastInterval = 0.2f;
+    private Coroutine _raycastRoutine;
 
     void Awake()
     {
@@ -17,20 +22,34 @@ public class PlayerInteraction : MonoBehaviour
         IsInteractable = false;
     }
 
-    private void Start()
+    void Start()
     {
         _interactionBtn = GameObject.Find("InteractionKey");
         _rpcManager = FindFirstObjectByType<InteractionObjectRpcManager>();
 
         if (_interactionBtn != null)
             _interactionBtn.SetActive(false);
+
+        _raycastRoutine = StartCoroutine(RaycastRoutine());
     }
 
-    void Update()
+    void OnDestroy()
     {
-        CheckInteractionObject();
-        if (_interactionBtn != null)
-            _interactionBtn.SetActive(IsInteractable);
+        if (_raycastRoutine != null)
+            StopCoroutine(_raycastRoutine);
+    }
+
+    private IEnumerator RaycastRoutine()
+    {
+        WaitForSeconds wait = new WaitForSeconds(_raycastInterval);
+
+        while (true) 
+        {
+            CheckInteractionObject();
+            if (_interactionBtn != null)
+                _interactionBtn.SetActive(IsInteractable);
+            yield return wait;
+        }
     }
 
     private void CheckInteractionObject()
@@ -57,6 +76,7 @@ public class PlayerInteraction : MonoBehaviour
             }
         }
         IsInteractable = false;
+        _curInteractable = null;
     }
     // 오브젝트와 상호작용
     public void InteractObj()
@@ -66,5 +86,14 @@ public class PlayerInteraction : MonoBehaviour
             // 상호작용 한 사람의 로직을 실행하고
             _curInteractable.OnInteract(this, _rpcManager);
         }
+    }
+
+    public float GetAddDuration()
+    {
+        if (_curInteractable != null)
+        {
+            return _curInteractable.GetInteractionDuration();
+        }
+        return 0f;
     }
 }

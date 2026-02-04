@@ -2,8 +2,6 @@
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
-using TMPro;
 
 public class InGameManager : MonoBehaviourPunCallbacks
 {
@@ -15,10 +13,15 @@ public class InGameManager : MonoBehaviourPunCallbacks
     [Header("PopUp Ui")]
     [SerializeField] private Image _playerRoleUi;
 
+    [Header("Fade Ui")]
+    [SerializeField] private FadeController _fadeController;
+
     private bool _ended;
     private PlayerController _player;
 
     private const string UPPER_COLOR_KEY = "UpperColor"; // [ADD] 상의 색상 키
+    private static WaitForSeconds _waitForSeconds0_2 = new(0.2f);
+    private static WaitForSeconds _waitForSeconds3 = new(3f);
 
     public override void OnEnable()
     {
@@ -26,7 +29,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
         StartCoroutine(SpawnPlayer());
     }
 
-    private void Start()
+    void Start()
     {
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.allReadyComplete += PopUpPlayersRole;
@@ -37,7 +40,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
             );
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.allReadyComplete -= PopUpPlayersRole;
@@ -47,7 +50,7 @@ public class InGameManager : MonoBehaviourPunCallbacks
     {
         yield return new WaitUntil(() => PhotonNetwork.InRoom);
 
-        yield return new WaitForSeconds(3f);
+        yield return _waitForSeconds3;
 
         int maxPlayerCount = PhotonNetwork.CurrentRoom.MaxPlayers;
         int myPlayerNum = PhotonNetwork.LocalPlayer.ActorNumber;
@@ -70,108 +73,53 @@ public class InGameManager : MonoBehaviourPunCallbacks
 
         yield return new WaitUntil(() => myPV.ViewID > 0);
 
-        yield return new WaitForSeconds(0.2f);
+        yield return _waitForSeconds0_2;
 
         yield return StartCoroutine(
             _createVoice.CreateVoicePV(myPV, PlayerController.LocalInstancePlayer.transform));
 
-        // ✅ 스폰이 끝난 뒤, 마스터가 색 배정
+        // 스폰이 끝난 뒤, 마스터가 색 배정
         if (PhotonNetwork.IsMasterClient)
         {
-            SetPlayerColor.AssignColorsToAll();
+            // 매 게임 시작 시 색상 중복 방지 위해 강제 재할당
+            SetPlayerColor.AssignColorsToAll(true);
         }
     }
 
     public void PopUpPlayersRole()
     {
-        StartCoroutine(StartGuide());
-    }
-
-    IEnumerator StartGuide()
-    {
-        yield return new WaitUntil(() => _player != null);
-
-        TextMeshProUGUI roleText = _playerRoleUi.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
-        float duration = 0.8f;
-
-        yield return StartCoroutine(PopUpRole(roleText, duration));
-
-        yield return StartCoroutine(PopUpJob(roleText, duration));
-
-        _playerRoleUi.gameObject.SetActive(false);
-    }
-
-    IEnumerator PopUpRole(TextMeshProUGUI roleText, float duration)
-    {
-        if (_player.isMafia)
-        {
-            roleText.text = "당신은 \"마피아\" 입니다.";
-            roleText.color = new Color(1f, 0.25f, 0.25f, 0f);
-        }
-        _playerRoleUi.DOFade(1f, duration);
-        roleText.DOFade(1f, duration);
-        yield return new WaitForSeconds(duration * 3f);
-        _playerRoleUi.DOFade(0f, duration);
-        roleText.DOFade(0f, duration);
-        yield return new WaitForSeconds(duration);
-    }
-
-    IEnumerator PopUpJob(TextMeshProUGUI roleText, float duration)
-    {
         BaseJob jobType = _player.GetPlayerJob();
-        string jobName = "평범한 시민";
 
-        if (jobType != null) // null 이 아니면 직업이 있고 그 이름을 가져옴
-            jobName = jobType.name;
-
-        roleText.text = $"당신의 직업은 \"{jobName}\" 입니다.";
-        roleText.color = new Color(1f, 1f, 1f, 0f);
-        _playerRoleUi.DOFade(1f, duration);
-        roleText.DOFade(1f, duration);
-        yield return new WaitForSeconds(duration * 3f);
-        _playerRoleUi.DOFade(0f, duration);
-        roleText.DOFade(0f, duration);
-        yield return new WaitForSeconds(duration);
+        _fadeController.StartInGameFade(_player.isMafia, jobType);
     }
 
+    
     public void RegistPlayer(PlayerController player)
     {
         _player = player;
     }
 
-    // Todo : 종료 후에 방으로 가는데, 이거 일반적인 게임 플로우처럼 처리해야함.
-    // 전원 종료
-    private void EndGameForAll()
+    // 전원 로비로 이동
+    public static void ExitForLocal()
     {
-        if (_ended) return;
-
         if (!PhotonNetwork.IsMasterClient)
         {
-            Debug.LogWarning("[InGame] EndGameForAll ignored: not master");
+            Debug.LogWarning("[InGame] ExitForLocal ignored: not master");
             return;
         }
 
-        _ended = true;
+        Debug.Log("[InGame] ExitForLocal -> LoadLevel(Room)");
 
-        if (PlayerController.LocalInstancePlayer != null)
-            PhotonNetwork.DestroyPlayerObjects(PhotonNetwork.LocalPlayer);
+        // 모든 플레이어의 네트워크 오브젝트 파괴 (버퍼 정리)
+        // LoadLevel 전에 파괴해야 나중에 입장하는 플레이어에게 이전 오브젝트가 생성되지 않음
+        foreach (var player in PhotonNetwork.PlayerList)
+        {
+            PhotonNetwork.DestroyPlayerObjects(player);
+        }
 
-        Debug.Log("[InGame] EndGameForAll -> LoadLevel(Room)");
+        PlayerController.LocalInstancePlayer = null;
+
+        // LoadLevel로 모든 클라이언트가 동기화되어 Room 씬으로 이동
         PhotonNetwork.LoadLevel("Room");
-    }
-
-    // 나만 종료
-    public void ExitForLocal()
-    {
-        Debug.Log("[InGame] ExitForLocal -> LoadScene(Room)");
-
-        GameManager.Instance.ResumeGame();
-
-        // Photon 룸은 유지한 채, 로컬 씬만 이동
-        // PN 뭔가 해줘야한다 -> 플레이어를 명시적으로 파괴해야함.
-        if (PlayerController.LocalInstancePlayer != null)
-            PhotonNetwork.DestroyPlayerObjects(PhotonNetwork.LocalPlayer);
-
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Room");
     }
 }

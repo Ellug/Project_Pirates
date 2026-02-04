@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using System.Collections;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using DG.Tweening;
@@ -17,11 +18,13 @@ public class PlayerController : MonoBehaviourPun
     private PhotonView _view;
     private PlayerInteraction _playerInteraction;
     private PlayerModel _model;
+    private PlayerHUD _hud;
     private float _standingCameraY;
     private float _crouchingCameraY;
     Tween _camDOTween;
 
     private ExitGames.Client.Photon.Hashtable _table;
+    private PhotonTransformView _transformView;
 
     // 로컬 플레이어의 입력을 차단/복구하기 위해 PlayerInput.actions로 교체
     private PlayerInput _playerInput;
@@ -32,7 +35,6 @@ public class PlayerController : MonoBehaviourPun
     private InputAction _actKnockBack;
     private InputAction _actLook;
     private InputAction _actInteract;
-    // private InputAction _actJump;
     private InputAction _actJobSkill;
     private InputAction _actUseFirstItem;
     private InputAction _actUseSecondItem;
@@ -41,20 +43,30 @@ public class PlayerController : MonoBehaviourPun
     public PlayerStateMachine StateMachine { get; private set; }
     public IdleState StateIdle { get; private set; }
     public MoveState StateMove { get; private set; }
-    public JumpState StateJump { get; private set; }
     public CrouchState StateCrouch { get; private set; }
     public AttackState StateAttack { get; private set; }
     public DeathState StateDeath { get; private set; }
 
     public Vector2 InputMove { get; private set; }
-    public bool InputJump { get; private set; }
     public bool InputKnockBack { get; private set; }
     public bool InputAttack { get; private set; }
     public JobId PlayerJob { get; private set; }
 
-    private void Awake()
+    public PlayerModel Model => _model;
+
+    void Awake()
     {
         _view = GetComponent<PhotonView>();
+        _transformView = GetComponent<PhotonTransformView>();
+        _model = GetComponent<PlayerModel>();
+
+        // 상태 클래스 할당 (리모트 플레이어도 DeathState 필요)
+        StateIdle = new IdleState(this);
+        StateMove = new MoveState(this);
+        StateCrouch = new CrouchState(this);
+        StateAttack = new AttackState(this);
+        StateDeath = new DeathState(this);
+        StateMachine = new PlayerStateMachine(StateIdle);
 
         // 내 것이 아니면 컴포넌트를 아예 비활성화
         // 다른 사람의 Update, FixedUpdate 같은 것들이 호출 자체가 안됨
@@ -77,8 +89,6 @@ public class PlayerController : MonoBehaviourPun
         if (InputManager.Instance != null && _playerInput != null)
             InputManager.Instance.RegisterLocalPlayer(_playerInput);
 
-        _model = GetComponent<PlayerModel>();
-
         // 내 아바타는 숨김 처리한다.
         // 다른 사람 아바타는 볼 수 있고 내 아바타도 남한테는 보인다.
         //SkinnedMeshRenderer[] myAvatar =
@@ -97,11 +107,10 @@ public class PlayerController : MonoBehaviourPun
         _camera.transform.SetParent(transform, false);
         _camera.transform.localPosition = new Vector3(0f, _standingCameraY, 0.32f);
 
-        InputJump = false;
         InputMove = Vector2.zero;
     }
 
-    private void Start()
+    void Start()
     {
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.RegistLocalPlayer(this);
@@ -123,20 +132,10 @@ public class PlayerController : MonoBehaviourPun
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.photonView.RPC("PlayerEnterCheck", RpcTarget.MasterClient);
 
-        // 상태 클래스 할당
-        StateIdle = new IdleState(this);
-        StateMove = new MoveState(this);
-        StateJump = new JumpState(this);
-        StateCrouch = new CrouchState(this);
-        StateAttack = new AttackState(this);
-        StateDeath = new DeathState(this);
-
-        StateMachine = new PlayerStateMachine(StateIdle);
-
         if (!_view.IsMine) return;
 
-        var hud = FindFirstObjectByType<PlayerHUD>();
-        hud.Bind(_model);
+        _hud = FindFirstObjectByType<PlayerHUD>();
+        _hud.Bind(_model);
 
         ItemEffects effects = new ItemEffects();
         effects.Initialize();
@@ -178,6 +177,7 @@ public class PlayerController : MonoBehaviourPun
             _actLook.canceled += OnLook;
 
             _actInteract.started += OnInteraction;
+            _actInteract.canceled += OnInteraction;
             // _actJump.started += OnJump;
             _actJobSkill.started += OnJobSkill;
 
@@ -226,7 +226,10 @@ public class PlayerController : MonoBehaviourPun
         }
 
         if (_actInteract != null)
+        {
             _actInteract.started -= OnInteraction;
+            _actInteract.canceled -= OnInteraction;
+        }
 
         // if (_actJump != null)
         //     _actJump.started -= OnJump;
@@ -240,7 +243,7 @@ public class PlayerController : MonoBehaviourPun
         _model.MyJob.UniqueSkill();
     }
 
-    private void Update()
+    void Update()
     {
         StateMachine?.CurrentState?.FrameUpdate();
     }
@@ -282,8 +285,20 @@ public class PlayerController : MonoBehaviourPun
 
     private void OnInteraction(InputAction.CallbackContext ctx)
     {
-        if (_playerInteraction.IsInteractable)
-            _playerInteraction.InteractObj();
+        if (ctx.started)
+        {
+            if (_playerInteraction.IsInteractable)
+            {
+                _model.isInteractSuccess = false;
+                _model.isInteracting = true;
+                _model.StartInteraction(_playerInteraction, _playerInteraction.GetAddDuration());
+            }
+        }
+
+        if (ctx.canceled)
+        {
+            _model.isInteracting = false;
+        }
     }
 
     private void OnLook(InputAction.CallbackContext ctx)
@@ -315,22 +330,29 @@ public class PlayerController : MonoBehaviourPun
         }
     }
 
-    private void OnJump(InputAction.CallbackContext ctx)
-    {
-        InputJump = true;
-    }
-
     // 공격, 밀기, 직업 스킬 키가 무시되는 조건
     // 1. 공중에 떠 있을 때
     // 2. 앉아 있을 때
     private void OnAttack(InputAction.CallbackContext ctx)
     {
+        if (!CanUseCombatInput()) return;
+
         InputAttack = true;
     }
 
     private void OnKnockBack(InputAction.CallbackContext ctx)
     {
+        if (!CanUseCombatInput()) return;
+
         InputKnockBack = true;
+    }
+
+    private bool CanUseCombatInput()
+    {
+        if (_model == null) return false;
+        if (_model.IsDead) return false;
+        if (_model.IsCrouching) return false; // 앉은 상태에서 공격/밀치기 금지
+        return true;
     }
 
     // 아이템 사용 키
@@ -366,9 +388,28 @@ public class PlayerController : MonoBehaviourPun
     [PunRPC]
     public void IsMafia()
     {
-        Debug.Log("당신은 마피아입니다.");
+        Debug.Log("[IsMafia] 당신은 마피아입니다.");
         isMafia = true;
-        _model.attackPower *= 2.5f;
+        _model.SetMafia();
+        _hud.ChangeRoleImage();
+
+        // 마피아 텔레포터 버튼 활성화
+        var mafiaTeleporter = FindFirstObjectByType<MafiaTeleporter>();
+        Debug.Log($"[IsMafia] MafiaTeleporter 찾음: {mafiaTeleporter != null}");
+        if (mafiaTeleporter != null)
+            mafiaTeleporter.SetButtonsActive(true);
+
+        // 사보타지 버튼 활성화
+        var sabotageManager = FindFirstObjectByType<SabotageManager>();
+        Debug.Log($"[IsMafia] SabotageManager 찾음: {sabotageManager != null}");
+        if (sabotageManager != null)
+            sabotageManager.EnableMafiaButtons();
+
+        // Door Lock 버튼 활성화
+        var doorLockController = FindFirstObjectByType<GlobalDoorLockController>();
+        Debug.Log($"[IsMafia] GlobalDoorLockController 찾음: {doorLockController != null}");
+        if (doorLockController != null)
+            doorLockController.SetDoorLockButtonActive(true);
     }
 
     [PunRPC]
@@ -389,9 +430,55 @@ public class PlayerController : MonoBehaviourPun
     }
 
     [PunRPC]
+    public void RpcReportDeath(int viewId)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (PlayerManager.Instance == null) return;
+
+        PlayerManager.Instance.PlayerDeathCheck(viewId);
+    }
+
+    public void TeleportRequest(Vector3 pos)
+    {
+        if (!photonView.IsMine) return;
+
+        pos.y += 1.5f;
+
+        // 로컬 즉시 적용
+        StartCoroutine(TeleportCoroutine(pos));
+
+        // 원격은 스냅 처리만
+        photonView.RPC(nameof(RpcTeleportPlayer), RpcTarget.Others, pos);
+    }
+
+    [PunRPC]
     public void RpcTeleportPlayer(Vector3 pos)
     {
-        pos.y += 1.5f;
-        transform.position = pos;
+        // 원격도 TransformView 보간을 잠깐 끊고 스냅
+        StartCoroutine(TeleportCoroutine(pos));
+    }
+
+    private IEnumerator TeleportCoroutine(Vector3 pos)
+    {
+        if (_transformView != null) _transformView.enabled = false;
+
+        // Rigidbody/Agent/CC를 쓰면 여기서 같이 정리
+        var rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.position = pos;
+        }
+        else
+        {
+            transform.position = pos;
+        }
+
+        // 최소 1~2프레임 대기: TransformView 내부 보간/캐시가 한 번 갱신될 시간을 줌
+        yield return null;
+        yield return null;
+
+        if (_transformView != null) _transformView.enabled = true;
     }
 }

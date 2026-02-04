@@ -2,7 +2,6 @@
 using Photon.Voice.Unity;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public sealed class VoiceManager : MonoBehaviourPunCallbacks
@@ -14,7 +13,7 @@ public sealed class VoiceManager : MonoBehaviourPunCallbacks
     public static VoiceManager Instance { get; private set; }
     private bool _pttPressed;
 
-    private void Awake()
+    void Awake()
     {
         if (Instance == null)
         {

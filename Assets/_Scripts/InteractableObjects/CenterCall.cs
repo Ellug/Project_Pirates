@@ -5,6 +5,7 @@ public class CenterCall : InteractionObject
 {
     private const float DEFAULT_REPORT_TIME = 2f;
     private const float COOLDOWN_DURATION = 60f;
+    private static SabotageManager _cachedSabotage;
 
     private PlayerInteraction _player;
     private Coroutine _reportCoroutine;
@@ -25,6 +26,12 @@ public class CenterCall : InteractionObject
 
     public override void OnInteract(PlayerInteraction player, InteractionObjectRpcManager rpcManager)
     {
+        if (IsEngineSabotageActive())
+        {
+            Debug.Log("[CenterCall] 호출 불가: 엔진 사보타지 진행 중");
+            return;
+        }
+
         // 쿨타임 중이면 무시
         if (_isOnCooldown) return;
         // 이미 신고 진행 중, 신고된 시체면 무시
@@ -53,6 +60,13 @@ public class CenterCall : InteractionObject
 
         while (timer <= reportTime)
         {
+            if (IsEngineSabotageActive())
+            {
+                Debug.Log("[CenterCall] 호출 취소: 엔진 사보타지 진행 중");
+                _reportCoroutine = null;
+                yield break;
+            }
+
             timer += Time.deltaTime;
 
             // 계속 쳐다보고 있는지 검사
@@ -121,5 +135,15 @@ public class CenterCall : InteractionObject
 
         _isOnCooldown = false;
         Debug.Log("[CenterCall] 쿨타임 종료, 다시 사용 가능");
+    }
+
+    private static bool IsEngineSabotageActive()
+    {
+        if (_cachedSabotage == null)
+            _cachedSabotage = FindFirstObjectByType<SabotageManager>();
+
+        return _cachedSabotage != null
+            && _cachedSabotage.IsActive
+            && _cachedSabotage.ActiveSabotage == SabotageId.Engine;
     }
 }

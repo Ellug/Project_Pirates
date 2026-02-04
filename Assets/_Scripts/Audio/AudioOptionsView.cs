@@ -16,13 +16,13 @@ public sealed class AudioOptionsView : MonoBehaviour
 
     private bool _suppress;
 
-    private void OnEnable()
+    void OnEnable()
     {
         SyncSlidersFromSaved();
         Bind();
     }
 
-    private void OnDisable()
+    void OnDisable()
     {
         Unbind();
         PlayerPrefs.Save(); // 패널 닫을 때 1회만 저장

@@ -4,6 +4,7 @@ using UnityEngine;
 public class DeadBody : InteractionObject
 {
     private const float DEFAULT_REPORT_TIME = 2f;
+    private static SabotageManager _cachedSabotage;
     private PlayerInteraction _player;
     private Coroutine _reportCoroutine;
     private bool _reported = false;
@@ -18,6 +19,12 @@ public class DeadBody : InteractionObject
 
     public override void OnInteract(PlayerInteraction player, InteractionObjectRpcManager rpcManager)
     {
+        if (IsEngineSabotageActive())
+        {
+            Debug.Log("[DeadBody] 신고 불가: 엔진 사보타지 진행 중");
+            return;
+        }
+
         // 이미 신고 진행 중, 신고된 시체면 무시
         if (_reported) return;
         if (_reportCoroutine != null) return;
@@ -44,6 +51,13 @@ public class DeadBody : InteractionObject
 
         while (timer <= reportTime)
         {
+            if (IsEngineSabotageActive())
+            {
+                Debug.Log("[DeadBody] 신고 취소: 엔진 사보타지 진행 중");
+                _reportCoroutine = null;
+                yield break;
+            }
+
             timer += Time.deltaTime;
 
             // 계속 쳐다보고 있는지 검사
@@ -93,5 +107,15 @@ public class DeadBody : InteractionObject
         if (job == null) return DEFAULT_REPORT_TIME;
 
         return job.ReportTime;
+    }
+
+    private static bool IsEngineSabotageActive()
+    {
+        if (_cachedSabotage == null)
+            _cachedSabotage = FindFirstObjectByType<SabotageManager>();
+
+        return _cachedSabotage != null
+            && _cachedSabotage.IsActive
+            && _cachedSabotage.ActiveSabotage == SabotageId.Engine;
     }
 }

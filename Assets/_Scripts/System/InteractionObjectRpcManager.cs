@@ -7,7 +7,7 @@ using UnityEditor;
 #endif
 
 // 인게임에서 오브젝트들이 플레이어와 상호작용할 때 RPC를 쏴주는 클래스
-public class InteractionObjectRpcManager : MonoBehaviourPun
+public class InteractionObjectRpcManager : MonoBehaviourPunCallbacks
 {
     public static InteractionObjectRpcManager Instance { get; private set; }
 
@@ -36,6 +36,31 @@ public class InteractionObjectRpcManager : MonoBehaviourPun
 
         _view = GetComponent<PhotonView>();
     }
+
+    void Start()
+    {
+        // Master Client만 RPC 버퍼 정리 수행 (씬 오브젝트는 Master가 소유)
+        if (PhotonNetwork.IsMasterClient)
+            InvokeRepeating(nameof(RemoveRPCMeth), 10f, 2f);
+    }
+
+    public override void OnMasterClientSwitched(Photon.Realtime.Player newMasterClient)
+    {
+        // Master가 바뀌면 새 Master가 정리 시작
+        if (PhotonNetwork.IsMasterClient)
+        {
+            CancelInvoke(nameof(RemoveRPCMeth));
+            InvokeRepeating(nameof(RemoveRPCMeth), 10f, 2f);
+        }
+    }
+
+    private void RemoveRPCMeth()
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        PhotonNetwork.RemoveRPCs(_view);
+    }
+
+
 
     // 동적 생성된 오브젝트 등록 - 지정된 ID로 (네트워크 동기화용)
     public void RegisterWithId(InteractionObject obj, int id)
@@ -84,11 +109,28 @@ public class InteractionObjectRpcManager : MonoBehaviourPun
         _view.RPC(nameof(RpcInteractionObject), RpcTarget.Others, id);
     }
 
+    public void RequestNetworkMissionCleared(int id)
+    {
+        _view.RPC(nameof(RpcMissionClearObject), RpcTarget.All, id);
+    }
+
     [PunRPC]
     private void RpcInteractionObject(int id)
     {
         if (_objectCache.TryGetValue(id, out var obj))
             obj.OnOthersInteract();
+        else
+            Debug.LogWarning($"[RPC] ID {id}에 해당하는 오브젝트를 찾을 수 없음");
+    }
+
+    [PunRPC]
+    private void RpcMissionClearObject(int id)
+    {
+        if (_objectCache.TryGetValue(id, out var obj))
+            if (obj is MissionInteraction)
+            {
+                (obj as MissionInteraction).SetCleared();
+            }
         else
             Debug.LogWarning($"[RPC] ID {id}에 해당하는 오브젝트를 찾을 수 없음");
     }
@@ -119,6 +161,21 @@ public class InteractionObjectRpcManager : MonoBehaviourPun
         }
         // 결과 확인용
         Debug.Log($"총 {foundObjects.Length}개의 오브젝트에 ID 할당이 완료되었습니다!");
+    }
+
+    [ContextMenu("Auto Assign Door IDs")]
+    private void AutoAssignDoorIDs()
+    {
+        DoorController[] foundObjects = FindObjectsByType<DoorController>(FindObjectsSortMode.None);
+        System.Array.Sort(foundObjects, (a, b) => string.Compare(a.name, b.name));
+        for (int i = 0; i < foundObjects.Length; i++)
+        {
+            Undo.RecordObject(foundObjects[i], "Assign ID");
+            foundObjects[i].doorId = i;
+            EditorUtility.SetDirty(foundObjects[i]);
+        }
+        // 결과 확인용
+        Debug.Log($"총 {foundObjects.Length}개의 문에 ID 할당이 완료되었습니다!");
     }
 #endif
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Collider))]
@@ -22,7 +23,11 @@ public sealed class HazardObject : MonoBehaviour
         if (((1 << other.gameObject.layer) & _targetLayers.value) == 0) return;
 
         var player = other.GetComponentInParent<PlayerModel>();
-        if (player == null) return;
+        if (player == null || player.isMafia) return;
+        
+        // 네트워크: 로컬 플레이어만 피해 처리 (원격 프록시에서 중복 사망 방지)
+        var pv = player.GetComponent<PhotonView>();
+        if (pv != null && !pv.IsMine) return;
 
         int id = player.transform.root.GetInstanceID();
         if (!_hitWhileOverlapping.Add(id)) return; // 이미 이번 겹침에서 맞았음

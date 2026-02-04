@@ -2,7 +2,16 @@
 // 직업 무작위 배정 및 new 할당 Switch문으로 사용
 public enum JobId
 {
-    None, Doctor, Sprinter, End
+    None, 
+    Delivery,
+    SportMan,
+    FireFighter,
+    Reporter,
+    Police,
+    Wrestling,
+    Thief,
+
+    End
 }
 
 public abstract class BaseJob
@@ -11,6 +20,7 @@ public abstract class BaseJob
     protected PlayerModel _model;
 
     public string name;
+    public string jobInformation;
 
     // 시체 신고에 필요한 시간 (기본 2초, 특정 직업에서 오버라이드 하는 식으로 특성 구현)
     public virtual float ReportTime => 2f;
@@ -24,7 +34,7 @@ public abstract class BaseJob
     // 직업의 고유 능력
     public virtual void UniqueSkill()
     {
-        if (_model == null || _model.IsCrouching || !_model.IsGrounded) return;
+        if (_model == null || _model.IsCrouching) return;
 
         // 실제 로직 개별 클래스에서 적용
     }

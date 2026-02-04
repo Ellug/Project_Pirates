@@ -1156,6 +1156,7 @@ GameObject:
   - component: {fileID: 6298784283470023150}
   - component: {fileID: 850340773740427094}
   - component: {fileID: 6917188577444250820}
+  - component: {fileID: 5327445884465091450}
   m_Layer: 7
   m_Name: PlayerMale
   m_TagString: Player
@@ -1255,9 +1256,9 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 112
-  m_CollisionDetection: 2
+  m_CollisionDetection: 1
 --- !u!114 &949730540166790653
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1398,9 +1399,13 @@ MonoBehaviour:
   baseSpeed: 5
   jumpPower: 5
   attackPower: 10
+  interactionDuration: 0.3
   runSpeed: 0
   crouchSpeed: 0
+  isInteracting: 0
+  isInteractSuccess: 0
   _staminaRecoverPerSec: 20
+  isMafia: 0
 --- !u!114 &7816228282713603067
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1567,7 +1572,7 @@ AudioSource:
   MinDistance: 1
   MaxDistance: 25
   Pan2D: 0
-  rolloffMode: 2
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -1680,9 +1685,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerFootstepSfx
   _walkClips:
-  - {fileID: 8300000, guid: 32f0021c02e88ee48a5e16ea1962e6c8, type: 3}
+  - {fileID: 8300000, guid: b6b539cae5a5c5142b819bbee83f6c8d, type: 3}
+  - {fileID: 8300000, guid: 05a6d175c74b2cc4e9579a4ca5d0cad6, type: 3}
+  - {fileID: 8300000, guid: 40532fb7a43705649bf4a1d6ae78e98e, type: 3}
   _runClips:
-  - {fileID: 8300000, guid: 32f0021c02e88ee48a5e16ea1962e6c8, type: 3}
+  - {fileID: 8300000, guid: 05a6d175c74b2cc4e9579a4ca5d0cad6, type: 3}
+  - {fileID: 8300000, guid: 40532fb7a43705649bf4a1d6ae78e98e, type: 3}
+  - {fileID: 8300000, guid: 7832b72493532de4baf04f7911d7fefa, type: 3}
   _walkInterval: 0.5
   _runInterval: 0.32
   _sfxGroup: {fileID: 6842179151334961839, guid: 661a132940d2f6a4cb95dd8211a0d82c, type: 2}
@@ -1718,6 +1727,34 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 7804a21ea96af0c4bab672f9f3798c37, type: 2}
   - {fileID: 2100000, guid: 99248c5f2fd19704da9724a4e7e02d5f, type: 2}
   - {fileID: 2100000, guid: 626803f80868b9c41974c84e0ddb98b9, type: 2}
+--- !u!114 &5327445884465091450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3649402652787755768}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d7ae69c79245e046a21fc40aa20d435, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LightCullingController
+  playerHead: {fileID: 697893731915319955}
+  proximityRadius: 10
+  minCameraDistance: 0
+  maxCameraDistance: 40
+  horizontalFOVOffset: 40
+  checkInterval: 0.1
+  offDelay: 2
+  minHoldTime: 0.3
+  proximityHysteresis: 2
+  distanceHysteresis: 2
+  fovHysteresis: 5
+  limitAdditionalLightShadows: 1
+  maxShadowedLights: 12
+  shadowDistance: 15
+  showProximityGizmo: 1
+  gizmoColor: {r: 1, g: 0.5, b: 0.1, a: 0.7}
 --- !u!1 &3737917190972728268
 GameObject:
   m_ObjectHideFlags: 0

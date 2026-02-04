@@ -6,13 +6,13 @@ public class AutoBindButtonClickSound : MonoBehaviour
 {
     [SerializeField] private AudioClip _clickClip;
 
-    private void OnEnable()
+    void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
         BindAllButtons();
     }
 
-    private void OnDisable()
+    void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }

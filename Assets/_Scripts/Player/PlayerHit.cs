@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Photon.Pun;
+using System.Collections;
 
 // 플레이어 간 상호작용 : 다른 사람에게 무언가 맞았을 때 실행될 로직 담당
 public class PlayerHit : MonoBehaviour
@@ -16,9 +17,19 @@ public class PlayerHit : MonoBehaviour
     }
 
     // 다른 사람에게 밀려 충격을 받는 로직
-    public void GetImpact(Vector3 dir, float force)
+    private void GetImpact(Vector3 dir, float force)
     {
         _rigidbody.AddForce(dir * force, ForceMode.Impulse);
+    }
+
+    private IEnumerator GetBondage(float duration)
+    {
+        _model.IsBondage = true;
+        _rigidbody.linearVelocity = Vector3.zero;
+
+        yield return new WaitForSeconds(duration);
+
+        _model.IsBondage = false;
     }
 
     [PunRPC]
@@ -36,5 +47,19 @@ public class PlayerHit : MonoBehaviour
         if (!_view.IsMine) return;
 
         _model.TakeDamage(damage);
+    }
+
+    [PunRPC]
+    public void RpcGetHitBondage(float duration)
+    {
+        if (!_view.IsMine) return;
+
+        // UI 표시 (당한 사람만)
+        if (StatusNoticeUI.Instance != null)
+        {
+            StatusNoticeUI.Instance.ShowCountdown("로프에 속박됨", duration);
+        }
+
+        StartCoroutine(GetBondage(duration));
     }
 }

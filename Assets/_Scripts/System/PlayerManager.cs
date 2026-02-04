@@ -1,8 +1,11 @@
 ﻿using Photon.Pun;
+using Photon.Realtime;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerManager : MonoBehaviourPunCallbacks
 {
@@ -17,6 +20,13 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     private int _mafiaNum = 0;
     private int _citizenNum = 0;
     public int onLoadedPlayer = 0;
+    private Coroutine _gameInitCoroutine;
+    private bool _gameOverIssued;
+
+    private const string SCENE_INGAMELOADING = "InGameLoading";
+    private const string LOADED_KEY = "OnLoaded";
+    private const string ROLE_MAFIA_KEY = "RoleMafia";
+    private const string DEAD_KEY = "IsDead";
 
     void Awake()
     {
@@ -34,11 +44,15 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     }
 
     // 게임 시작시 세팅은 마스터 클라이언트만 실행
-    public void StartGameInit(int playerNumber)
+    public void StartGameInit(int playerNumber, int initialLoaded = 0)
     {
         if (!PhotonNetwork.IsMasterClient) return;
 
-        StartCoroutine(GameInitLogic(playerNumber));
+        if (_gameInitCoroutine != null) return;
+
+        _gameOverIssued = false;
+        onLoadedPlayer = Mathf.Max(0, initialLoaded);
+        _gameInitCoroutine = StartCoroutine(GameInitLogic(playerNumber));
     }
 
     private IEnumerator GameInitLogic(int playerNumber)
@@ -76,6 +90,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         if (players.Length != PhotonNetwork.CurrentRoom.PlayerCount)
         {
             Debug.LogError("Can't found all players");
+            _gameInitCoroutine = null;
             yield break;
         }
 
@@ -124,19 +139,37 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         int firstEnemy = -1;
         int secondEnemy = -1;
         firstEnemy = UnityEngine.Random.Range(0, players.Length);
-        _mafiaNum++; // 마피아 수 기억
 
         if (players.Length > 7) // 플레이어 수 7 초과면 마피아 1명 더 선정
         {
-            _mafiaNum++;
             do // 중복 선정되지 않도록 do while 문 사용
             {
                 secondEnemy = UnityEngine.Random.Range(0, players.Length);
             } while (firstEnemy == secondEnemy);
 
         }
-        // 시민 수 기억
+
+        _mafiaNum = secondEnemy != -1 ? 2 : 1;
         _citizenNum = players.Length - _mafiaNum;
+
+        // 역할/사망 상태 초기화 (안정적인 카운트용)
+        foreach (var p in players)
+        {
+            var owner = p.photonView != null ? p.photonView.Owner : null;
+            if (owner == null) continue;
+
+            var baseProps = new Hashtable
+            {
+                { ROLE_MAFIA_KEY, false },
+                { DEAD_KEY, false }
+            };
+            owner.SetCustomProperties(baseProps);
+        }
+
+        // 마피아 역할 지정 (Custom Properties)
+        SetPlayerRole(players[firstEnemy]?.photonView?.Owner, true);
+        if (secondEnemy != -1)
+            SetPlayerRole(players[secondEnemy]?.photonView?.Owner, true);
 
         // 마피아를 알림
         players[firstEnemy].photonView.RPC("IsMafia", players[firstEnemy].photonView.Owner);
@@ -146,16 +179,19 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
         // ============ 직업도 무작위로 부여 ============
         List<JobId> jobDeck = new List<JobId>();
+        List<int> alreadyUsed = new List<int>();
 
-        // 플레이어 수가 5 미만이면 1명에게만 부여
-        // 이건 테스트용으로 실제 게임에선 최소 5명의 플레이어가 요구됨
-        if (players.Length < 5)
-            jobDeck.Add(JobId.Doctor); // 테스트할 땐 여기 직업 바꿈
-        else // 5명 이상 이면 직업들 여기 넣음
+        // 구현된 직업들 중 무작위로 5개를 뽑아 직업 배분 예정. 나머진 무직
+        while (jobDeck.Count < 5)
         {
-            jobDeck.Add(JobId.Doctor);
-            jobDeck.Add(JobId.Sprinter);
+            int randJob = UnityEngine.Random.Range(1, (int)JobId.End);
+            if (alreadyUsed.Contains(randJob) == false)
+            {
+                jobDeck.Add((JobId)randJob);
+                alreadyUsed.Add(randJob);
+            }
         }
+
         // 나머지는 무직으로 채움
         while (jobDeck.Count < players.Length)
             jobDeck.Add(JobId.None);
@@ -176,6 +212,8 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
         // ============ 게임 시작을 모두에게 선언! ============
         _view.RPC(nameof(ChangeInGameScene), RpcTarget.All);
+
+        _gameInitCoroutine = null;
     }
 
     public void SetSpawnPointList(Transform[] spawnPointList)
@@ -185,10 +223,30 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
     public void NoticeDeathPlayer(PlayerController player)
     {
-        // 마스터 클라이언트에게 내 죽음을 알림.
-        _view.RPC(nameof(PlayerDeathCheck), RpcTarget.MasterClient, 
-            player.GetComponent<PhotonView>().ViewID);
+        if (player == null) return;
+        var pv = player.GetComponent<PhotonView>();
+        if (pv == null) return;
+
+        int viewId = pv.ViewID;
+
+        // 마스터는 즉시 처리
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PlayerDeathCheck(viewId);
+            return;
+        }
+
+        // 비마스터는 자신의 PhotonView로 마스터에게 사망 보고 RPC 전송
+        pv.RPC(nameof(PlayerController.RpcReportDeath), RpcTarget.MasterClient, viewId);
     }
+
+    // 마스터 클라이언트에서 직접 호출용 (RPC 없이)
+    public void PlayerDeathCheckDirect(int viewId)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        PlayerDeathCheck(viewId);
+    }
+
 
     // 시체 생성 요청 -> 모든 클라이언트에서 로컬 생성
     private int _deadBodyIdCounter = 10000; // 시체 고유 ID 카운터
@@ -203,6 +261,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     private void RpcSpawnDeadBody(Vector3 position, Quaternion rotation, int deadBodyId)
     {
         GameObject deadBodyPrefab = Resources.Load<GameObject>("DeadBodyMale");
+        position.y += 0.4f;
         if (deadBodyPrefab != null)
         {
             GameObject deadBody = Instantiate(deadBodyPrefab, position, rotation);
@@ -217,22 +276,6 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             Debug.LogError("[DeadBody] Deadbody 프리팹을 Resources 폴더에서 찾을 수 없습니다.");
         }
     }
-
-    // 시체 하나 제거 요청 -> 모든 클라이언트에서 제거
-    // public void RequestRemoveDeadBody(int deadBodyId)
-    // {
-    //     _view.RPC(nameof(RpcRemoveDeadBody), RpcTarget.All, deadBodyId);
-    // }
-
-    // [PunRPC]
-    // private void RpcRemoveDeadBody(int deadBodyId)
-    // {
-    //     if (InteractionObjectRpcManager.Instance != null)
-    //     {
-    //         InteractionObjectRpcManager.Instance.UnregisterAndDestroy(deadBodyId);
-    //         Debug.Log($"[DeadBody] 시체 제거 완료 - ID: {deadBodyId}");
-    //     }
-    // }
 
     // 모든 시체 제거 요청 -> 모든 클라이언트에서 제거
     public void RequestRemoveAllDeadBodies()
@@ -301,22 +344,35 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     public void PlayerDeathCheck(int viewId)
     {
         // 죽은 놈을 찾아서 걔가 마피아인지 알아야하고 죽음 처리한다.
-        if (_playersId[viewId].isMafia)
-            _mafiaNum--;
-        else
-            _citizenNum--;
-
-        // VoteRoomProperties에 사망 등록 (투표 UI에 반영)
-        if (_playersId.TryGetValue(viewId, out var player))
+        if (!_playersId.TryGetValue(viewId, out var target))
         {
-            int actorNumber = player.photonView.OwnerActorNr;
-            if (VoteRoomProperties.Instance != null)
-                VoteRoomProperties.Instance.MarkPlayerDead(actorNumber);
+            var pv = PhotonView.Find(viewId);
+            if (pv != null)
+                target = pv.GetComponent<PlayerController>();
+            if (target != null)
+                _playersId[viewId] = target;
         }
 
-        // 마피아 승리
-        if (_citizenNum <= 0)
-            NoticeGameOverToAllPlayers(false);
+        if (target == null)
+        {
+            Debug.LogWarning($"[PlayerManager] PlayerDeathCheck 실패: viewId={viewId}");
+            return;
+        }
+
+        var owner = target.photonView != null ? target.photonView.Owner : null;
+
+        // VoteRoomProperties에 사망 등록 (투표 UI에 반영)
+        int actorNumber = target.photonView.OwnerActorNr;
+        if (VoteRoomProperties.Instance != null)
+            VoteRoomProperties.Instance.MarkPlayerDead(actorNumber);
+
+        // Custom Properties에 사망 저장 (항상 설정하여 승패 체크 안정화)
+        if (owner != null)
+            SetPlayerDead(owner, true);
+
+        Debug.Log($"[PlayerManager] 플레이어 사망 처리 완료: ActorNumber={actorNumber}, IsMafia={IsPlayerMafia(owner)}");
+
+        EvaluateWinConditions();
     }
 
     [PunRPC]
@@ -326,13 +382,14 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         // 각 플레이어들은 자신의 세력을 보고 승리 또는 패배 패널 중 하나를 띄움.
         if (_localPlayer != null)
         {
-            InputManager.Instance.SetUIMode(true);
-
+            bool isWin;
+            
             if (isCitizenVictory != _localPlayer.isMafia)
-                GameManager.Instance.Victory();
+                isWin = true;
             else
-                GameManager.Instance.Defeat();
-
+                isWin = false;
+            
+            GameManager.Instance.EndGame(isWin);
         }
     }
 
@@ -345,4 +402,213 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     {
         Destroy(gameObject);
     }
+
+    public override void OnMasterClientSwitched(Photon.Realtime.Player newMasterClient)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        RebuildPlayerCache();
+
+        // 로딩 중 마스터가 바뀌면 새 마스터가 초기화 로직을 이어서 수행
+        string scene = SceneManager.GetActiveScene().name;
+        if (scene == SCENE_INGAMELOADING)
+        {
+            int count = PhotonNetwork.CurrentRoom != null ? PhotonNetwork.CurrentRoom.PlayerCount : 0;
+            int loaded = CountLoadedPlayers();
+            StartGameInit(count, loaded);
+        }
+
+        // 마스터 전환 직후 승패 체크
+        EvaluateWinConditions();
+    }
+
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (changedProps == null || targetPlayer == null) return;
+        if (!IsInGameContext()) return;
+
+        if (changedProps.TryGetValue(DEAD_KEY, out var v) && v is bool b && b)
+        {
+            int actorNumber = targetPlayer.ActorNumber;
+
+            if (VoteRoomProperties.Instance != null &&
+                !VoteRoomProperties.Instance.IsPlayerDead(actorNumber))
+            {
+                VoteRoomProperties.Instance.MarkPlayerDead(actorNumber);
+            }
+
+            Debug.Log($"[PlayerManager] PlayerPropertiesUpdate death: ActorNumber={actorNumber}");
+            EvaluateWinConditions();
+        }
+    }
+
+    private void RebuildPlayerCache()
+    {
+        _playersId.Clear();
+
+        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        foreach (var p in players)
+        {
+            var pv = p.GetComponent<PhotonView>();
+            if (pv == null) continue;
+            _playersId[pv.ViewID] = p;
+        }
+    }
+
+    private static int CountLoadedPlayers()
+    {
+        int loaded = 0;
+        var list = PhotonNetwork.PlayerList;
+        if (list == null) return loaded;
+
+        for (int i = 0; i < list.Length; i++)
+        {
+            var p = list[i];
+            if (p != null && p.CustomProperties != null &&
+                p.CustomProperties.TryGetValue(LOADED_KEY, out var v) &&
+                v is bool b && b)
+            {
+                loaded++;
+            }
+        }
+
+        return loaded;
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        // 인게임 중 이탈자는 사망 처리로 간주
+        if (!IsInGameContext()) return;
+
+        if (otherPlayer != null && VoteRoomProperties.Instance != null)
+            VoteRoomProperties.Instance.MarkPlayerDead(otherPlayer.ActorNumber);
+
+        EvaluateWinConditions();
+    }
+
+    private void SetPlayerRole(Player player, bool isMafia)
+    {
+        if (player == null) return;
+        var props = new Hashtable { { ROLE_MAFIA_KEY, isMafia } };
+        player.SetCustomProperties(props);
+    }
+
+    private void SetPlayerDead(Player player, bool isDead)
+    {
+        if (player == null) return;
+        var props = new Hashtable { { DEAD_KEY, isDead } };
+        player.SetCustomProperties(props);
+    }
+
+    private bool IsPlayerDead(Player player)
+    {
+        if (player == null) return false;
+        if (player.CustomProperties != null &&
+            player.CustomProperties.TryGetValue(DEAD_KEY, out var v) &&
+            v is bool b)
+            return b;
+
+        return VoteRoomProperties.Instance != null &&
+               VoteRoomProperties.Instance.IsPlayerDead(player.ActorNumber);
+    }
+
+    private bool IsPlayerMafia(Player player)
+    {
+        if (player == null) return false;
+        if (player.CustomProperties != null &&
+            player.CustomProperties.TryGetValue(ROLE_MAFIA_KEY, out var v) &&
+            v is bool b)
+            return b;
+        return false;
+    }
+
+    private void EvaluateWinConditions()
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (PhotonNetwork.CurrentRoom == null) return;
+        if (_gameOverIssued) return;
+        if (!IsInGameContext()) return;
+
+        int aliveMafia = 0;
+        int aliveCitizen = 0;
+        bool hasRoleInfo = false;
+
+        var list = PhotonNetwork.PlayerList;
+        for (int i = 0; i < list.Length; i++)
+        {
+            var p = list[i];
+            if (p == null) continue;
+            if (p.CustomProperties != null && p.CustomProperties.ContainsKey(ROLE_MAFIA_KEY))
+                hasRoleInfo = true;
+            if (IsPlayerDead(p)) continue;
+
+            if (IsPlayerMafia(p))
+                aliveMafia++;
+            else
+                aliveCitizen++;
+        }
+
+        if (!hasRoleInfo)
+        {
+            Debug.Log("[PlayerManager] EvaluateWinConditions: 역할 정보 없음, 승패 판정 스킵");
+            return;
+        }
+
+        _mafiaNum = aliveMafia;
+        _citizenNum = aliveCitizen;
+
+        Debug.Log($"[PlayerManager] 승패 체크 - 생존 마피아: {aliveMafia}, 생존 시민: {aliveCitizen}");
+
+        if (aliveMafia <= 0)
+        {
+            Debug.Log("[PlayerManager] 마피아 전멸! 시민 승리!");
+            _gameOverIssued = true;
+            NoticeGameOverToAllPlayers(true);  // 시민 승리
+        }
+        else if (aliveCitizen <= 0)
+        {
+            Debug.Log("[PlayerManager] 시민 전멸! 마피아 승리!");
+            _gameOverIssued = true;
+            NoticeGameOverToAllPlayers(false); // 마피아 승리
+        }
+    }
+
+    private bool IsInGameContext()
+    {
+        if (GameManager.Instance != null && GameManager.Instance.FlowState == SceneState.InGame)
+            return true;
+
+        string scene = SceneManager.GetActiveScene().name;
+        if (scene == SCENE_INGAMELOADING) return false;
+        return scene.StartsWith("InGame", StringComparison.OrdinalIgnoreCase);
+    }
+
+    // Room 씬으로 돌아갈 때 인게임 상태 초기화
+    public void ResetForRoom()
+    {
+        // 실행 중인 코루틴 중지
+        if (_gameInitCoroutine != null)
+        {
+            StopCoroutine(_gameInitCoroutine);
+            _gameInitCoroutine = null;
+        }
+
+        // 플레이어 캐시 초기화
+        _playersId.Clear();
+        _localPlayer = null;
+
+        // 게임 상태 초기화
+        _mafiaNum = 0;
+        _citizenNum = 0;
+        onLoadedPlayer = 0;
+        _spawnPointList = null;
+        _gameOverIssued = false;
+
+        Debug.Log("[PlayerManager] Room 복귀를 위한 상태 초기화 완료");
+    }
 }
+
+

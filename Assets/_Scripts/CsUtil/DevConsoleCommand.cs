@@ -11,8 +11,10 @@ public class DevConsoleCommand
     {
         if (string.IsNullOrWhiteSpace(raw)) return;
 
-        // 앞뒤 공백만 제거하고 소문자로 변환하여 직접 비교
-        string cmd = raw.Trim().ToLowerInvariant();
+        string trimmed = raw.Trim();
+        string[] parts = trimmed.Split(' ', 2); // 최대 2개로 분리 (명령어, 인자)
+        string cmd = parts[0].ToLowerInvariant();
+        string arg = parts.Length > 1 ? parts[1] : null;
 
         switch (cmd)
         {
@@ -27,6 +29,10 @@ public class DevConsoleCommand
 
             case "votetime":
                 HandleVoteTime();
+                break;
+
+            case "destroy":
+                HandleDestroy(arg);
                 break;
 
             default:
@@ -56,5 +62,25 @@ public class DevConsoleCommand
         // 토론 5초, 투표 5초, 결과 3초로 설정
         VoteManager.Instance.RequestSetVoteTime(5f, 5f, 3f);
         _mgr.WriteSystem("[VoteTime] 투표 시간 변경: 토론 5s, 투표 5s, 결과 3s (모든 클라이언트 동기화)");
+    }
+
+    // 씬에서 이름으로 오브젝트 찾아서 파괴
+    private void HandleDestroy(string objectName)
+    {
+        if (string.IsNullOrWhiteSpace(objectName))
+        {
+            _mgr.WriteSystem("[Destroy] 사용법: destroy <오브젝트이름>");
+            return;
+        }
+
+        var obj = UnityEngine.GameObject.Find(objectName);
+        if (obj == null)
+        {
+            _mgr.WriteSystem($"[Destroy] '{objectName}' 오브젝트를 찾을 수 없습니다.");
+            return;
+        }
+
+        UnityEngine.Object.Destroy(obj);
+        _mgr.WriteSystem($"[Destroy] '{objectName}' 오브젝트가 파괴되었습니다.");
     }
 }

@@ -19,6 +19,7 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
 
     // Player Property Keys (각 플레이어가 자신의 투표를 저장)
     private const string KEY_MY_VOTE = "MyVote";                  // int 내가 투표한 대상 ActorNumber
+    private const string KEY_SKIP_DISCUSSION = "SkipDiscussion";  // bool 토론 스킵 의사
 
     // 이벤트
     public event Action<VotePhase> OnVotePhaseChanged;
@@ -75,7 +76,11 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
         // 모든 플레이어의 MyVote 초기화
         foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
         {
-            var voteProps = new Hashtable { { KEY_MY_VOTE, -1 } };
+            var voteProps = new Hashtable
+            {
+                { KEY_MY_VOTE, -1 },
+                { KEY_SKIP_DISCUSSION, false }
+            };
             player.SetCustomProperties(voteProps);
         }
 
@@ -102,13 +107,15 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
 
         var props = new Hashtable { { KEY_VOTE_PHASE, (int)phase } };
 
-        // 투표 시작 시 모든 플레이어의 투표 데이터 초기화
-        if (phase == VotePhase.Discussion)
+        // 토론/투표 시작 시 모든 플레이어의 투표 데이터 초기화
+        if (phase == VotePhase.Discussion || phase == VotePhase.Voting)
         {
             // 모든 플레이어의 MyVote를 -1로 초기화
             foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
             {
                 var voteProps = new Hashtable { { KEY_MY_VOTE, -1 } };
+                // 토론 스킵 상태도 항상 초기화 (토론→투표 전환 시 중요)
+                voteProps[KEY_SKIP_DISCUSSION] = false;
                 player.SetCustomProperties(voteProps);
             }
         }
@@ -133,19 +140,39 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
         Debug.Log($"[VoteRoomProperties] 투표 제출: {targetActorNumber}");
     }
 
+    // 토론 스킵 제출 (토론 단계에서만 사용)
+    public void SubmitDiscussionSkip()
+    {
+        // 죽은 플레이어는 스킵 불가
+        if (IsPlayerDead(PhotonNetwork.LocalPlayer.ActorNumber))
+        {
+            Debug.Log("[VoteRoomProperties] 죽은 플레이어는 스킵할 수 없음");
+            return;
+        }
+
+        var props = new Hashtable { { KEY_SKIP_DISCUSSION, true } };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(props);
+    }
+
     // Room Property 변경 콜백
     public override void OnRoomPropertiesUpdate(Hashtable propertiesThatChanged)
     {
         // 투표 단계 변경
         if (propertiesThatChanged.TryGetValue(KEY_VOTE_PHASE, out var phaseObj))
         {
-            _currentPhase = (VotePhase)(int)phaseObj;
-            OnVotePhaseChanged?.Invoke(_currentPhase);
+            VotePhase newPhase = (VotePhase)(int)phaseObj;
 
-            // 단계가 바뀔 때 플레이어 리스트도 갱신
-            if (_currentPhase == VotePhase.Discussion)
+            // 실제로 Phase가 변경되었을 때만 이벤트 발생
+            if (_currentPhase != newPhase)
             {
-                RebuildPlayerInfoList();
+                _currentPhase = newPhase;
+                OnVotePhaseChanged?.Invoke(_currentPhase);
+
+                // 단계가 바뀔 때 플레이어 리스트도 갱신
+                if (_currentPhase == VotePhase.Discussion)
+                {
+                    RebuildPlayerInfoList();
+                }
             }
         }
 
@@ -178,6 +205,17 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
             OnPlayerListUpdated?.Invoke(_playerInfoList);
 
             Debug.Log($"[VoteRoomProperties] {targetPlayer.NickName}이 {targetActorNumber}에게 투표함");
+        }
+
+        if (changedProps.TryGetValue(KEY_SKIP_DISCUSSION, out var skipObj))
+        {
+            Debug.Log($"[VoteRoomProperties] {targetPlayer.NickName} 토론 스킵 의사: {skipObj}");
+
+            if (_currentPhase == VotePhase.Discussion && PhotonNetwork.IsMasterClient)
+            {
+                if (AllAlivePlayersSkippedDiscussion())
+                    SetVotePhase(VotePhase.Voting);
+            }
         }
     }
 
@@ -280,6 +318,29 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
         return true;
     }
 
+    public bool AllAlivePlayersSkippedDiscussion()
+    {
+        if (!PhotonNetwork.InRoom || PhotonNetwork.CurrentRoom == null)
+            return false;
+
+        bool hasAlive = false;
+        foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
+        {
+            if (player == null) continue;
+            int actor = player.ActorNumber;
+            if (_deadPlayers.Contains(actor)) continue;
+            hasAlive = true;
+
+            if (!player.CustomProperties.TryGetValue(KEY_SKIP_DISCUSSION, out var v) ||
+                v is not bool b || !b)
+            {
+                return false;
+            }
+        }
+
+        return hasAlive;
+    }
+
     // 투표 결과 계산 (가장 많은 표를 받은 플레이어)
     public VotePlayerInfo GetVoteResult()
     {
@@ -318,5 +379,40 @@ public class VoteRoomProperties : MonoBehaviourPunCallbacks
 
         // 동점이거나 0표면 null 반환 (아무도 처형 안 됨)
         return isTie ? null : topVoted;
+    }
+
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (!PhotonNetwork.InRoom) return;
+
+        // 플레이어 리스트가 없으면 재초기화
+        if (GetActorNumbersFromProperty() == null)
+            InitializePlayerList();
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (!PhotonNetwork.InRoom || PhotonNetwork.CurrentRoom == null) return;
+
+        // 나간 플레이어를 리스트에서 제거
+        if (otherPlayer != null)
+            _deadPlayers.Remove(otherPlayer.ActorNumber);
+
+        int[] actorNumbers = new int[PhotonNetwork.CurrentRoom.PlayerCount];
+        int index = 0;
+        foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
+        {
+            actorNumbers[index++] = player.ActorNumber;
+        }
+
+        var props = new Hashtable
+        {
+            { KEY_PLAYER_LIST, actorNumbers },
+            { KEY_DEAD_PLAYERS, _deadPlayers.Count == 0 ? new int[0] : new List<int>(_deadPlayers).ToArray() }
+        };
+
+        PhotonNetwork.CurrentRoom.SetCustomProperties(props);
     }
 }

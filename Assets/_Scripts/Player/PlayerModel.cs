@@ -1,6 +1,8 @@
-﻿using System.Collections;
+using System.Collections;
 using System;
 using UnityEngine;
+using Photon.Pun;
+using ExitGames.Client.Photon;
 
 public class PlayerModel : MonoBehaviour
 {
@@ -9,8 +11,11 @@ public class PlayerModel : MonoBehaviour
     public float baseSpeed;
     public float jumpPower;
     public float attackPower;
+    public float interactionDuration = 0.3f;
     [HideInInspector] public float runSpeed;
     [HideInInspector] public float crouchSpeed;
+    [HideInInspector] public bool isInteracting;
+    [HideInInspector] public bool isInteractSuccess;
 
     private float _maxHealthPoint;
     public float MaxHP => _maxHealthPoint;
@@ -29,7 +34,11 @@ public class PlayerModel : MonoBehaviour
     public float SprintStaminaDrainPerSec => _sprintStaminaDrainPerSec;
 
     [SerializeField] private float _staminaRecoverPerSec = 20f; // 회복
-    public float StaminaRecoverPerSec => _staminaRecoverPerSec;
+    public float StaminaRecoverPerSec 
+    {
+        get { return _staminaRecoverPerSec; } 
+        set { _staminaRecoverPerSec = value; } 
+    }
 
     private float _staminaReenableToRun = 25f;
     private bool _isSprintLock;
@@ -44,6 +53,10 @@ public class PlayerModel : MonoBehaviour
 
     private bool _isDead = false;
     public bool IsDead => _isDead;
+    public bool isMafia = false;
+
+    // 속박 상태 (로프 등에 의해 움직임 제한)
+    public bool IsBondage { get; set; }
 
     public readonly string animNameOfMove = "MoveValue";
     public readonly string animNameOfRun = "Running";
@@ -55,23 +68,22 @@ public class PlayerModel : MonoBehaviour
 
     public Animator Animator { get; private set; }
     public bool IsCrouching { get; set; }
-    public bool IsGrounded { get; set; }
     public BaseJob MyJob { get; private set; }
 
     public event Action<float, float> OnHealthChanged;
     public event Action<float, float> OnStaminaChanged;
     public event Action<ItemData[]> OnItemSlotChanged;
+    public event Action<float, float> OnInteractionChanged;
 
     private ItemData[] _inventory;
     private ItemEffects _effects;
 
-    private void Awake()
+    void Awake()
     {
         _maxHealthPoint = 100f;
         _curHealthPoint = _maxHealthPoint;
         _maxStamina = 100f;
         _curStamina = _maxStamina;
-        IsGrounded = true;
         runSpeed = baseSpeed * 1.6f;
         crouchSpeed = baseSpeed * 0.4f;
         _inventory = new ItemData[2];
@@ -83,28 +95,44 @@ public class PlayerModel : MonoBehaviour
     // 체력의 회복과 감소 메서드
     public void TakeDamage(float damage)
     {
+        // 네트워크: 소유자만 체력 처리
+        var pv = GetComponent<PhotonView>();
+        if (pv != null && !pv.IsMine) return;
+
         if (_isDead) return;
 
         _curHealthPoint -= damage;
-        Debug.Log($"{damage}의 피해를 받았고 남은 체력은 {_curHealthPoint} 입니다.");
+        //Debug.Log($"{damage}의 피해를 받았고 남은 체력은 {_curHealthPoint} 입니다.");
         OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
         PostProcessingController.Instance.HitEffect();
 
-        if (_curHealthPoint <= 0f)
+        if (_curHealthPoint < 1f)
         {
             _curHealthPoint = 0f;
             _isDead = true;
+            MarkLocalDeadProperty();
             Debug.Log("사망하였습니다.");
             StartCoroutine(DeathCor());
         }
     }
 
+    public void HealingHealthPoint(float amount)
+    {
+        _curHealthPoint = Mathf.Min(_maxHealthPoint, _curHealthPoint + amount);
+        OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
+    }
+
     public void ExecuteByVote()
     {
+        // 네트워크: 소유자만 처형 처리
+        var pv = GetComponent<PhotonView>();
+        if (pv != null && !pv.IsMine) return;
+
         if (_isDead) return;
 
         _curHealthPoint = 0f;
         _isDead = true;
+        MarkLocalDeadProperty();
         OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
 
         Debug.Log("투표로 처형되었습니다.");
@@ -116,7 +144,7 @@ public class PlayerModel : MonoBehaviour
         PlayerController controller = GetComponent<PlayerController>();
         PlayerManager.Instance.NoticeDeathPlayer(controller);
         // 시체 생성 (네트워크 동기화)
-        if (vote) SpawnDeadBody();
+        if (!vote) SpawnDeadBody();
 
         yield return null;
 
@@ -132,10 +160,29 @@ public class PlayerModel : MonoBehaviour
         PlayerManager.Instance.RequestSpawnDeadBody(spawnPos, spawnRot);
     }
 
-    public void HealingHealthPoint(float amount)
+    private void MarkLocalDeadProperty()
     {
-        _curHealthPoint = Mathf.Min(_maxHealthPoint, _curHealthPoint + amount);
-        OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
+        if (!PhotonNetwork.InRoom) return;
+
+        var pv = GetComponent<PhotonView>();
+        if (pv != null && !pv.IsMine) return;
+
+        var props = PhotonNetwork.LocalPlayer.CustomProperties;
+        if (props != null && props.TryGetValue("IsDead", out var v) && v is bool b && b)
+            return;
+
+        var set = new ExitGames.Client.Photon.Hashtable { { "IsDead", true } };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(set);
+    }
+
+    public void ChangeSpeedStatus(float amount)
+    {
+        runSpeed += amount;
+    }
+
+    public void ChangeDamageStatus(float amount)
+    {
+        attackPower += amount;
     }
 
     // 스태미나의 회복과 감소 메서드
@@ -192,8 +239,13 @@ public class PlayerModel : MonoBehaviour
         switch (job)
         {
             case JobId.None: MyJob = null; break;
-            case JobId.Doctor: MyJob = new DoctorJob(); break;
-            case JobId.Sprinter: MyJob = new SprinterJob(); break;
+            case JobId.Delivery: MyJob = new DeliveryJob(); break;
+            case JobId.SportMan: MyJob = new SportManJob(); break;
+            case JobId.FireFighter: MyJob = new FireFighterJob(); break;
+            case JobId.Reporter: MyJob = new ReporterJob(); break;
+            case JobId.Police: MyJob = new PoliceJob(); break;
+            case JobId.Wrestling: MyJob = new WrestlingJob(); break;
+            case JobId.Thief: MyJob = new ThiefJob(); break;
         }
         MyJob?.Initialize(this);
     }
@@ -235,4 +287,129 @@ public class PlayerModel : MonoBehaviour
         }
         return false;
     }
+
+    // 오브젝트와 상호작용을 하기 위한 딜레이
+     public void StartInteraction(PlayerInteraction playerInteraction, float addDuration = 0f)
+    {
+        StartCoroutine(InteractingCor(addDuration, playerInteraction));
+    }
+
+    private IEnumerator InteractingCor(float addValue, PlayerInteraction playerInteraction)
+    {
+        float elapsedTime = 0f;
+        float goalTime = interactionDuration + addValue;
+        while (isInteracting)
+        {
+            elapsedTime += Time.deltaTime;
+            OnInteractionChanged?.Invoke(elapsedTime, goalTime);
+            if (!playerInteraction.IsInteractable)
+            {
+                // 딴데 보거나 키 떼면 상호작용 취소
+                isInteracting = false;
+            }
+            // 상호작용 시간을 모두 채우면 상호작용 실행함.
+            if (isInteractSuccess == true)
+            {
+                playerInteraction.InteractObj();
+                break;
+            }
+            if (elapsedTime >= goalTime)
+            {
+                isInteractSuccess = true;
+            }
+            yield return null;
+        }
+        OnInteractionChanged?.Invoke(0f, goalTime);
+    }
+
+    public void SetInteractionProgress(float cur, float max)
+    {
+        OnInteractionChanged?.Invoke(cur, max);
+    }
+
+    // 다른 플레이어와 상호작용을 위해 자신의 앞을 판정한다.
+    // 반환은 다른 플레이어가 감지되면 true 아니면 false, 기타 out으로 필요한 정보 할당.
+    public bool OtherPlayerInteraction(out Vector3 direction, out RaycastHit raycastHit, float range = 1.5f)
+    {
+        direction = transform.forward; // 바라보는 방향
+
+        // 충돌 최적화를 위해 플레이어 레이어로 제한한다.
+        int layerMask = 1 << LayerMask.NameToLayer("Player");
+
+        RaycastHit hit;
+
+        if (Physics.SphereCast(
+            transform.position, 0.5f, direction, out hit, range, layerMask))
+        {
+            raycastHit = hit;
+            if (hit.transform == this.transform)
+                return false;
+
+            return true;
+        }
+        else
+        {
+            raycastHit = hit;
+            return false;
+        }
+    }
+
+    public void SetMafia()
+    {
+        isMafia = true;
+        _maxHealthPoint += 40f;
+        _curHealthPoint += 40f;
+    }
+
+    public ItemData[] GetInventory()
+    {
+        return _inventory;
+    }
+
+    // 최대 체력 배율
+    public void ApplyMaxHPMultiplier(float multiplier)
+    {
+        multiplier = Mathf.Max(0.1f, multiplier);
+
+        _maxHealthPoint *= multiplier;
+        _curHealthPoint = _maxHealthPoint;
+
+        OnHealthChanged?.Invoke(_curHealthPoint, _maxHealthPoint);
+    }
+
+    // 최대 스테미나 배율
+    public void ApplyMaxStaminaMultiplier(float multiplier)
+    {
+        multiplier = Mathf.Max(0.1f, multiplier);
+
+        _maxStamina *= multiplier;
+        _curStamina = _maxStamina;
+
+        OnStaminaChanged?.Invoke(_curStamina, _maxStamina);
+    }
+
+    // 이동속도 배율
+    public void ApplyBaseSpeedMultiplier(float multiplier)
+    {
+        multiplier = Mathf.Max(0.1f, multiplier);
+
+        baseSpeed *= multiplier;
+        runSpeed = baseSpeed * 1.6f;
+        crouchSpeed = baseSpeed * 0.4f;
+    }
+
+    // 공격력 배율
+    public void ApplyAttackMultiplier(float multiplier)
+    {
+        multiplier = Mathf.Max(0.1f, multiplier);
+        attackPower *= multiplier;
+    }
+
+    // 스테미나 회복 속도 배율
+    public void ApplyStaminaRecoverMultiplier(float multiplier)
+    {
+        multiplier = Mathf.Max(0.1f, multiplier);
+        _staminaRecoverPerSec *= multiplier;
+    }
 }
+

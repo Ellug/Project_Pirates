@@ -7,7 +7,7 @@ public sealed class PlayerSettingView : MonoBehaviour
     [SerializeField] Slider _sensitivitySlider;
     [SerializeField] TMP_InputField _sensitivityInputField;
 
-    private void Start()
+    void Start()
     {
         _sensitivitySlider.minValue = 0.1f;
         _sensitivitySlider.maxValue = 15.0f;

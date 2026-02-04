@@ -16,7 +16,7 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
     private const int MaxMessageChars = 2000;
     private const int MaxStackChars = 6000;
 
-    // ===== [핵심 추가] 병목 방지용 프레임 예산 =====
+    // ===== 병목 방지용 프레임 예산 =====
     private const int MaxFlushPerFrame = 128;    // 프레임당 flush 처리 개수 상한
     private const float MaxFlushTimeMs = 2f;     // 프레임당 flush 시간 상한(ms)
 
@@ -26,7 +26,7 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
         return s.Substring(0, max) + " ...(truncated)";
     }
 
-    // ===== [핵심 추가] pending 집계 키 =====
+    // ===== pending 집계 키 =====
     private readonly struct LogKey : IEquatable<LogKey>
     {
         public readonly LogType type;
@@ -81,7 +81,7 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
         public bool IsSame(LogType type, string msg, string stack)
             => this.type == type && this.msg == msg && this.stack == stack;
 
-        // ===== [핵심 수정] count만큼 루프 돌리지 않고 O(1) 병합 =====
+        // ===== count만큼 루프 돌리지 않고 O(1) 병합 =====
         public LogItem AddCount(System.DateTime now, int add)
             => new(firstTime, now, type, msg, stack, count + add);
 
@@ -92,7 +92,7 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
 
     private readonly object _lock = new(); // 여러 스레드가 동시에 접근하는 데이터를 보호하기 위한 잠금 객체
 
-    // ===== [핵심 변경] Pending: List -> Dictionary(집계) + Order(순서 유지) =====
+    // ===== Pending: List -> Dictionary(집계) + Order(순서 유지) =====
     private Dictionary<LogKey, LogItem> _pendingDict = new(256);
     private List<LogKey> _pendingOrder = new(256);
     private bool _pendingOverflow;
@@ -126,13 +126,13 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
         Application.logMessageReceivedThreaded += OnUnityLogThreaded; // 유니티 로그 수신 콜백 등록
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         if (Instance == this)
             Application.logMessageReceivedThreaded -= OnUnityLogThreaded;
     }
 
-    private void Update()
+    void Update()
     {
         // 콘솔이 닫혀있으면 UI 작업은 안 하고 로그가 pending에 쌓임
         if (!_isOpen) return;
@@ -173,7 +173,7 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
 
             if (_isOpen)
             {
-                // ===== [핵심 변경] 열자마자 전체 Flush/BuildText로 프리징 내지 않기 =====
+                // ===== 열자마자 전체 Flush/BuildText로 프리징 내지 않기 =====
                 // - Flush는 Update에서 예산 분할 처리
                 // - UI는 즉시 열고 "로딩"만 먼저 표시
                 _view.EnsureInputFocused();
@@ -274,7 +274,7 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
                 return;
             }
 
-            // ===== [핵심 변경] Dictionary 기반 집계: 동일 로그는 count만 증가 =====
+            // ===== Dictionary 기반 집계: 동일 로그는 count만 증가 =====
             if (_pendingDict.TryGetValue(key, out var existing))
             {
                 _pendingDict[key] = existing.Increment(now);
@@ -287,7 +287,7 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
         }
     }
 
-    // ===== [핵심 추가] pending 스왑 시작(락 짧게) =====
+    // ===== pending 스왑 시작(락 짧게) =====
     private void StartFlushIfNeeded()
     {
         lock (_lock)
@@ -306,7 +306,7 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
         }
     }
 
-    // ===== [핵심 추가] 프레임 예산 내 Flush 진행 =====
+    // ===== 프레임 예산 내 Flush 진행 =====
     private void ContinueFlushBudgeted()
     {
         if (!_flushInProgress || _flushOrder == null || _flushDict == null)
@@ -348,7 +348,7 @@ public class DevConsoleManager : Singleton<DevConsoleManager>
         }
     }
 
-    // ===== [핵심 수정] count 병합을 O(1)로 처리 =====
+    // ===== count 병합을 O(1)로 처리 =====
     private void MergePendingItemToLines(LogItem it)
     {
         if (_lines.Count > 0 && _lines[^1].IsSame(it.type, it.msg, it.stack))

@@ -34,49 +34,46 @@ MonoBehaviour:
   RunInBackground: 1
   StartInOfflineMode: 0
   RpcList:
+  - AssignJob
   - CantHearYou
   - ChangeColour
+  - ChangeInGameScene
   - ClickRpc
   - DestroyRpc
-  - HeresWhy
   - DestroySpaceship
   - Fire
-  - RespawnSpaceship
-  - RPC_SetLightState
-  - RPC_RequestToggle
-  - OnInteract
-  - GameOver
-  - TriggerObject
-  - GameOverAndPopUpResult
-  - RPC_ReceiveChat
-  - RpcInteractionObject
-  - RpcGetHitKnockBack
-  - RPC_SyncVoiceParent
-  - IsMafia
-  - ChangeInGameScene
-  - PlayerEnterCheck
-  - GameStart
-  - RpcGetHitAttack
-  - PlayerDeathCheck
   - GameOverAndJudge
-  - AssignJob
+  - HeresWhy
+  - IsMafia
+  - PlayerDeathCheck
+  - PlayerEnterCheck
+  - RespawnSpaceship
+  - RPC_FailSabotage
+  - RPC_ReceiveChat
+  - RPC_RequestEngineHoldDone
+  - RPC_RequestResolve
+  - RPC_RequestResolvePower
+  - RPC_RequestStart
+  - RPC_RequestToggle
+  - RPC_ResolveSabotage
+  - RPC_SetLightState
+  - RPC_StartSabotage
+  - RPC_TriggerLight
+  - RpcCenterCall
+  - RpcExecuteByVote
+  - RpcGetHitAttack
+  - RpcGetHitBondage
+  - RpcGetHitKnockBack
+  - RpcInteractionObject
+  - RpcMissionClearObject
+  - RpcRemoveAllDeadBodies
+  - RpcSetVoteTime
   - RpcSpawnDeadBody
   - RpcTeleportAllPlayers
   - RpcTeleportPlayer
-  - RpcRemoveDeadBody
-  - RpcCenterCall
-  - RpcRemoveAllDeadBodies
-  - RpcAnnounceExecution
-  - RpcAnnounceNoExecution
-  - RpcNotifyVote
-  - RpcSubmitVote
-  - RPC_FailSabotage
-  - RPC_RequestResolve
-  - RPC_RequestStart
-  - RPC_ResolveSabotage
-  - RPC_StartSabotage
-  - RpcExecuteByVote
-  - RpcSetVoteTime
+  - RPC_ReportHoldState
+  - RPC_SetSimultaneousHold
+  - RpcReportDeath
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

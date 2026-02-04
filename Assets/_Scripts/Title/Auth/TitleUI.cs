@@ -75,7 +75,7 @@ public class TitleUI : MonoBehaviour
     }
 #endregion
 
-    private void Start()
+    void Start()
     {
         if (_welcomeText != null)
             _welcomeText.gameObject.SetActive(false);
@@ -90,7 +90,7 @@ public class TitleUI : MonoBehaviour
             _resultPanel.SetActive(false);
     }
 
-    private void Update()
+    void Update()
     {
         if (Keyboard.current == null) return;
         if (!Keyboard.current.tabKey.wasPressedThisFrame) return;
