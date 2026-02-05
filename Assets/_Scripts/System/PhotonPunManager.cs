@@ -32,4 +32,9 @@ public class PhotonPunManager : Singleton<PhotonPunManager>
         if (Instance == this)
             PhotonNetwork.RemoveCallbackTarget(this);
     }
+
+    void OnApplicationQuit()
+    {
+        ShutdownCleanup.Begin("PhotonPunManager.OnApplicationQuit");
+    }
 }

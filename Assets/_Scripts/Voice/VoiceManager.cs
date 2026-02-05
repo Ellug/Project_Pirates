@@ -40,6 +40,11 @@ public sealed class VoiceManager : MonoBehaviourPunCallbacks
             InputManager.Instance.OnPtt -= OnPttChanged;
     }
 
+    void OnApplicationQuit()
+    {
+        ShutdownCleanup.Begin("VoiceManager.OnApplicationQuit");
+    }
+
     private void OnPttChanged(bool pressed)
     {
         _pttPressed = pressed;
