@@ -44,6 +44,8 @@ public class LoadingManager : MonoBehaviourPunCallbacks
 
     void OnDestroy()
     {
+        StopAllCoroutines();
+
         if (PlayerManager.Instance != null)
             PlayerManager.Instance.allReadyComplete -= TriggerIsAllReady;
     }

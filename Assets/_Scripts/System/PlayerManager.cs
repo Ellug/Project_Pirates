@@ -400,6 +400,13 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
     public void GameOver()
     {
+        if (_gameInitCoroutine != null)
+        {
+            StopCoroutine(_gameInitCoroutine);
+            _gameInitCoroutine = null;
+        }
+
+        StopAllCoroutines();
         Destroy(gameObject);
     }
 
