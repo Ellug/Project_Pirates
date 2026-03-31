@@ -54,6 +54,14 @@ public class InteractionObjectRpcManager : MonoBehaviourPunCallbacks
         }
     }
 
+    void OnDestroy()
+    {
+        CancelInvoke();
+
+        if (Instance == this)
+            Instance = null;
+    }
+
     private void RemoveRPCMeth()
     {
         if (!PhotonNetwork.IsMasterClient) return;

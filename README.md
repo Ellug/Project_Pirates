@@ -1,86 +1,209 @@
 # Death Cruise
 
-경일 게임 아카데미 프로그래밍 3기
-네트워크 팀 프로젝트
+경일게임아카데미 프로그래밍 3기 · 네트워크 팀 프로젝트 (5인)
+
+> Among Us, Lockdown Protocol을 레퍼런스로 한 **실시간 1인칭 3D 마피아 게임**  
+> Photon PUN2 / Voice2 기반 멀티플레이 · 음성채팅 · Firebase 회원 시스템
+
+[![YouTube](https://img.shields.io/badge/YouTube-시연영상-red?logo=youtube)](https://youtu.be/7Ba0twLhmE0)
+
+---
+
+<details>
+<summary><b>👤 Ellug (팀장) 핵심 구현 파트</b></summary>
+
+<br>
+
+### 전체 아키텍처 설계 및 GitHub 형상 관리 총괄
+
+---
+
+### 1. DevConsole — 빌드 환경 실시간 디버그 콘솔
+
+> 네트워크 프로젝트 특성상 빌드 환경에서의 실시간 로그 추적 필요성으로 도입
+
+**구현 포인트**
+
+- `Application.logMessageReceivedThreaded` 를 통해 **멀티스레드 로그 전체 수집**
+- 멀티 → 싱글스레드 자료구조 접근 시 **`lock` 키워드로 데드락 방지**
+- `Dictionary<string, int>` 기반 **중복 로그 Stacking** → UI 갱신 비용 O(1) 유지
+- 개발 단계별 **치트 커맨드** 지원 (역할 강제 지정, 스킵 등)
+- 앱 종료 시점에 **txt 파일 자동 저장** (`DevConsoleLog_yyyyMMdd_HHmmss.txt`)
+
+**해결한 문제**
+
+| 문제 | 원인 | 해결 |
+|------|------|------|
+| 데드락 위험 | 백그라운드 스레드 → Unity 단일 스레드 자료구조 접근 | `lock` 키워드로 임계 구역 보호 |
+| 대량 로그 병목 | 동일 로그 반복 시 문자열 할당·UI 갱신 급증 | Dictionary Stacking으로 렌더링 통합 |
+
+---
+
+### 2. Firebase Auth + Firestore 회원 시스템
+
+> Realtime DB 대비 GUI 가독성·확장성 우선으로 Firestore 채택
+
+**플로우**
+
+```
+Client → Firebase Auth (Email/PW 검증) → FirebaseUser 반환
+      → Firestore users/{uuid} 조회/생성 → UserData 로컬 캐싱 → 전역 사용
+```
+
+**구현 포인트**
+
+- Auth UUID → Firestore 문서 키로 사용, **닉네임은 DB에서 직접 관리**
+- 로그인 성공 시 `UserDataStore`에 캐싱 → 반복 쿼리 없이 전역 참조
+- Coroutine + Callback 구조의 **비동기 통신**
+- **닉네임 중복 검사** + 유효성 검증 파이프라인 (`IdChecker`, `NicknameChecker` 등)
+- win/lose 기록 등 **메타데이터 확장 구조** 설계
+
+---
+
+### 3. Photon PUN2 멀티플레이 환경 설계
+
+**씬 구조**
+
+```
+Title → Lobby → Room → InGameLoading → InGame
+```
+
+**동기화 전략**
+
+| 데이터 유형 | 방식 |
+|-------------|------|
+| 위치 / 회전 | PhotonTransformView (Transform 동기화) |
+| 애니메이션 | PhotonAnimatorView |
+| 단발 액션 (피격·텔레포트·처형) | RPC |
+| 상태 플래그 (투표·역할·사망·로딩) | Room / Player Custom Properties |
+
+- **마스터 클라이언트 기반** 역할 배정·승패 판정·투표 중앙 제어
+- 마스터 전환 시 복구 로직 + RPC 버퍼 정리로 안정성 확보
+- `OnJoinedRoom` 이후 네트워크 오브젝트 초기화 완료를 보장하기 위한 **3초 유예 딜레이** 적용
+
+---
+
+### 4. 미니맵 빌더 (Editor Tool)
+
+> 씬에 배치된 오브젝트 정보만으로 미니맵을 자동 생성하는 에디터 확장 툴
+
+- `Confiner BoxCollider` 기준으로 Wall·Room 프리팹의 **상대 위치·크기 계산**
+- 지정한 UI RectTransform 영역 내에 Image 오브젝트 **자동 생성 (Bake)**
+- 맵 확장 시 재Bake만으로 즉시 반영되는 **확장성 있는 구조**
+- 런타임에서 Confiner ↔ UI 미니맵 좌표 변환으로 **Player Mark 실시간 렌더링**
+
+---
+
+### 5. 동적 조명 최적화 (Lighting System)
+
+> 다수 실시간 라이트로 인한 Shadow Atlas 초과 경고 및 저사양 프레임 드랍 해결
+
+- `LightRegistry` → 씬 내 모든 라이트 중앙 등록 관리
+- `LightCullingController` → 플레이어 위치 + 카메라 범위 기준 라이트 활성/비활성
+- `LightUpdateScheduler` → 카메라 거리 순 정렬, **최대 N개 그림자만 활성화**
+- `PowerSystem` / `BlackoutController` → 전력 차단·정전 연출과 연동
+
+---
+
+### 6. wantsToQuit 기반 종료 처리
+
+> 멀티 클라이언트 테스트 중 발생한 백그라운드 프로세스 잔류·메모리 누적 문제 해결
+
+**디버깅 과정**
+1. 작업 관리자에서 Death Cruise.exe 백그라운드 프로세스 다수 잔류 확인
+2. Unity Memory Profiler로 Managed 메모리 정상 정리 확인 → Unity 내부 문제 아님
+3. Photon 연결 미해제 가설 → Photon 제거 후에도 동일 현상 → 직접 원인 아님
+4. URP 관련 가설 → 리소스 제거 후에도 동일 현상 → 직접 원인 아님
+5. **`Application.wantsToQuit` 이벤트에서 씬·리소스 명시적 정리 처리 → 해소**
+
+</details>
 
 ---
 
 ## 프로젝트 소개
 
-**Death Cruise**는 거대한 화물선을 배경으로 한  
-**실시간 1인칭 멀티플레이 심리·추리 게임**입니다.
+**Death Cruise**는 거대한 화물선을 배경으로 한 실시간 1인칭 멀티플레이 심리·추리 게임입니다.  
+플레이어는 **시민**과 **마피아** 세력으로 나뉘어 소통, 추리, 기습, 투표를 통해 승리를 쟁취합니다.
 
-플레이어는 시민과 마피아 세력으로 나눠  
-소통, 추리, 기습, 투표를 통해 승리를 쟁취해야 합니다.
-
-- 장르 : 스릴러 / 심리 / 추리
-- 플랫폼 : PC
-- 개발 인원 : 5인 팀 프로젝트
+| 항목 | 내용 |
+|------|------|
+| 장르 | 스릴러 / 심리 / 추리 |
+| 플랫폼 | PC (Windows) |
+| 개발 기간 | 2026.01 ~ 2026.02 |
+| 개발 인원 | 5인 팀 프로젝트 |
+| Unity 버전 | 6000.2.10f1 (Universal 3D / URP) |
 
 ---
 
-## 사용 기술
+## 기술 스택
 
-- **Unity**
-- **C#**
-- **Photon PUN2** – 실시간 멀티플레이 동기화
-- **Photon Voice 2** – 위치 기반 음성 채팅
-- **Firebase Auth / Firestore** – 로그인 및 유저 데이터 관리
-- **URP** – 그래픽 및 조명 최적화
+| 분류 | 기술 |
+|------|------|
+| 엔진 | Unity 6 (URP) |
+| 언어 | C# |
+| 네트워크 | Photon PUN2 |
+| 음성 채팅 | Photon Voice 2 |
+| 인증 / DB | Firebase Auth, Firebase Firestore |
+| 스레딩 | C# `lock` 키워드 (Thread-safe 구조) |
 
 ---
 
 ## 핵심 시스템
 
-- 세력 및 직업 분배 시스템
-- 상태 패턴 기반 플레이어 행동 로직
-- 레이캐스트 + RPC 기반 플레이어 상호작용
-- 호출 및 투표 시스템
-- 공격, 넉백 등 변수 플레이 요소
+- **상태 패턴** 기반 플레이어 행동 로직 (PlayerStateMachine)
+- **RPC + Custom Properties** 실시간 동기화 전략
+- 세력·직업 분배 및 마스터 클라이언트 기반 중앙 제어
+- 레이캐스트 + RPC 기반 상호작용 (공격, 넉백, 처형)
+- **호출(CenterCall) 및 투표 시스템** (VoteManager)
+- 사보타지 시스템 (엔진 고장, 문 잠금, 텔레포터)
+- 8종 미니게임 미션 (수학, 테트리스, 야구, 가챠 등)
+- RPC 기반 대기실 채팅 + Photon Voice 음성 채팅
 
 ---
 
-## 기본 조작키
+## 씬 구조
+
+```
+Title → Lobby → Room → InGameLoading → InGame
+```
+
+---
+
+## 조작키
 
 | 입력 | 기능 |
-|----|----|
-| **W / A / S / D** | 캐릭터 이동 |
-| **Shift + WASD** | 달리기 |
-| **Ctrl** | 앉기 |
-| **F** | 상호작용 |
-| **마우스 좌클릭** | 기본 공격 |
-| **마우스 우클릭** | 밀치기 |
-| **Tab** | 미니맵 열기 |
-| **V** | 눌러서 말하기 (PTT) |
-| **` (~)** | 보이스 옵션 |
-| **ESC** | 시스템 옵션 |
-| **F1** | 도움말 패널 |
-| **1 / 2** | 인벤토리 아이템 사용 |
+|------|------|
+| W / A / S / D | 이동 |
+| Shift + WASD | 달리기 |
+| Ctrl | 앉기 |
+| F | 상호작용 |
+| 마우스 좌클릭 | 공격 |
+| 마우스 우클릭 | 밀치기 |
+| Tab | 미니맵 |
+| V | PTT 음성 채팅 |
+| ` (~) | 보이스 옵션 |
+| ESC | 시스템 옵션 |
+| F1 | 도움말 |
+| 1 / 2 | 아이템 사용 |
 
 ---
 
 ## 역할 설명
 
-### 시민 ( Citizen )
-- 맵 곳곳에 배치된 **미션을 수행**하여 진행도를 증가
-- **진행도 100% 달성 시 시민 팀 승리**
-- 생존과 협력이 핵심
+### 시민 (Citizen)
+- 맵 곳곳의 **미션을 수행**해 진행도 증가
+- **진행도 100% 달성** 시 시민 팀 승리
 
-### 마피아 ( Mafia )
-- 시민의 미션 수행을 **방해**
-- 공격, 사보타지 등 다양한 수단 활용
-- **모든 시민을 처치**하거나  
-  **사보타지 타이머 정지를 방해하면 승리**
+### 마피아 (Mafia)
+- 시민의 미션 수행 **방해**, 사보타지·공격 등 활용
+- **모든 시민 처치** 또는 **사보타지 타이머 정지 방해** 시 승리
 
 ---
 
 ## 시연 영상
 
-- 유튜브 : https://www.youtube.com/watch?v=7Ba0twLhmE0
+https://youtu.be/7Ba0twLhmE0
 
 ---
 
-## 프로젝트 요약
-> **실시간 멀티플레이 환경에서의 안정성,  
-네트워크 구조 이해,  
-그리고 협업을 고려한 시스템 설계에 집중한 프로젝트입니다.**
+> 실시간 멀티플레이 환경에서의 안정성, 네트워크 구조 이해, 협업을 고려한 시스템 설계에 집중한 프로젝트입니다.

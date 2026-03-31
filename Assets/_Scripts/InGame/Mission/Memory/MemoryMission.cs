@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -37,6 +38,8 @@ public class MemoryMission : MissionBase
     private Coroutine _showCor;
     private Coroutine _nextRoundCor;
     private Coroutine _flashCor;
+
+    private UnityAction[] _cellClickActions;
 
     public override void Init()
     {
@@ -81,13 +84,12 @@ public class MemoryMission : MissionBase
         if (_startButton != null)
             _startButton.onClick.RemoveListener(StartGame);
 
-        if (_cellButtons != null)
+        if (_cellButtons != null && _cellClickActions != null)
         {
             for (int i = 0; i < _cellButtons.Length; i++)
             {
-                int idx = i;
-                if (_cellButtons[i] != null)
-                    _cellButtons[i].onClick.RemoveListener(() => OnCellClicked(idx));
+                if (_cellButtons[i] != null && _cellClickActions[i] != null)
+                    _cellButtons[i].onClick.RemoveListener(_cellClickActions[i]);
             }
         }
     }
@@ -102,6 +104,8 @@ public class MemoryMission : MissionBase
 
     private void BindCellButtons()
     {
+        _cellClickActions = new UnityAction[_cellButtons.Length];
+
         for (int i = 0; i < _cellButtons.Length; i++)
         {
             Button b = _cellButtons[i];
@@ -116,8 +120,9 @@ public class MemoryMission : MissionBase
 
             // MemoryCell이 없다면 직접 연결
             int idx = i;
-            b.onClick.RemoveListener(() => OnCellClicked(idx));
-            b.onClick.AddListener(() => OnCellClicked(idx));
+            _cellClickActions[i] = () => OnCellClicked(idx);
+            b.onClick.RemoveListener(_cellClickActions[i]);
+            b.onClick.AddListener(_cellClickActions[i]);
         }
     }
 
