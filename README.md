@@ -116,6 +116,45 @@ Title → Lobby → Room → InGameLoading → InGame
 4. URP 관련 가설 → 리소스 제거 후에도 동일 현상 → 직접 원인 아님
 5. **`Application.wantsToQuit` 이벤트에서 씬·리소스 명시적 정리 처리 → 해소**
 
+---
+
+### 7. Git 이력 기반 추가 확인 파트 (Ellug 직접 작업)
+
+#### 7-1. 시체 신고·센터콜·투표 파이프라인
+
+- 시체 신고/센터콜 트리거부터 토론·투표·처형까지 전체 흐름 구현
+- 엔진 사보타지 진행 중 센터콜 차단, 투표 단계 전환/스킵 예외 처리 보완
+- 근거 커밋: [805ab99](https://github.com/Ellug/Project_Pirates/commit/805ab99), [bbf4080](https://github.com/Ellug/Project_Pirates/commit/bbf4080), [dbf1500](https://github.com/Ellug/Project_Pirates/commit/dbf1500), [1b41e97](https://github.com/Ellug/Project_Pirates/commit/1b41e97)
+
+**관련 소스코드**
+
+- `InGame`: [`VoteManager.cs`](Assets/_Scripts/InGame/VoteManager.cs), [`VoteRoomProperties.cs`](Assets/_Scripts/InGame/VoteRoomProperties.cs), [`VoteUI.cs`](Assets/_Scripts/InGame/VoteUI.cs)
+- `InteractableObjects`: [`CenterCall.cs`](Assets/_Scripts/InteractableObjects/CenterCall.cs), [`DeadBody.cs`](Assets/_Scripts/InteractableObjects/DeadBody.cs)
+- `System`: [`PlayerManager.cs`](Assets/_Scripts/System/PlayerManager.cs)
+
+#### 7-2. 사보타지 시스템 (엔진/정전/텔레포터)
+
+- 엔진 사보타지 동시 상호작용(2인 홀드) 해제 로직 설계 및 동기화
+- 정전(Blackout)·엔진·도어락·텔레포터를 하나의 사보타지 흐름으로 연결
+- 근거 커밋: [f6436f4](https://github.com/Ellug/Project_Pirates/commit/f6436f4), [cc48b4f](https://github.com/Ellug/Project_Pirates/commit/cc48b4f), [35f564e](https://github.com/Ellug/Project_Pirates/commit/35f564e)
+
+**관련 소스코드**
+
+- `Sabotage`: [`SabotageManager.cs`](Assets/_Scripts/InGame/Sabotage/SabotageManager.cs), [`EngineSabotageManager.cs`](Assets/_Scripts/InGame/Sabotage/EngineSabotageManager.cs), [`EngineSabotageConsole.cs`](Assets/_Scripts/InGame/Sabotage/EngineSabotageConsole.cs), [`MafiaTeleporter.cs`](Assets/_Scripts/InGame/Sabotage/MafiaTeleporter.cs), [`GlobalDoorLockController.cs`](Assets/_Scripts/InGame/Sabotage/GlobalDoorLockController.cs)
+- `Light`: [`BlackoutController.cs`](Assets/_Scripts/Light/BlackoutController.cs), [`BlackoutSwitch.cs`](Assets/_Scripts/Light/BlackoutSwitch.cs), [`BlackoutPropertyBinder.cs`](Assets/_Scripts/Light/BlackoutPropertyBinder.cs)
+
+#### 7-3. 옵션 메뉴/입력 연동 및 이탈 처리 보강
+
+- 옵션 패널에서 씬 상태별 이탈 처리(타이틀 종료, 로비 디스커넥트, 룸/인게임 LeaveRoom) 정리
+- 디스플레이/오디오 옵션 UI와 저장값 적용 흐름 보강
+- 근거 커밋: [ad1a6f3](https://github.com/Ellug/Project_Pirates/commit/ad1a6f3), [e5c0cdb](https://github.com/Ellug/Project_Pirates/commit/e5c0cdb), [b701762](https://github.com/Ellug/Project_Pirates/commit/b701762)
+
+**관련 소스코드**
+
+- `UI`: [`OptionMenuView.cs`](Assets/_Scripts/UI/OptionMenuView.cs)
+- `Display/Audio`: [`DisplayOptionsView.cs`](Assets/_Scripts/Display/DisplayOptionsView.cs), [`AudioOptionsView.cs`](Assets/_Scripts/Audio/AudioOptionsView.cs)
+- `System`: [`InputManager.cs`](Assets/_Scripts/System/InputManager.cs)
+
 </details>
 
 ---
